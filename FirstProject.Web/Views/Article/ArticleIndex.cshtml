@@ -1,0 +1,72 @@
+﻿@model IEnumerable<ArticleDto>
+
+<br />
+<br />
+<div class="container p-4 border">
+	<div class="row pb-2">
+		<div class="col">
+			<h1 class="text-primary">Articles List</h1>
+		</div>
+		<div class="col text-end pt-1">
+			<a asp-controller="Article" asp-action="ArticleCreate" class="btn btn-outline-primary"><i class="fas fa-plus"></i> Create New Article</a>
+		</div>
+	</div>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>
+					Title
+				</th>
+				<th>
+					Author
+				</th>
+				<th>
+					Category
+				</th>
+				<th>
+					Data
+				</th>
+				<th>
+					Image
+				</th>
+				<th>
+					Content
+				</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+			   <tr>
+					<td>
+						@item.Title
+					</td>
+					<td>
+						@item.AuthorId
+					</td>
+					<td>
+						@item.CategoryId
+					</td>
+					<td>
+						@(TimeSpan.FromSeconds(item.Data))
+					</td>
+					<td>
+						<img src=@item.ImageUrl width="120">
+					</td>
+					<td>
+						@item.Content
+					</td>
+				<td>
+				 <a asp-action="ArticleEdit" class="btn btn-success" asp-route-articleId="@item.ArticleId">
+				  Edit
+				 </a>
+						<a asp-action="ArticleDelete" class="btn btn-danger" asp-route-articleId="@item.ArticleId">
+				  Delete
+				 </a>
+				</td>
+			   </tr>
+			}
+  </tbody>
+ </table>
+</div>

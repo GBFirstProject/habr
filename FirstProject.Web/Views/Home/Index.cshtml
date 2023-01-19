@@ -1,0 +1,23 @@
+﻿@model IEnumerable<ArticleDto>
+    <form>
+
+        <div class="container row test">
+
+            @foreach (var article in Model)
+            {
+                <div class="row-4 ">
+                    <div class="p-0 my-3 border">
+                        <div class="card" >
+                            <img src="@article.ImageUrl" class="card-img-top">
+                            <div class="card-body">
+                                <h3 class="card-title text-success">@article.Title</h3>
+                            <span class="badge badge-light mb-2 ">@article.CategoryId</span>
+                                <p class="card-text">@Html.Raw(article.Content)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </form>
