@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>ac03576e-59fc-4885-b81b-8edcb018e52e</UserSecretsId>
+    <UserSecretsId>e458831e-7071-43ba-a25d-082f7cc93a03</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,12 +12,14 @@
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.3.1" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.11" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FirstProject.Messages\FirstProject.Messages.csproj" />
-    <ProjectReference Include="..\FirstProject.MessageTest\FirstProject.MessageTest.csproj" />
   </ItemGroup>
 
 </Project>

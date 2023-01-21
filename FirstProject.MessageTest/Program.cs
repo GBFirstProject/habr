@@ -1,4 +1,4 @@
-using FirstProject.NotificationAPI.Producers;
+using FirstProject.MessageTest;
 
 using MassTransit;
 
@@ -9,9 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<ModeratorNotifier>();
+
+
 
 builder.Host.UseMassTransit();
 
@@ -24,8 +24,10 @@ string RabbitMqPassword = builder.Configuration.GetConnectionString("RabbitMqPas
 
 builder.Services.AddMassTransit(cfg =>
 {
-    cfg.UsingRabbitMq((context, cfgM) => {
-        cfgM.Host(RabbitMqHost, RabbitMqVHost, h => {
+    cfg.UsingRabbitMq((context, cfgM) =>
+    {
+        cfgM.Host(RabbitMqHost, RabbitMqVHost, h =>
+        {
             h.Username(RabbitMqUser);
             h.Password(RabbitMqPassword);
         });
@@ -33,7 +35,9 @@ builder.Services.AddMassTransit(cfg =>
         cfgM.AutoDelete = false;
         cfgM.ConfigureEndpoints(context);
     });
-   
+    cfg.AddConsumer<TestConsumer>();
+    ;
+
 });
 
 
@@ -43,8 +47,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+   
 }
 
 
