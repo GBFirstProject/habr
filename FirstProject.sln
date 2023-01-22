@@ -23,9 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirstProject.NotificationsA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirstProject.PersonalAccountsAPI", "FirstProject.PersonalAccountsAPI\FirstProject.PersonalAccountsAPI.csproj", "{BB96AF1A-E133-44B1-AB93-1CA41E9ED968}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirstProject.Messages", "FirstProject.Messages\FirstProject.Messages.csproj", "{C5FEA0E0-BA15-4C6D-B638-2FDDCCE9E1CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirstProject.Messages", "FirstProject.Messages\FirstProject.Messages.csproj", "{C5FEA0E0-BA15-4C6D-B638-2FDDCCE9E1CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirstProject.MessageTest", "FirstProject.MessageTest\FirstProject.MessageTest.csproj", "{5DFBEF2F-ACA3-4B70-8EE9-0E067ECC1EC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirstProject.MessageTest", "FirstProject.MessageTest\FirstProject.MessageTest.csproj", "{5DFBEF2F-ACA3-4B70-8EE9-0E067ECC1EC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
