@@ -20,8 +20,6 @@ namespace FirstProject.NotificationAPI.Producers
             {
                 bus.Publish(notification);
 
-                Console.WriteLine("test");
-
                 return Task.FromResult(true);
 
 

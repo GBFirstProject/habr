@@ -1,9 +1,16 @@
-﻿namespace FirstProject.Messages
+﻿using System.Data;
+
+namespace FirstProject.Messages
 {
     public interface INotification
     {
-        string Content { get; set; }
-        string Reference { get; set; }
-        int UserId { get; set; }
+        public Guid Id{ get; }
+        public Guid UserId{ get; }
+        string Content { get; }
+        string Reference { get;  }
+        DateTime TimeCreated{ get; }
+
+    
+       
     }
 }
