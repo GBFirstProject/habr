@@ -19,7 +19,7 @@ namespace FirstProject.NotificationAPI.Controllers
 
          [HttpPost]
          
-         public Task<bool> NotifyModerator(Notification notification)
+         public Task<bool> NotifyModerator(INotification notification)
          {
             var result = notifier.Notify(notification);
             return result;          

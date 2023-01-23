@@ -14,7 +14,7 @@ namespace FirstProject.NotificationAPI.Producers
             this.bus=bus;
         }
 
-        public Task<bool> Notify(Notification notification)
+        public Task<bool> Notify(INotification notification)
         {
             try
             {
