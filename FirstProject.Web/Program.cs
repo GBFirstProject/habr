@@ -23,10 +23,10 @@ builder.Services
     .AddOpenIdConnect("oidc", options =>
     {
         options.Authority = "https://localhost:5001";
-        options.ClientId = "bff";
-        options.ClientSecret = "secret";
+        options.ClientId = "webClient";
+        options.ClientSecret = "Bdg&6ed3hfh(jcB@3r5fDwJdyd";
         options.ResponseType = "code";
-        options.Scope.Add("api1");
+        options.Scope.Add("allAPI");
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
     });

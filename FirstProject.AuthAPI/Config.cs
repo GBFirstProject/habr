@@ -25,7 +25,7 @@ public static class Config
     public static IEnumerable<ApiScope> ApiScopes =>
         new List<ApiScope>
         { 
-            new ApiScope("api1", "MyAPI") 
+            new ApiScope("allAPI", "All API application") 
         };
 
     public static IEnumerable<ApiResource> ApiResources =>
@@ -36,44 +36,20 @@ public static class Config
     public static IEnumerable<Client> Clients =>
         new List<Client> 
         {
-            // machine-to-machine client (from quickstart 1)
+            // machine-to-machine client
             new Client
             {
                 ClientId = "client",
-                ClientSecrets = { new Secret("secret".Sha256()) },
-                
+                ClientSecrets = { new Secret("Ncydu%ggus&txgyYFTd$56h_dk".Sha256()) },
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
                 // scopes that client has access to
-                AllowedScopes = { "api1" }
-            },
-            // interactive ASP.NET Core Web App
-            new Client
-            {
-                ClientId = "web",
-                ClientSecrets = { new Secret("secret".Sha256()) },
-
-                AllowedGrantTypes = GrantTypes.Code,
-
-                // where to redirect after login
-                RedirectUris = { "https://localhost:5002/signin-oidc" },
-
-                // where to redirect after logout
-                PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
-
-                AllowOfflineAccess = true,
-
-                AllowedScopes = new List<string>
-                {
-                    IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile,
-                    "api1"
-                }
+                AllowedScopes = { "allAPI" }
             },
             // JavaScript BFF client
             new Client
             {
-                ClientId = "bff",
-                ClientSecrets = { new Secret("secret".Sha256()) },
+                ClientId = "webClient",
+                ClientSecrets = { new Secret("Bdg&6ed3hfh(jcB@3r5fDwJdyd".Sha256()) },
 
                 AllowedGrantTypes = GrantTypes.Code,
                 
@@ -87,7 +63,7 @@ public static class Config
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                    "api1"
+                    "allAPI"
                 }
             }
         };
