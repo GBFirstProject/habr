@@ -28,13 +28,12 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="count">Количество</param>
         /// <param name="cts"></param>
         /// <returns>Список комментариев</returns>
-        [HttpGet("{articleId}/{index}/{count}")]
-        public async Task<IActionResult> Get(string articleId, int index, int count, CancellationToken cts)
+        [HttpGet]
+        public async Task<IActionResult> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts)
         {
             try
             {
-                var guid = Guid.Parse(articleId);
-                var entries = await _repository.GetCommentsByArticleId(guid, index, count, cts);
+                var entries = await _repository.GetCommentsByArticleId(articleId, index, count, cts);
 
                 return Ok(new ResponseDTO()
                 {
@@ -44,11 +43,7 @@ namespace FirstProject.CommentsAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Вызвано исключение");
-                return Ok(new ResponseDTO()
-                {
-                    IsSuccess = false
-                });
+                return Error(ex);
             }
         }
 
@@ -58,8 +53,8 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="articleId">Guid статьи</param>
         /// <param name="cts"></param>
         /// <returns>Количество комментариев</returns>
-        [HttpGet("{articleId}/getCount")]
-        public async Task<IActionResult> Get(string articleId, CancellationToken cts)
+        [HttpGet("getcount")]
+        public async Task<IActionResult> GetCommentsCountByArticleId(string articleId, CancellationToken cts)
         {
             try
             {
@@ -74,11 +69,7 @@ namespace FirstProject.CommentsAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Вызвано исключение");
-                return Ok(new ResponseDTO()
-                {
-                    IsSuccess = false
-                });
+                return Error(ex);
             }
         }
 
@@ -89,7 +80,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="cts"></param>
         /// <returns>Созданный комментарий</returns>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CommentDTO request, CancellationToken cts)
+        public async Task<IActionResult> CreateComment([FromBody] CommentDTO request, CancellationToken cts)
         {
             try
             {
@@ -103,11 +94,7 @@ namespace FirstProject.CommentsAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Вызвано исключение");
-                return Ok(new ResponseDTO()
-                {
-                    IsSuccess = false
-                });
+                return Error(ex);
             }
         }
 
@@ -118,7 +105,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="cts"></param>
         /// <returns>Изменненый комментарий</returns>
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] CommentDTO request, CancellationToken cts)
+        public async Task<IActionResult> UpdateComment([FromBody] CommentDTO request, CancellationToken cts)
         {
             try
             {
@@ -131,11 +118,7 @@ namespace FirstProject.CommentsAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Вызвано исключение");
-                return Ok(new ResponseDTO()
-                {
-                    IsSuccess = false
-                });
+                return Error(ex);
             }
         }
 
@@ -145,8 +128,8 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="id">Guid комментария</param>
         /// <param name="cts"></param>
         /// <returns>Результат операции</returns>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id, CancellationToken cts)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteComment(string id, CancellationToken cts)
         {
             try
             {
@@ -161,12 +144,20 @@ namespace FirstProject.CommentsAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Вызвано исключение");
-                return Ok(new ResponseDTO()
-                {
-                    IsSuccess = false
-                });
+                return Error(ex);
             }
+        }
+
+        private IActionResult Error(Exception ex)
+        {
+            _logger.LogError(ex, "Вызвано исключение");
+            var response = new ResponseDTO()
+            {
+                IsSuccess = false,
+                DisplayMessage = "Вызвано исключение"
+            };
+            response.ErrorMessages.Add(ex.Message);
+            return Ok(response);
         }
     }
 }
