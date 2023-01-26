@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FirstProject.CommentsAPI.Interfaces;
 using FirstProject.CommentsAPI.Models.DTO;
+using FirstProject.CommentsAPI.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstProject.CommentsAPI.Controllers
@@ -80,7 +81,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="cts"></param>
         /// <returns>Созданный комментарий</returns>
         [HttpPost]
-        public async Task<IActionResult> CreateComment([FromBody] CommentDTO request, CancellationToken cts)
+        public async Task<IActionResult> CreateComment([FromBody] CreateRequest request, CancellationToken cts)
         {
             try
             {
@@ -105,11 +106,11 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="cts"></param>
         /// <returns>Изменненый комментарий</returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateComment([FromBody] CommentDTO request, CancellationToken cts)
+        public async Task<IActionResult> UpdateComment([FromBody] UpdateRequest request, CancellationToken cts)
         {
             try
             {
-                var result = await _repository.UpdateComment(request, cts);
+                var result = await _repository.UpdateComment(_mapper.Map<CommentDTO>(request), cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,

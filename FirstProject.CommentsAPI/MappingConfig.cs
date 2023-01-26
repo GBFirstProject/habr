@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FirstProject.CommentsAPI.Models.DTO;
 using FirstProject.CommentsAPI.Models;
+using FirstProject.CommentsAPI.Models.Requests;
 
 namespace FirstProject.CommentsAPI
 {
@@ -9,6 +10,8 @@ namespace FirstProject.CommentsAPI
         public static void RegisterMaps(this IMapperConfigurationExpression config)
         {
             config.CreateMap<CommentDTO, Comment>().ReverseMap();
+            config.CreateMap<CreateRequest, CommentDTO>();
+            config.CreateMap<UpdateRequest, CommentDTO>();
         }
     }
 }

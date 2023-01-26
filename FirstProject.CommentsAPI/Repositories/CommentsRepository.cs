@@ -22,6 +22,8 @@ namespace FirstProject.CommentsAPI.Repositories
             try
             {
                 var entry = _mapper.Map<Comment>(comment);
+                entry.Id = Guid.NewGuid();
+                entry.CreatedAt = DateTime.UtcNow;
 
                 await _context.AddAsync(entry, cts);
 
@@ -80,10 +82,12 @@ namespace FirstProject.CommentsAPI.Repositories
                 var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == comment.Id, cts);
                 if (entry == null)
                 {
-                    return await CreateComment(comment, cts);
+                    throw new Exception("Comment not found");
                 }
 
-                _context.Comments.Update(_mapper.Map<Comment>(comment));
+                entry.Content = comment.Content;
+                entry.Likes = comment.Likes;
+                entry.Dislikes = comment.Dislikes;
 
                 await _context.SaveChangesAsync(cts);
 
