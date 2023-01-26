@@ -2,7 +2,7 @@
 
 namespace FirstProject.Messages
 {
-    public interface INotification
+    public interface IModeratorRequested
     {
         public Guid Id{ get; }
         public Guid UserId{ get; }

@@ -10,20 +10,43 @@ namespace FirstProject.NotificationAPI.Controllers
     [ApiController]
     public class NotificationsController : ControllerBase
     {
-        private readonly ModeratorNotifier notifier;
+        private readonly Notifier notifier;
 
-        public NotificationsController(ModeratorNotifier notifier)
+        public NotificationsController(Notifier notifier)
         {
             this.notifier=notifier;
         }
 
          [HttpPost]
          
-         public Task<bool> NotifyModerator(INotification notification)
+         public Task<bool> ModeratorRequested(IModeratorRequested notification)
          {
             var result = notifier.Notify(notification);
             return result;          
          }
+
+        [HttpPost]
+        [Route("/liked")]
+
+        public Task<bool> ArticleLiked(IArticleLiked notification)
+        {
+            var result = notifier.ArticleLiked(notification);
+            return result;
+        }
+
+
+        [HttpPost]
+        [Route("/commented")]
+
+        public Task<bool> ArticleCommented(IArticleCommented notification)
+        {
+            var result = notifier.ArticleCommented(notification);
+            return result;
+        }
+
+
+
+
 
 
 

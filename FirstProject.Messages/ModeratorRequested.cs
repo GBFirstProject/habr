@@ -1,6 +1,6 @@
 ﻿namespace FirstProject.Messages
 {
-    public class Notification : INotification
+    public class ModeratorRequested : IModeratorRequested
     {
         public Guid Id { get; set; }
 
