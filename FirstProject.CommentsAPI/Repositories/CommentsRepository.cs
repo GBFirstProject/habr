@@ -21,6 +21,11 @@ namespace FirstProject.CommentsAPI.Repositories
         {
             try
             {
+                if (comment == null) throw new ArgumentNullException("Comment was null");
+                if (comment.UserId == Guid.Empty) throw new ArgumentException("User Id was empty");
+                if (comment.ArticleId == Guid.Empty) throw new ArgumentException("Article Id was empty");
+                if (comment.Content == string.Empty) throw new ArgumentException("Content was empty");
+
                 var entry = _mapper.Map<Comment>(comment);
                 entry.Id = Guid.NewGuid();
                 entry.CreatedAt = DateTime.UtcNow;
@@ -41,6 +46,8 @@ namespace FirstProject.CommentsAPI.Repositories
         {
             try
             {
+                if (articleId == Guid.Empty) throw new ArgumentException("Article Id was empty");
+
                 var entries = await _context.Comments.Where(s => s.ArticleId == articleId).ToListAsync(cts);
                 entries.Sort((a, b) => b.CreatedAt.CompareTo(a.CreatedAt));
 
@@ -65,6 +72,8 @@ namespace FirstProject.CommentsAPI.Repositories
         {
             try
             {
+                if (articleId == Guid.Empty) throw new ArgumentException("Article Id was empty");
+
                 var entries = await _context.Comments.Where(s => s.ArticleId == articleId).ToListAsync(cts);
 
                 return entries.Count;
@@ -79,6 +88,12 @@ namespace FirstProject.CommentsAPI.Repositories
         {
             try
             {
+                if (comment == null) throw new ArgumentNullException("Comment was null");
+                if (comment.Id == Guid.Empty) throw new ArgumentException("Comment Id was empty");
+                if (comment.UserId == Guid.Empty) throw new ArgumentException("User Id was empty");
+                if (comment.ArticleId == Guid.Empty) throw new ArgumentException("Article Id was empty");
+                if (comment.Content == string.Empty) throw new ArgumentException("Content was empty");
+
                 var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == comment.Id, cts);
                 if (entry == null)
                 {
@@ -103,6 +118,8 @@ namespace FirstProject.CommentsAPI.Repositories
         {
             try
             {
+                if (id == Guid.Empty) throw new ArgumentException("Comment Id was empty");
+
                 var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == id, cts);
                 if (entry == null)
                 {
