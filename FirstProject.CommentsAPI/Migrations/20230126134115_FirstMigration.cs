@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -19,8 +18,8 @@ namespace FirstProject.CommentsAPI.Migrations
                     ArticleId = table.Column<Guid>(type: "uuid", nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Likes = table.Column<List<Guid>>(type: "uuid[]", nullable: false),
-                    Dislikes = table.Column<List<Guid>>(type: "uuid[]", nullable: false)
+                    Likes = table.Column<string>(type: "text", nullable: false),
+                    Dislikes = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
