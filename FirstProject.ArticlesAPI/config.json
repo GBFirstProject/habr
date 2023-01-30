@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Initial Catalog=ArticlesDb; Data Source=localhost,1433;TrustServerCertificate=True;User ID=TestArticlesUser;Password=123456"
+  }  
+}
