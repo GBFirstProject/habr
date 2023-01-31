@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace FirstProject.AuthAPI.Services
 {
@@ -45,12 +46,27 @@ namespace FirstProject.AuthAPI.Services
             if (_userMgr.SupportsUserRole)
             {
                 IList<string> roles = await _userMgr.GetRolesAsync(user);
-                foreach(var rolename in roles)
+                if(roles.Count > 0)
                 {
-                    claims.Add(new Claim(JwtClaimTypes.Role, rolename));
+                    foreach (var rolename in roles)
+                    {
+                        claims.Add(new Claim(JwtClaimTypes.Role, rolename));
+                        if (_roleMgr.SupportsRoleClaims)
+                        {
+                            IdentityRole role = await _roleMgr.FindByNameAsync(rolename);
+                            if (role != null)
+                            {
+                                claims.AddRange(await _roleMgr.GetClaimsAsync(role));
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    claims.Add(new Claim(JwtClaimTypes.Role, Config.User));
                     if (_roleMgr.SupportsRoleClaims)
                     {
-                        IdentityRole role = await _roleMgr.FindByNameAsync(rolename);
+                        IdentityRole role = await _roleMgr.FindByNameAsync(Config.User);
                         if (role != null)
                         {
                             claims.AddRange(await _roleMgr.GetClaimsAsync(role));

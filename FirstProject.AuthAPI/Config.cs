@@ -29,18 +29,18 @@ namespace FirstProject.AuthAPI
                 new Client
                 {
                     ClientId="clientApp",
-                    ClientSecrets= { new Secret("Vdhjad-cjihB5d4xfss-jcugugVddn$xsv-Bxuy7xh".Sha256())},
+                    ClientSecrets= { new Secret("VdhjadcjihB5d4xfssjcugugVddn$xsvBxuy7xh".Sha256())},
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowedScopes={ "firstProject"}
                 },
                 new Client
                 {
                     ClientId="clientUser",
-                    ClientSecrets= { new Secret("Acbudhbfsigf-(dgd773bcibkaf2-3bcgisid7gYgd".Sha256())},
+                    ClientSecrets= { new Secret("Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd".Sha256())},
                     AllowedGrantTypes = GrantTypes.Code,
-                    RedirectUris = { "https://localhost:5002/signin-oidc" },
-                    PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
-                    FrontChannelLogoutUri = "https://localhost:5002/signout-oidc",
+                    RedirectUris = { "https://localhost:5003/signin-oidc" },
+                    PostLogoutRedirectUris = { "https://localhost:5003/signout-callback-oidc" },
+                    FrontChannelLogoutUri = "https://localhost:5003/signout-oidc",
                     AllowedScopes=new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,

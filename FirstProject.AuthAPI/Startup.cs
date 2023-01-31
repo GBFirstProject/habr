@@ -37,27 +37,18 @@ namespace FirstProject.AuthAPI
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
-            //services.AddScoped<IEmailSender, EmailService>();
             services.AddRazorPages();
-            services.AddIdentityServer()
-                .AddInMemoryClients(new Client[] {
-                    new Client
-                    {
-                        ClientId = "client",
-                        AllowedGrantTypes = GrantTypes.Implicit,
-                        RedirectUris = { "https://localhost:5002/signin-oidc" },
-                        PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
-                        FrontChannelLogoutUri = "https://localhost:5002/signout-oidc",
-                        AllowedScopes = { "openid", "profile", "email", "phone" }
-                    }
-                })
-                .AddInMemoryIdentityResources(new IdentityResource[] {
-                    new IdentityResources.OpenId(),
-                    new IdentityResources.Profile(),
-                    new IdentityResources.Email(),
-                    new IdentityResources.Phone(),
-                })
-                .AddAspNetIdentity<ApplicationUser>();
+            services.AddIdentityServer(options => {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseInformationEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
+                options.EmitStaticAudienceClaim = true;
+            }).AddInMemoryIdentityResources(Config.IdentityResources)
+                .AddInMemoryApiScopes(Config.ApiScopes)
+                .AddInMemoryClients(Config.Clients)
+                .AddAspNetIdentity<ApplicationUser>()
+                .AddDeveloperSigningCredential();
 
             services.AddScoped<IProfileService, ProfileService>();
 
