@@ -37,7 +37,7 @@ namespace FirstProject.AuthAPI
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
-            services.AddScoped<IEmailSender, EmailService>();
+            //services.AddScoped<IEmailSender, EmailService>();
             services.AddRazorPages();
             services.AddIdentityServer()
                 .AddInMemoryClients(new Client[] {

@@ -38,7 +38,10 @@ namespace FirstProject.AuthAPI.Services
 
             List<Claim> claims = userClaims.Claims.ToList();
             claims = claims.Where(claim => context.RequestedClaimTypes.Contains(claim.Type)).ToList();
-            claims.Add(new Claim(JwtClaimTypes.GivenName, user.FirstName));
+            claims.Add(new Claim("FirstName", user.FirstName ?? ""));
+            claims.Add(new Claim("LastName" , user.LastName ?? ""));
+            claims.Add(new Claim("IsBlocked" , user.IsBlocked.ToString()));
+
             if (_userMgr.SupportsUserRole)
             {
                 IList<string> roles = await _userMgr.GetRolesAsync(user);
