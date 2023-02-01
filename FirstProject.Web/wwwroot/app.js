@@ -37,7 +37,7 @@ let userClaims = null;
 })();
 
 document.getElementById("login").addEventListener("click", login, false);
-document.getElementById("local").addEventListener("click", localApi, false);
+document.getElementById("q").addEventListener("click", localApi, false);
 document.getElementById("remote").addEventListener("click", remoteApi, false);
 document.getElementById("logout").addEventListener("click", logout, false);
 
@@ -57,7 +57,7 @@ function logout() {
 }
 
 async function localApi() {
-    var req = new Request("/test/", {
+    var req = new Request("/api/q", {
         headers: new Headers({
             "X-CSRF": "1",
         }),

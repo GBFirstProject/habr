@@ -49,6 +49,23 @@ namespace FirstProject.AuthAPI
                         "firstProject"
                     }
                 },
+
+                new Client
+                {
+                    ClientId="client",
+                    ClientSecrets= { new Secret("Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd".Sha256())},
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RedirectUris = { "https://localhost:5002/signin-oidc" },
+                    PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
+                    FrontChannelLogoutUri = "https://localhost:5002/signout-oidc",
+                    AllowedScopes=new List<string>
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "firstProject"
+                    }
+                },
             };
     }
 }

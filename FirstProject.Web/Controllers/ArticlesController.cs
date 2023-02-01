@@ -4,15 +4,23 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
-namespace FirstProject.WebNew.Controllers
+namespace FirstProject.Web.Controllers
 {
-    [Route("api")]
     [BffApi]
     public class ArticlesController : ControllerBase
     {
         [HttpGet]
-        [Authorize(Roles = "Moderator")]
+        [Route("api")]
+        [Authorize(Roles = "User")]
         public IActionResult Get()
+        {
+            return new JsonResult(from c in User.Claims select new { c.Type, c.Value });
+        }
+
+        [HttpGet]
+        [Route("api/q")]
+        [Authorize]
+        public IActionResult GetQ()
         {
             return new JsonResult(from c in User.Claims select new { c.Type, c.Value });
         }
