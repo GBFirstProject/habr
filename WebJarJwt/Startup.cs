@@ -3,8 +3,10 @@
 
 using System;
 using Duende.AccessTokenManagement;
+using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -32,9 +34,9 @@ public static class Startup
             })
             .AddOpenIdConnect("oidc", options =>
             {
-                options.Authority = "https://demo.duendesoftware.com";
-                options.ClientId = "interactive.confidential.short.jar.jwt";
-                
+                options.Authority = "https://localhost:5001";
+                options.ClientId = "client";
+                options.ClientSecret = "Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd";
                 options.ResponseType = "code";
                 options.ResponseMode = "query";
 
@@ -43,7 +45,7 @@ public static class Startup
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
                 options.Scope.Add("offline_access");
-                options.Scope.Add("resource1.scope1");
+                options.Scope.Add("firstProject");
 
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.SaveTokens = true;
@@ -63,22 +65,22 @@ public static class Startup
 
         // registers HTTP client that uses the managed user access token
         builder.Services.AddUserAccessTokenHttpClient("user_client",
-            configureClient: client => { client.BaseAddress = new Uri("https://demo.duendesoftware.com/api/"); });
+            configureClient: client => { client.BaseAddress = new Uri("https://localhost:5001"); });
 
         // registers HTTP client that uses the managed client access token
         builder.Services.AddClientAccessTokenHttpClient("client",
-            configureClient: client => { client.BaseAddress = new Uri("https://demo.duendesoftware.com/api/"); });
+            configureClient: client => { client.BaseAddress = new Uri("https://localhost:5001"); });
 
         // registers a typed HTTP client with token management support
         builder.Services.AddHttpClient<TypedUserClient>(client =>
             {
-                client.BaseAddress = new Uri("https://demo.duendesoftware.com/api/");
+                client.BaseAddress = new Uri("https://localhost:5005");
             })
             .AddUserAccessTokenHandler();
 
         builder.Services.AddHttpClient<TypedClientClient>(client =>
             {
-                client.BaseAddress = new Uri("https://demo.duendesoftware.com/api/");
+                client.BaseAddress = new Uri("https://localhost:5005");
             })
             .AddClientAccessTokenHandler();
 

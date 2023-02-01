@@ -23,7 +23,12 @@ public class HomeController : Controller
     [AllowAnonymous]
     public IActionResult Index() => View();
 
-    public IActionResult Secure() => View();
+    public IActionResult Secure()
+    {
+        var e = 12;
+        return  View();
+    }
+
 
     public IActionResult Logout() => SignOut("cookie", "oidc");
 
@@ -75,10 +80,10 @@ public class HomeController : Controller
         var token = await HttpContext.GetClientAccessTokenAsync();
         var client = _httpClientFactory.CreateClient();
         client.SetBearerToken(token.AccessToken);
-            
-        var response = await client.GetStringAsync("https://demo.duendesoftware.com/api/test");
-        
-        ViewBag.Json = PrettyPrint(response);
+
+        //var response = await client.GetStringAsync("https://demo.duendesoftware.com/api/test");
+
+        ViewBag.Json = new { token.AccessToken };
         return View("CallApi");
     }
     
