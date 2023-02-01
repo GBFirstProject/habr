@@ -10,10 +10,7 @@ namespace FirstProject.Messages
   /// </summary>
     public class ArticleCommented : IArticleCommented
     {
-        /// <summary>
-        /// Идентификатор сообщения
-        /// </summary>
-        public Guid Id { get; set; }
+        
         /// <summary>
         /// Идентификатор статьи
         /// </summary>

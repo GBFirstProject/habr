@@ -5,10 +5,7 @@ namespace FirstProject.Messages
  /// Интерфейс сообщения запроса модератора
  /// </summary>
     public interface IModeratorRequested
-    {/// <summary>
-        /// Идентификатор сообщения
-        /// </summary>
-        public Guid Id{ get; }
+    {
         /// <summary>
         /// Идентификатор отправителя
         /// </summary>

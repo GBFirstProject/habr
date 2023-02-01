@@ -3,10 +3,7 @@
  /// Класс сообщения запроса модератора
  /// </summary>
     public class ModeratorRequested : IModeratorRequested
-    {/// <summary>
-     /// Идентификатор сообщения
-     /// </summary>
-        public Guid Id { get; set; }
+    {
         /// <summary>
         /// Идентификатор отправителя
         /// </summary>

@@ -9,10 +9,7 @@ namespace FirstProject.Messages
   /// Интерфейс сообщения о комментировании статьи
   /// </summary>
     public interface IArticleCommented
-    {/// <summary>
-     /// Идентификатор сообщения
-     /// </summary>
-        public Guid Id { get; }
+    {
         /// <summary>
         /// Идентификатор статьи
         /// </summary>

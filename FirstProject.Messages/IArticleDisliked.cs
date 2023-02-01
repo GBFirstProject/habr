@@ -9,10 +9,7 @@ namespace FirstProject.Messages
  /// Интерфейс сообщения о дизлайке статьи
  /// </summary>
     public interface IArticleDisliked
-    { /// <summary>
-      /// Идентификатор сообщения
-      /// </summary>
-        public Guid Id{ get; }
+    { 
 
         /// <summary>
         /// Идентификатор статьи
