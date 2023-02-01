@@ -1,36 +1,65 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using AutoMapper;
+using HabrParser.Database;
 using HabrParser.Models;
+using HabrParser.Models.ArticleOnly;
 using HtmlAgilityPack;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.Xml;
 
-Console.WriteLine("Hello, World!");
-
-
 try
 {
-    //var url = $"https://habr.com/ru/post/{id}/";
-    for (int i = 100000; i < 200000; i++)
+    var host = Host.CreateDefaultBuilder(args)
+                .ConfigureServices(services => {
+                    services.AddDbContext<ArticlesDBContext>(options =>
+                    {
+                        options.UseSqlServer(@"Initial Catalog=HabrParserDB; Data Source=localhost,1433;TrustServerCertificate=True;User ID=HabrUser;Password=123456");
+                    });
+                    services.AddTransient<IParserRepository, ParserRepository>();
+                }).Build();
+
+    int lastIdAdded;
+    using (var context = new ArticlesDBContext(@"Initial Catalog=HabrParserDB; Data Source=localhost,1433;TrustServerCertificate=True;User ID=HabrUser;Password=123456"))
+    {
+        var lastParsedIdItem = context.ParserResult.FirstOrDefault();
+        if(lastParsedIdItem != null)
+            lastIdAdded = lastParsedIdItem.LastArtclelId;
+        else
+            lastIdAdded = 1;
+    }    
+    if (lastIdAdded < 0) return;
+    for (int i = lastIdAdded; i < 600000; i++)
     {
 
         var url = $"https://habr.com/ru/post/{i}/";
 
         var web = new HtmlWeb();
         var doc = web.Load(url);
-        using (var fs = new FileStream("d:\\fileMainPrj.html", FileMode.Create))
+        /*using (var fs = new FileStream("d:\\fileMainPrj.html", FileMode.Create))
         {
             doc.Save(fs);
-        }
+        }*/
 
-        //var jsonData = doc.DocumentNode.SelectNodes("script");// SelectSingleNode("window.__INITIAL_STATE__");
         foreach (var script in doc.DocumentNode.Descendants("script").ToArray())
-        {
-            //Console.BackgroundColor = ConsoleColor.DarkRed;
-            //Console.WriteLine("-----------------------------------------------------------------------------");
+        {            
             string s = script.InnerText;
 
             try
             {
+                var config = new MapperConfiguration(cfg =>
+                {
+                    cfg.CreateMap<Article, ParsedArticle>();
+                    cfg.CreateMap<HabrParser.Models.Author, HabrParser.Models.ArticleOnly.Author>();
+                    cfg.CreateMap<HabrParser.Models.Flow, HabrParser.Models.ArticleOnly.Flow>();
+                    cfg.CreateMap<HabrParser.Models.Hub, HabrParser.Models.ArticleOnly.Hub>();
+                    cfg.CreateMap<HabrParser.Models.LeadData, HabrParser.Models.ArticleOnly.LeadData>();
+                    cfg.CreateMap<HabrParser.Models.Tag, HabrParser.Models.ArticleOnly.Tag>();
+                });
+                // Настройка AutoMapper
+                var mapper = new Mapper(config);
                 if (s.Substring(0, 25) == "window.__INITIAL_STATE__=")
                 {
                     var jsonStr = s.Substring(25, s.Length - 147);
@@ -40,18 +69,17 @@ try
                     data = JsonConvert.DeserializeObject<Root>(jsonStr);
                     Console.ResetColor();
 
-                    if(data.articlesList.articlesList.article != null)
-                        Console.WriteLine(data.articlesList.articlesList.article.titleHtml);
+                    if (data.articlesList.articlesList.article != null)
+                    {
+                        Console.WriteLine($"ст. № {i} - {data.articlesList.articlesList.article.titleHtml}");
+                        ParsedArticle article = mapper.Map<Article, ParsedArticle>(data.articlesList.articlesList.article);
+                        host.Services.GetRequiredService<IParserRepository>().CreateHabrArticle(article);
+                    }
                 }
-
-                // Modify s somehow
-                HtmlTextNode text = (HtmlTextNode)script.ChildNodes
-                                    .Single(d => d.NodeType == HtmlNodeType.Text);
-                text.Text = s;
             }
             catch (Exception ex)
             {
-                //Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());                
             }
         }
     }
@@ -61,7 +89,6 @@ catch (Exception e)
 {
     Console.BackgroundColor = ConsoleColor.DarkRed;
     Console.WriteLine(e.Message.PadRight(60));
-    Console.ResetColor();
-    //return article;
+    Console.ResetColor();    
 }
 
