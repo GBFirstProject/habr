@@ -30,7 +30,17 @@ namespace FirstProject.NotificationAPI.Controllers
 
         public Task<bool> ArticleLiked(IArticleLiked notification)
         {
+            
             var result = notifier.ArticleLiked(notification);
+            return result;
+        }
+
+        [HttpPost]
+        [Route("/disliked")]
+
+        public Task<bool> ArticleDisliked(IArticleDisliked notification)
+        {
+            var result = notifier.ArticleDisliked(notification); 
             return result;
         }
 

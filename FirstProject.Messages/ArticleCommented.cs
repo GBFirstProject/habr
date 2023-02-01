@@ -5,9 +5,23 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FirstProject.Messages
-{
+{ /// <summary>
+  /// Класс сообщения о комментировании статьи
+  /// </summary>
     public class ArticleCommented : IArticleCommented
     {
-        public int ArticleId{ get; set; }
+        /// <summary>
+        /// Идентификатор сообщения
+        /// </summary>
+        public Guid Id { get; set; }
+        /// <summary>
+        /// Идентификатор статьи
+        /// </summary>
+        public Guid ArticleId{ get; set; }
+        /// <summary>
+        /// Идентификатор сообщения
+        /// </summary>
+        public Guid UserId{ get; set; }
+
     }
 }

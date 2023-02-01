@@ -6,20 +6,21 @@ using System.Threading.Tasks;
 
 namespace FirstProject.Messages
 {/// <summary>
-/// Интерфейс для сообщения о лайке статьи
-/// </summary>
-    public interface IArticleLiked
-    {/// <summary>
-    /// Идентификатор сообщения
-    /// </summary>
-        public Guid Id { get;  }
+ /// Интерфейс сообщения о дизлайке статьи
+ /// </summary>
+    public interface IArticleDisliked
+    { /// <summary>
+      /// Идентификатор сообщения
+      /// </summary>
+        public Guid Id{ get; }
+
         /// <summary>
         /// Идентификатор статьи
         /// </summary>
-        public Guid ArticleId{ get; }
+        public Guid ArticleId { get; }
         /// <summary>
         /// Идентификатор отправителя
         /// </summary>
-        public Guid UserId{ get;} 
+        public Guid UserId{ get; }
     }
 }

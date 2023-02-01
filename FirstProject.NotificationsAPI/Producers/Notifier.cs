@@ -50,6 +50,25 @@ namespace FirstProject.NotificationAPI.Producers
 
         }
 
+        public Task<bool> ArticleDisliked(IArticleDisliked notification)
+        {
+            try
+            {
+                bus.Publish(notification);
+
+                return Task.FromResult(true);
+
+
+            }
+            catch (Exception)
+            {
+                return Task.FromResult(false);
+                throw;
+            }
+        }
+
+
+
         public Task<bool> ArticleCommented(IArticleCommented notification)
         {
             try

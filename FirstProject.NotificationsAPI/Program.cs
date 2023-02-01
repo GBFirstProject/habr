@@ -32,6 +32,8 @@ builder.Services.AddMassTransit(cfg =>
         cfgM.Durable = true;
         cfgM.AutoDelete = false;
         cfgM.ConfigureEndpoints(context);
+        cfgM.UseRetry(r=>r.Incremental(4, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2)));   
+        cfgM.UseInMemoryOutbox();
     });
    
 });

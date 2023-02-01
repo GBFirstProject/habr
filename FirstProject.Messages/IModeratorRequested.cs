@@ -1,16 +1,33 @@
 ﻿using System.Data;
 
 namespace FirstProject.Messages
-{
+{/// <summary>
+ /// Интерфейс сообщения запроса модератора
+ /// </summary>
     public interface IModeratorRequested
-    {
+    {/// <summary>
+        /// Идентификатор сообщения
+        /// </summary>
         public Guid Id{ get; }
+        /// <summary>
+        /// Идентификатор отправителя
+        /// </summary>
         public Guid UserId{ get; }
-        string Content { get; }
-        string Reference { get;  }
-        DateTime TimeCreated{ get; }
 
+        /// <summary>
+        /// Сообщение
+        /// </summary>
+        string Content { get; }
+
+        /// <summary>
+        /// Ссылка на комментарий
+        /// </summary>
+        string Reference { get;  }
+
+        /// <summary>
+        /// Дата запроса
+        /// </summary>
+        DateTime TimeCreated { get; }
     
-       
     }
 }
