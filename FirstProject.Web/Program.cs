@@ -27,9 +27,16 @@ builder.Services
         options.ClientId = "clientUser";
         options.ClientSecret = "Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd";
         options.ResponseType = "code";
+
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
         options.Scope.Add("firstProject");
+        options.Scope.Add("offline_access");
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
+
         options.ClaimActions.MapJsonKey("role", "role", "role");
         options.ClaimActions.MapJsonKey("sub", "sub", "sub");
         options.TokenValidationParameters.NameClaimType = "name";

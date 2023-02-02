@@ -35,37 +35,25 @@ namespace FirstProject.AuthAPI
                 },
                 new Client
                 {
-                    ClientId="user_client",
-                    ClientSecrets= { new Secret("Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd".Sha256())},
+                    ClientId="clientUser",
+                    ClientSecrets= { 
+                        new Secret("Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd".Sha256())
+                    },
                     AllowedGrantTypes = GrantTypes.Code,
-                    RedirectUris = { "https://localhost:5002/signin-oidc" },
-                    PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
-                    FrontChannelLogoutUri = "https://localhost:5002/signout-oidc",
+                    RedirectUris = { "https://localhost:5003/signin-oidc" },
+                    PostLogoutRedirectUris = { "https://localhost:5003/signout-callback-oidc" },
+                    FrontChannelLogoutUri = "https://localhost:5003/signout-oidc",
                     AllowedScopes=new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
                         "firstProject"
-                    }
-                },
-
-                new Client
-                {
-                    ClientId="client",
-                    ClientSecrets= { new Secret("Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd".Sha256())},
-                    AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    RedirectUris = { "https://localhost:5002/signin-oidc" },
-                    PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
-                    FrontChannelLogoutUri = "https://localhost:5002/signout-oidc",
-                    AllowedScopes=new List<string>
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        "firstProject"
-                    }
-                },
+                    },
+                    AllowOfflineAccess=true
+                }
             };
     }
 }
+
+

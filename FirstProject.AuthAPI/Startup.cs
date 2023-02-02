@@ -12,6 +12,7 @@ using FirstProject.AuthAPI.Models;
 using Duende.IdentityServer.Services;
 using FirstProject.AuthAPI.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace FirstProject.AuthAPI
 {
@@ -28,7 +29,7 @@ namespace FirstProject.AuthAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
+                options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDatabaseDeveloperPageExceptionFilter();
@@ -38,6 +39,7 @@ namespace FirstProject.AuthAPI
                 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
             services.AddRazorPages();
+
             services.AddIdentityServer(options => {
                 options.Events.RaiseErrorEvents = true;
                 options.Events.RaiseInformationEvents = true;
@@ -51,6 +53,7 @@ namespace FirstProject.AuthAPI
                 .AddDeveloperSigningCredential();
 
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IDbInitializer, DbInitializer>();
 
             services.AddLogging(options =>
             {
@@ -59,7 +62,7 @@ namespace FirstProject.AuthAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInit)
         {
             if (env.IsDevelopment())
             {
@@ -72,6 +75,8 @@ namespace FirstProject.AuthAPI
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            dbInit.Initialize();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

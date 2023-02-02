@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="6.2.2" />
     <PackageReference Include="MailKit" Version="3.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.13" />

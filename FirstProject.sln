@@ -27,12 +27,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirstProject.Messages", "Fi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirstProject.MessageTest", "FirstProject.MessageTest\FirstProject.MessageTest.csproj", "{5DFBEF2F-ACA3-4B70-8EE9-0E067ECC1EC4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJarJwt", "WebJarJwt\WebJarJwt.csproj", "{6FF5F625-33FA-4935-B812-B28A2EE2CA70}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Duende.AccessTokenManagement", "src\Duende.AccessTokenManagement\Duende.AccessTokenManagement.csproj", "{DBB36809-831D-402D-AE32-8838C784A9ED}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Duende.AccessTokenManagement.OpenIdConnect", "src\Duende.AccessTokenManagement.OpenIdConnect\Duende.AccessTokenManagement.OpenIdConnect.csproj", "{78F31009-AC2A-4F0A-9802-F064A3368163}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,18 +69,6 @@ Global
 		{5DFBEF2F-ACA3-4B70-8EE9-0E067ECC1EC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DFBEF2F-ACA3-4B70-8EE9-0E067ECC1EC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DFBEF2F-ACA3-4B70-8EE9-0E067ECC1EC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FF5F625-33FA-4935-B812-B28A2EE2CA70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FF5F625-33FA-4935-B812-B28A2EE2CA70}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FF5F625-33FA-4935-B812-B28A2EE2CA70}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FF5F625-33FA-4935-B812-B28A2EE2CA70}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DBB36809-831D-402D-AE32-8838C784A9ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DBB36809-831D-402D-AE32-8838C784A9ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DBB36809-831D-402D-AE32-8838C784A9ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DBB36809-831D-402D-AE32-8838C784A9ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{78F31009-AC2A-4F0A-9802-F064A3368163}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{78F31009-AC2A-4F0A-9802-F064A3368163}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{78F31009-AC2A-4F0A-9802-F064A3368163}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{78F31009-AC2A-4F0A-9802-F064A3368163}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
