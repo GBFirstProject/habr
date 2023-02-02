@@ -1,0 +1,31 @@
+version: '3.2'
+
+services:
+  db:
+    build: ./mssqldocker
+    image: mssql
+    volumes:
+      - mssql-data:/var/opt/mssql
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: 2astazeY
+      MSSQL_DB: dev
+      MSSQL_USER: Kobeissi
+      MSSQL_PASSWORD: 7ellowEl7akey
+    ports:
+      - "1433:1433"
+    container_name: mssqldev
+  auth:
+    build: ./FirstProject.AuthAPI
+    image: auth
+    container_name: authdev
+    volumes:
+      - "C:/Users/kiver/.aspnet/https:/https/"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5001:5001"
+
+volumes:
+  mssql-data:
