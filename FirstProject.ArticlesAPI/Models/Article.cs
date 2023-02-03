@@ -16,11 +16,12 @@ namespace FirstProject.ArticlesAPI.Models
         public string ImageLink { get; set; } = string.Empty;
         public int? LeadDataId { get; set; }
         [ForeignKey("LeadDataId")]
-        //public LeadData LeadData { get; set; }
-        public int? AuthorId { get; set; }
+        public LeadData LeadData { get; set; } = new LeadData();
+        public int AuthorId { get; set; }
         [ForeignKey("AuthorId")]
-        //public Author Author { get; set; }
-        public List<Tag> Tags { get; set;} = new List<Tag>();
+        public Author Author { get; set; } = new Author();
+        public List<Tag> Tags { get; set; } = new List<Tag>();
+        public List<Hub> Hubs { get; set; } = new List<Hub>();
         
     }    
 }
