@@ -38,16 +38,12 @@ namespace HabrParser.Database
 
 
             var dbContext = this;
-
+            /*var tagKeyConverter = new ValueConverter<Tag, int>(
+                v => v.TagId,
+                v => new Tag(v, this));*/
             var allTagsConverter = new ValueConverter<List<Tag>, List<int>>(
                 v => v.ConvertAll<int>(x => x.TagId),
                 v => v.ConvertAll<Tag>(x => new Tag(x, dbContext)));
-            /*var allTagsConverter = new ValueConverter<List<Tag>, string>(
-                v => v. ConvertAll<int>(x => x.TagId),
-                v => v.Split(',').ToList().ConvertAll<Tag>(x => new Tag(x, dbContext)));*/
-
-            modelBuilder.Entity<ParsedArticle>()
-                .Property(e => e.Tags).HasConversion(allTagsConverter);
 
             base.OnModelCreating(modelBuilder);
         }
