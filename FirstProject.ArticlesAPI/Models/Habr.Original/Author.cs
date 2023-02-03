@@ -1,15 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FirstProject.ArticlesAPI.Models
+namespace FirstProject.ArticlesAPI.Models.Habr.Original
 {
     [Table("Authors")]
     public class Author
-    {        
+    {
         public int Id { get; set; }
         public string? Alias { get; set; }
         public string? Fullname { get; set; }
         public string? AvatarUrl { get; set; }
-        public string? Speciality { get; set; }        
+        public string? Speciality { get; set; }
         public int? Rating { get; set; }
         //public object? RelatedData { get; set; }
         public string? RelatedData { get; set; }

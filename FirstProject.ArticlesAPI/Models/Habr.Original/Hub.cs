@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FirstProject.ArticlesAPI.Models
+namespace FirstProject.ArticlesAPI.Models.Habr.Original
 {
-    [Table ("Hub")]
+    [Table("Hub")]
     public class Hub
     {
         public string Id { get; set; }

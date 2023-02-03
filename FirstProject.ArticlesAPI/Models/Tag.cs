@@ -1,13 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FirstProject.ArticlesAPI.Models
 {
-    [Table ("Tag")]
-    public class Tag
+    [Table("Tags")]
+    public class Tag : BaseModel<int>
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-        public string? TitleHtml { get; set; }
+        public string TitleHtml { get; set; } = string.Empty;
     }
 }

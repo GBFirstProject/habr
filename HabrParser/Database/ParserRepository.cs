@@ -20,11 +20,19 @@ namespace HabrParser.Database
         {
             if (article == null) return;
             Author authorForTable = AddAuthor(article.Author);
-            article.Author = authorForTable;            
-            _dbContext.Leads.Add(article.LeadData);            
-            _dbContext.Articles.Add(article);
+            article.Author = authorForTable;
+            _dbContext.Leads.Add(article.LeadData);           
+            foreach(var tag in article.Tags)
+            {
+                AddTag(tag);
+            }
+            foreach(var hub in article.Hubs)
+            {
+                AddHub(hub);
+            }
+            _dbContext.Articles.Add(article);        
             UdpateLastId(article.Id);
-            _dbContext.SaveChangesAsync();            
+            _dbContext.SaveChangesAsync();
         }
 
         public Author AddAuthor(Author author)
@@ -35,7 +43,7 @@ namespace HabrParser.Database
             if (existAuthor == null) 
             {
                 _dbContext.Authors.Add(author);
-                _dbContext.SaveChanges();        
+                //_dbContext.SaveChanges();        
                 return author;
             }
             else
@@ -45,39 +53,39 @@ namespace HabrParser.Database
         }
         public void AddTag(Tag tag)
         {
-            Tag existTag = _dbContext.Tags.FirstOrDefault();
+            Tag? existTag = _dbContext.Tags.FirstOrDefault(t => t.TitleHtml == tag.TitleHtml);
             if(existTag == null)
             {
                 
                 _dbContext.Tags.Add(tag);
-                _dbContext.SaveChanges();
+                //_dbContext.SaveChanges();
                 
             }
-            else
+            /*else
             {
                 if (existTag.TitleHtml != tag.TitleHtml)
                 {
                     _dbContext.Tags.Add(tag);
-                    _dbContext.SaveChanges();
+                    //_dbContext.SaveChanges();
                 }
-            }
+            }*/
         }
         public void AddHub(Hub hub)
         {
-            Hub existHub = _dbContext.Hubs.FirstOrDefault();
+            Hub? existHub = _dbContext.Hubs.FirstOrDefault(h => h.Title == hub.Title);
             if(existHub == null)
             {
                 _dbContext.Hubs.Add(hub);
-                _dbContext.SaveChangesAsync();
+                //_dbContext.SaveChangesAsync();
             }
-            else
+            /*else
             {
                 if (existHub.Title != hub.Title)
                 {
                     _dbContext.Hubs.Add(hub);
-                    _dbContext.SaveChangesAsync();
+                    //_dbContext.SaveChangesAsync();
                 }
-            }
+            }*/
         }
 
         public void UdpateLastId(int id)
@@ -92,7 +100,7 @@ namespace HabrParser.Database
                 lastArcticleId.LastArtclelId = id;
                 _dbContext.ParserResult.Update(lastArcticleId);
             }
-            _dbContext.SaveChangesAsync().Wait();
+            //_dbContext.SaveChangesAsync().Wait();
         }
 
         public void Dispose()

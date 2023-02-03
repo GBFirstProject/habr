@@ -60,20 +60,23 @@ try
                 });
                 // Настройка AutoMapper
                 var mapper = new Mapper(config);
-                if (s.Substring(0, 25) == "window.__INITIAL_STATE__=")
+                if (s.Length > 26)
                 {
-                    var jsonStr = s.Substring(25, s.Length - 147);
-                    string strToReplace = $"\"articlesList\":{{\"{i}\"";
-                    jsonStr = jsonStr.Replace(strToReplace, "\"articlesList\":{\"article\"");
-                    Root data;
-                    data = JsonConvert.DeserializeObject<Root>(jsonStr);
-                    Console.ResetColor();
-
-                    if (data.articlesList.articlesList.article != null)
+                    if (s.Substring(0, 25) == "window.__INITIAL_STATE__=")
                     {
-                        Console.WriteLine($"ст. № {i} - {data.articlesList.articlesList.article.titleHtml}");
-                        ParsedArticle article = mapper.Map<Article, ParsedArticle>(data.articlesList.articlesList.article);
-                        host.Services.GetRequiredService<IParserRepository>().CreateHabrArticle(article);
+                        var jsonStr = s.Substring(25, s.Length - 147);
+                        string strToReplace = $"\"articlesList\":{{\"{i}\"";
+                        jsonStr = jsonStr.Replace(strToReplace, "\"articlesList\":{\"article\"");
+                        Root data;
+                        data = JsonConvert.DeserializeObject<Root>(jsonStr);
+                        Console.ResetColor();
+
+                        if (data.articlesList.articlesList.article != null)
+                        {
+                            Console.WriteLine($"ст. № {i} - {data.articlesList.articlesList.article.titleHtml}");
+                            ParsedArticle article = mapper.Map<Article, ParsedArticle>(data.articlesList.articlesList.article);
+                            host.Services.GetRequiredService<IParserRepository>().CreateHabrArticle(article);
+                        }
                     }
                 }
             }

@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FirstProject.ArticlesAPI.Models
+namespace FirstProject.ArticlesAPI.Models.Habr.Original
 {
     //[Keyless]
-    [Table ("LeadData")]
+    [Table("LeadData")]
     public class LeadData
     {
 

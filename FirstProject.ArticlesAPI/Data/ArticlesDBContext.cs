@@ -1,4 +1,4 @@
-﻿using FirstProject.ArticlesAPI.Models;
+﻿using FirstProject.ArticlesAPI.Models.Habr.Original;
 using Microsoft.EntityFrameworkCore;
 
 namespace FirstProject.ArticlesAPI.Data

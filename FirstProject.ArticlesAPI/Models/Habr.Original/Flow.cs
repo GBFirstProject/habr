@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FirstProject.ArticlesAPI.Models
+namespace FirstProject.ArticlesAPI.Models.Habr.Original
 {
-    [Table ("Flow")]
+    [Table("Flow")]
     public class Flow
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -1,11 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HabrParser.Models.ArticleOnly
 {
     [Table ("Hub")]
     public class Hub
     {
-        public string Id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int HubId { get; set; }
+        public int Id { get; set; }
         public string? Alias { get; set; }
         public string? Type { get; set; }
         public string? Title { get; set; }

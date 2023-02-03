@@ -1,6 +1,10 @@
-﻿using HabrParser.Models.ArticleOnly;
+﻿using AutoMapper;
+using HabrParser.Models.ArticleOnly;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
+using System.Linq;
 
 namespace HabrParser.Database
 {
@@ -23,7 +27,28 @@ namespace HabrParser.Database
             _connectionString= connectionString;
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {           
+        {
+            modelBuilder.Entity<LeadData>()
+                .HasOne(a => a.ParsedArticle)
+                .WithOne(ld => ld.LeadData);
+            modelBuilder.Entity<ParsedArticle>()
+                .HasMany(a => a.Tags);
+            modelBuilder.Entity<ParsedArticle>()
+                .HasMany(a => a.Hubs);
+
+
+            var dbContext = this;
+
+            var allTagsConverter = new ValueConverter<List<Tag>, List<int>>(
+                v => v.ConvertAll<int>(x => x.TagId),
+                v => v.ConvertAll<Tag>(x => new Tag(x, dbContext)));
+            /*var allTagsConverter = new ValueConverter<List<Tag>, string>(
+                v => v. ConvertAll<int>(x => x.TagId),
+                v => v.Split(',').ToList().ConvertAll<Tag>(x => new Tag(x, dbContext)));*/
+
+            modelBuilder.Entity<ParsedArticle>()
+                .Property(e => e.Tags).HasConversion(allTagsConverter);
+
             base.OnModelCreating(modelBuilder);
         }
 

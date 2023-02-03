@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HabrParser.Models.ArticleOnly
+namespace FirstProject.ArticlesAPI.Models.Habr.Original
 {
     [Table("Articles")]
-    public class ParsedArticle
-    {        
+    public class Article
+    {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ArticleId { get; set; }
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [Column]
         public DateTime? TimePublished { get; set; }
         [Column]
@@ -23,23 +22,22 @@ namespace HabrParser.Models.ArticleOnly
         [Column]
         public string? EditorVersion { get; set; }
         [Column]
-        public string? PostType { get; set; }        
+        public string? PostType { get; set; }
         //public List<object>? PostLabels { get; set; }
         //public List<string>? PostLabels { get; set; }
-        public int? AuthorId { get; set; }
-        [ForeignKey("AuthorId")]
+        [Column]
         public Author? Author { get; set; }
-        //[Column]
-        public List<Hub>? Hubs { get; set; } = new List<Hub>();
-        //[Column]
-        //public List<Flow>? Flows { get; set; }
+        [Column]
+        public List<Hub>? Hubs { get; set; }
+        [Column]
+        public List<Flow>? Flows { get; set; }
         [Column]
         //public object? RelatedData { get; set; }
         public string? RelatedData { get; set; }
         [Column]
         public string? TextHtml { get; set; }
-        //[Column]
-        public List<Tag> Tags { get; set; } = new List<Tag>();
+        [Column]
+        public List<Tag>? Tags { get; set; }
 
         //поля, доступные на хабре, но, вероятно, не нужные в нашем проекте
         //public Statistics statistics { get; set; }
@@ -68,6 +66,8 @@ namespace HabrParser.Models.ArticleOnly
         [Column]
         public bool IsEditorial { get; set; }
         [Column]
-        public string? ImageLink { get; set; }        
+        public string? ImageLink { get; set; }
+        [Column]
+        public List<User>? Likes { get; set; }
     }
 }
