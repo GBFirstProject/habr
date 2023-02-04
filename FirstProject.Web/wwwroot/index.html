@@ -1,17 +1,253 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-</head>
-<body>
-    <button id="login">Login</button>
-    <button id="q">Call q</button>
-    <button id="remote">Call Remote API</button>
-    <button id="logout">Logout</button>
+﻿﻿
+<!DOCTYPE html>
+<html lang="en">
 
-    <pre id="results"></pre>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FirstProjectDevelopment</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/favicon.ico">
+</head>
+
+<body>
+    <div class="container">
+        <button id="login">Login</button>
+        <button id="remote">Гость</button>
+        <button id="remote-admin">Админ</button>
+        <button id="logout">Logout</button>
+
+        <pre id="results"></pre>
+    </div>
+
+    <header class="header">
+        <div class="container">
+            <div class="header_flex">
+                <div class="header_logo">
+                    <p class="text_logo">FirstProjectDevelopment</p>
+                </div>
+
+                <nav class="header_nav">
+                    <ul class="header_nav_list">
+                        <li class="header_nav_item">Все хабы</li>
+                        <li class="header_nav_item">Дизайн</li>
+                        <li class="header_nav_item">Веб-разработка</li>
+                        <li class="header_nav_item">Мобильная разработка</li>
+                        <li class="header_nav_item">Маркетинг</li>
+                    </ul>
+                    <button type="submit">Личный кабинет</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="section_new_post">
+            <div class="container">
+                <div class="section_new_post_flex">
+                    <div class="section_new_post_text">
+                        <h3 class="section_h3">Новый пост</h3>
+                        <a class="site_links" href="#">
+                            <h2 class="section_h2">F Сложности командной разработки в условиях удаленного офиса</h2>
+                        </a>
+
+                        <!-- Здесь и далее буква F перед заголовками и текстом означает, что текст был в верстке изначально, а не подтянулся через JS -->
+
+                        <p class="section_p_attr">F Иван Иванов | 01 февраля 2023</p>
+                        <p class="section_p_legend">
+                            F Расскажем, как лучше организовать работу в условиях, когда вся
+                            коммуникация с командой происходит только в мессенджерах
+                        </p>
+                        <button type="submit">Читать</button>
+                    </div>
+                    <div class="section_new_post_pic">
+                        <img class="section_new_post_img" src="assets/img/man_new_post.png" alt="man">
+                    </div>
+                </div>
+        </section>
+        <section class="section_all_posts">
+            <div class="container">
+                <h1 class="site_h1">Все публикации</h1>
+                <hr>
+                <div class="section_all_posts_block">
+                    <div class="all_posts_item">
+                        <div class="all_posts_item_flex">
+                            <div class="all_posts_item_pic">
+                                <img class="section_new_post_img"
+                                     src="assets/img/two-women.png" alt="two women">
+                            </div>
+                            <div class="all_posts_item_texts">
+                                <h3 class="all_posts_item_h3">F Дизайн</h3>
+                                <a class="site_links" href="#">
+                                    <h2 class="all_posts_item_h2">
+                                        F Советы для дизайнеров, которые вы могли не слышать
+                                        ранее
+                                    </h2>
+                                </a>
+                                <p class="all_posts_item_text">
+                                    F Duis aute irure dolor in reprehenderit in voluptate
+                                    velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+                                    cupidatat non proident.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="all_posts_item">
+                        <div class="all_posts_item_flex">
+                            <div class="all_posts_item_pic">
+                                <img class="section_new_post_img"
+                                     src="assets/img/two-women.png" alt="two women">
+                            </div>
+                            <div class="all_posts_item_texts">
+                                <h3 class="all_posts_item_h3">F Дизайн</h3>
+                                <a class="site_links" href="#">
+                                    <h2 class="all_posts_item_h2">
+                                        F Советы для дизайнеров, которые вы могли не
+                                        слышать
+                                        ранее
+                                    </h2>
+                                </a>
+
+                                <p class="all_posts_item_text">
+                                    F Duis aute irure dolor in reprehenderit in voluptate
+                                    velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+                                    cupidatat non proident.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="all_posts_item">
+                        <div class="all_posts_item_flex">
+                            <div class="all_posts_item_pic">
+                                <img class="section_new_post_img"
+                                     src="assets/img/two-women.png" alt="two women">
+                            </div>
+                            <div class="all_posts_item_texts">
+                                <h3 class="all_posts_item_h3">F Дизайн</h3>
+                                <a class="site_links" href="#">
+                                    <h2 class="all_posts_item_h2">
+                                        F Советы для дизайнеров, которые вы могли не слышать
+                                        ранее
+                                    </h2>
+                                </a>
+                                <p class="all_posts_item_text">
+                                    F Duis aute irure dolor in reprehenderit in voluptate
+                                    velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+                                    cupidatat non proident.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="all_posts_item">
+                        <div class="all_posts_item_flex">
+                            <div class="all_posts_item_pic">
+                                <img class="section_new_post_img"
+                                     src="assets/img/two-women.png" alt="two women">
+                            </div>
+                            <div class="all_posts_item_texts">
+                                <h3 class="all_posts_item_h3">F Дизайн</h3>
+                                <a class="site_links" href="#">
+                                    <h2 class="all_posts_item_h2">
+                                        F Советы для дизайнеров, которые вы могли не слышать
+                                        ранее
+                                    </h2>
+                                </a>
+                                <p class="all_posts_item_text">
+                                    F Duis aute irure dolor in reprehenderit in voluptate
+                                    velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+                                    cupidatat non proident.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="all_posts_item">
+                        <div class="all_posts_item_flex">
+                            <div class="all_posts_item_pic">
+                                <img class="section_new_post_img"
+                                     src="assets/img/two-women.png" alt="two women">
+                            </div>
+                            <div class="all_posts_item_texts">
+                                <h3 class="all_posts_item_h3">F Дизайн</h3>
+                                <a class="site_links" href="#">
+                                    <h2 class="all_posts_item_h2">
+                                        F Советы для дизайнеров, которые вы могли не слышать
+                                        ранее
+                                    </h2>
+                                </a>
+                                <p class="all_posts_item_text">
+                                    F Duis aute irure dolor in reprehenderit in voluptate
+                                    velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+                                    cupidatat non proident.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="all_posts_pagination">
+                <a class="all_posts_pag" href="#prev">Назад</a>
+                <a class="all_posts_pag" href="#next">Вперед</a>
+            </div>
+        </section>
+
+        <section class="section_all_hubs">
+            <div class="container">
+                <h1 class="site_h1">Все хабы</h1>
+
+                <div class="section_all_hubs_flex">
+                    <div class="all_hubs_item">
+                        <div><img class="allhubs_pic" src="" alt="">Pic</div>
+                        <a class="all_hubs_item_h3" href="#">Дизайн</a>
+                        <p class="all_hubs_item_text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
+                    </div>
+
+                    <div class="all_hubs_item">
+                        <div><img class="allhubs_pic" src="" alt="">Pic</div>
+                        <a class="all_hubs_item_h3" href="#">Веб-разработка</a>
+                        <p class="all_hubs_item_text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
+                    </div>
+
+                    <div class="all_hubs_item">
+                        <div><img class="allhubs_pic" src="" alt="">Pic</div>
+                        <a class="all_hubs_item_h3" href="#">Мобильная разработка</a>
+                        <p class="all_hubs_item_text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
+                    </div>
+
+                    <div class="all_hubs_item">
+                        <div><img class="allhubs_pic" src="" alt="">Pic</div>
+                        <a class="all_hubs_item_h3" href="#">Маркетинг</a>
+                        <p class="all_hubs_item_text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
+                    </div>
+                </div>
+        </section>
+        <section class="section_reg_welcome">
+            <div class="container">
+                <h3 class="reg_welcome_h3">Зарегистрируйтесь, <br> чтобы оставлять комментарии</h3>
+                <button class="btn_welcome_reg">Регистрация</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer_flex">
+                <h3 class="footer_left">FirstProjectDevelopment</h3>
+                <div class="footer_right">
+                    <a class="footer_nav" href="#">Расширенный поиск</a>
+                    <a class="footer_nav" href="#">Помощь</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script src="app.js"></script>
 </body>
+
 </html>

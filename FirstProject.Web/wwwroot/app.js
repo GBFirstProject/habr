@@ -37,8 +37,8 @@ let userClaims = null;
 })();
 
 document.getElementById("login").addEventListener("click", login, false);
-document.getElementById("q").addEventListener("click", localApi, false);
-document.getElementById("remote").addEventListener("click", remoteApi, false);
+document.getElementById("remote").addEventListener("click", localApi, false);
+document.getElementById("remote-admin").addEventListener("click", remoteApi, false);
 document.getElementById("logout").addEventListener("click", logout, false);
 
 function login() {

@@ -393,7 +393,8 @@ $.validator.addMethod( "creditcardtypes", function( value, element, param ) {
 		validTypes |= 0x0040;
 	}
 	if ( param.unknown ) {
-		validTypes |= 0x0080;
+		validTypes |= 0x00
+;
 	}
 	if ( param.all ) {
 		validTypes = 0x0001 | 0x0002 | 0x0004 | 0x0008 | 0x0010 | 0x0020 | 0x0040 | 0x0080;

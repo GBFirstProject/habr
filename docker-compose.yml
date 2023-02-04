@@ -21,11 +21,38 @@ services:
     container_name: authdev
     volumes:
       - "C:/Users/kiver/.aspnet/https:/https/"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "5001:5001"
+  articles:
+    build: ./FirstProject.ArticlesAPI
+    image: articles
+    container_name: articlesdev
+    volumes:
+      - "C:/Users/kiver/.aspnet/https:/https/"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    depends_on:
+      db:
+        condition: service_healthy
+  web:
+    build: ./FirstProject.Web
+    image: web
+    container_name: webdev
+    volumes:
+      - "C:/Users/kiver/.aspnet/https:/https/"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    ports:
+      - "5003:5003"
+
 
 volumes:
   mssql-data:

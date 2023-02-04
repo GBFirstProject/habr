@@ -35,9 +35,10 @@ namespace FirstProject.AuthAPI
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<ApplicationUser>()
+            services.AddDefaultIdentity<ApplicationUser>(
+                options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddRazorPages();
 
@@ -49,7 +50,7 @@ namespace FirstProject.AuthAPI
                 options.EmitStaticAudienceClaim = true;
             }).AddInMemoryIdentityResources(Config.IdentityResources)
                 .AddInMemoryApiScopes(Config.ApiScopes)
-                .AddInMemoryClients(Config.Clients)
+                .AddInMemoryClients(Config.Clients(Configuration))
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddDeveloperSigningCredential();
 
@@ -60,6 +61,21 @@ namespace FirstProject.AuthAPI
             {
                 options.AddFilter("Duende", LogLevel.Debug);
             });
+
+            services.AddCors(
+                options =>
+                {
+                    options.AddPolicy(
+                        "default", policy =>
+                        {
+                            policy
+                                .WithOrigins(
+                                    Configuration["serviceURI:javascriptbff-client"]!.ToString(),
+                                    Configuration["serviceURI:article-api"]!.ToString())
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                        });
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -85,6 +101,7 @@ namespace FirstProject.AuthAPI
 
             dbInit.Initialize();
 
+            app.UseHttpLogging();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();

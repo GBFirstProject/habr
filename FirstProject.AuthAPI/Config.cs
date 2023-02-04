@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
 namespace FirstProject.AuthAPI
@@ -23,8 +24,11 @@ namespace FirstProject.AuthAPI
                 new ApiScope("firstProject", "All API application")
             };
 
-        public static IEnumerable<Client> Clients =>
-            new List<Client>
+        public static IEnumerable<Client> Clients(IConfiguration configuration)
+        {
+            var bffClientUrl = configuration["serviceURI:javascriptbff-client"]!.ToString();
+
+            return new List<Client>
             {
                 new Client
                 {
@@ -36,13 +40,13 @@ namespace FirstProject.AuthAPI
                 new Client
                 {
                     ClientId="clientUser",
-                    ClientSecrets= { 
+                    ClientSecrets= {
                         new Secret("Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd".Sha256())
                     },
                     AllowedGrantTypes = GrantTypes.Code,
-                    RedirectUris = { "https://localhost:5003/signin-oidc" },
-                    PostLogoutRedirectUris = { "https://localhost:5003/signout-callback-oidc" },
-                    FrontChannelLogoutUri = "https://localhost:5003/signout-oidc",
+                    RedirectUris = { $"{bffClientUrl}/signin-oidc" },
+                    PostLogoutRedirectUris = { $"{bffClientUrl}/signout-callback-oidc" },
+                    FrontChannelLogoutUri = $"{bffClientUrl}/signout-oidc",
                     AllowedScopes=new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
@@ -53,6 +57,8 @@ namespace FirstProject.AuthAPI
                     AllowOfflineAccess=true
                 }
             };
+        }
+
     }
 }
 

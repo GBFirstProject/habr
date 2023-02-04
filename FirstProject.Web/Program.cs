@@ -1,16 +1,29 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Duende.Bff.Yarp;
+using FirstProject.Web;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+Config.ArticlesAPIBase = builder.Configuration["ServiceUrls:ArticlesAPI"];
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 builder.Services
     .AddBff()
     .AddRemoteApis();
+
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.ConfigureHttpsDefaults(listenOptions =>
+//    {
+//        listenOptions.AllowAnyClientCertificate(); 
+//    });
+//});
 
 builder.Services
     .AddAuthorization()
@@ -23,7 +36,7 @@ builder.Services
     .AddCookie("Cookies")
     .AddOpenIdConnect("oidc", options =>
     {
-        options.Authority = "https://localhost:5001";
+        options.Authority = builder.Configuration["ServiceUrls:AuthAPI"];
         options.ClientId = "clientUser";
         options.ClientSecret = "Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd";
         options.ResponseType = "code";
@@ -36,7 +49,10 @@ builder.Services
         options.Scope.Add("offline_access");
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
-
+        options.BackchannelHttpHandler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
         options.ClaimActions.MapJsonKey("role", "role", "role");
         options.ClaimActions.MapJsonKey("sub", "sub", "sub");
         options.TokenValidationParameters.NameClaimType = "name";
@@ -52,6 +68,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
+app.UseHttpLogging();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
