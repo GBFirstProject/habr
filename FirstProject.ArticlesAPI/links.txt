@@ -1,1 +1,1 @@
-﻿
+﻿https://learn.microsoft.com/ru-ru/ef/core/modeling/value-conversions?tabs=data-annotations

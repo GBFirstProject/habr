@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using FirstProject.ArticlesAPI.Data.Interfaces;
+using FirstProject.ArticlesAPI.Models.DTO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstProject.ArticlesAPI.Controllers
@@ -7,79 +10,51 @@ namespace FirstProject.ArticlesAPI.Controllers
     [ApiController]
     public class ArticleController : ControllerBase
     {
-        // GET: ArticleController
-        public ActionResult Index()
+        private readonly IArticlesRepository _articlesRepository;
+        private readonly ILogger<ArticleController> _logger;
+        private readonly IMapper _mapper;
+
+        public ArticleController(IArticlesRepository articlesRepository, ILogger<ArticleController> logger, IMapper mapper)
         {
-            return View();
+            _articlesRepository = articlesRepository;
+            _logger = logger;
+            _mapper = mapper;
         }
 
-        // GET: ArticleController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: ArticleController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: ArticleController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        /// <summary>
+        /// Получение полной статьи по Id
+        /// </summary>
+        /// <param name="articleId">Guid статьи</param>
+        /// <param name="token"></param>
+        /// <returns>Список комментариев</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetArticleById(Guid articleId, CancellationToken token)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var entries = await _articlesRepository.GetArticleById(articleId, token);
+
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = entries
+                });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return Error(ex);
             }
         }
-
-        // GET: ArticleController/Edit/5
-        public ActionResult Edit(int id)
+        private IActionResult Error(Exception ex)
         {
-            return View();
-        }
-
-        // POST: ArticleController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
+            _logger.LogError(ex, "Вызвано исключение");
+            var response = new ResponseDTO()
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ArticleController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: ArticleController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+                IsSuccess = false,
+                DisplayMessage = "Вызвано исключение"
+            };
+            response.ErrorMessage = ex.Message;
+            return Ok(response);
         }
     }
 }
