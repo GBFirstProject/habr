@@ -26,7 +26,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="articleId">Guid статьи</param>
         /// <param name="token"></param>
-        /// <returns>Список комментариев</returns>
+        /// <returns>Полная статья</returns>
         [HttpGet]
         public async Task<IActionResult> GetArticleById(Guid articleId, CancellationToken token)
         {
@@ -47,11 +47,11 @@ namespace FirstProject.ArticlesAPI.Controllers
         }
         private IActionResult Error(Exception ex)
         {
-            _logger.LogError(ex, "Вызвано исключение");
+            _logger.LogError(ex, "Исключение");
             var response = new ResponseDTO()
             {
                 IsSuccess = false,
-                DisplayMessage = "Вызвано исключение"
+                DisplayMessage = "Создано исключение"
             };
             response.ErrorMessage = ex.Message;
             return Ok(response);

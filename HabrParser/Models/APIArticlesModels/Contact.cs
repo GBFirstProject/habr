@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FirstProject.ArticlesAPI.Models
+namespace HabrParser.Models.APIArticles
 {
     [Table ("Contacts")]
     public class Contact : BaseModel<int>

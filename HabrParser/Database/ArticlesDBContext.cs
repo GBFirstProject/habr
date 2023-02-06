@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using HabrParser.Models.ArticleOnly;
+using HabrParser.Models.APIArticles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,13 +11,13 @@ namespace HabrParser.Database
     public class ArticlesDBContext : DbContext
     {
         private readonly string _connectionString = "";
-        public DbSet<ParsedArticle> Articles { get; set; } = null!;
-        public DbSet<Author> Authors { get; set; } = null!;
-        public DbSet<Flow> Flows { get; set; } = null!;
-        public DbSet<Hub> Hubs { get; set; } = null!;
-        public DbSet<LeadData> Leads { get; set; } = null!;
-        public DbSet<Tag> Tags { get; set; } = null!;        
-        public DbSet<ParserResult> ParserResult { get; set; } = null!;
+        public DbSet<HabrParser.Models.APIArticles.Article> Articles { get; set; } = null!;
+        public DbSet<HabrParser.Models.APIArticles.Author> Authors { get; set; } = null!;
+        public DbSet<HabrParser.Models.APIArticles.Contact> Contacts { get; set; } = null!;
+        public DbSet<HabrParser.Models.APIArticles.Hub> Hubs { get; set; } = null!;
+        public DbSet<HabrParser.Models.APIArticles.LeadData> Leads { get; set; } = null!;
+        public DbSet<HabrParser.Models.APIArticles.Tag> Tags { get; set; } = null!;
+        public DbSet<HabrParser.Models.APIArticles.ParserResult> ParserResult { get; set; } = null!;
         public ArticlesDBContext(DbContextOptions options) : base(options)
         {            
             Database.EnsureCreated();
@@ -28,22 +28,43 @@ namespace HabrParser.Database
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.Author)
+                .WithMany(a => a.Articles)
+                .HasForeignKey(a => a.AuthorId);
+            modelBuilder.Entity<Article>()
+                .HasMany(t => t.Tags)
+                .WithMany(t => t.Articles);
+            modelBuilder.Entity<Article>()
+                .HasMany(h => h.Hubs)
+                .WithMany(h => h.Articles);
+            modelBuilder.Entity<Article>()
+                .HasOne(l => l.LeadData)
+                .WithOne(l => l.Article)
+                .HasForeignKey<LeadData>(l => l.Id);
+
+            modelBuilder.Entity<Tag>()
+                .HasMany(tag => tag.Articles)
+                .WithMany(article => article.Tags);
+
+            modelBuilder.Entity<Hub>()
+                .HasMany(hub => hub.Articles)
+                .WithMany(hub => hub.Hubs);
+
+            modelBuilder.Entity<Author>()
+               .HasMany(a => a.Articles)
+               .WithOne(article => article.Author);
+            modelBuilder.Entity<Author>()
+                .HasMany(a => a.Contacts)
+                .WithOne(a => a.Author);
+
+            modelBuilder.Entity<Contact>()
+                .HasOne(a => a.Author)
+                .WithMany(a => a.Contacts);
+
             modelBuilder.Entity<LeadData>()
-                .HasOne(a => a.ParsedArticle)
-                .WithOne(ld => ld.LeadData);
-            modelBuilder.Entity<ParsedArticle>()
-                .HasMany(a => a.Tags);
-            modelBuilder.Entity<ParsedArticle>()
-                .HasMany(a => a.Hubs);
-
-
-            var dbContext = this;
-            /*var tagKeyConverter = new ValueConverter<Tag, int>(
-                v => v.TagId,
-                v => new Tag(v, this));*/
-            var allTagsConverter = new ValueConverter<List<Tag>, List<int>>(
-                v => v.ConvertAll<int>(x => x.TagId),
-                v => v.ConvertAll<Tag>(x => new Tag(x, dbContext)));
+                .HasOne(le => le.Article)
+                .WithOne(le => le.LeadData);
 
             base.OnModelCreating(modelBuilder);
         }

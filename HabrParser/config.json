@@ -1,5 +1,5 @@
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Initial Catalog=HabrParserDB; Data Source=localhost,1433;TrustServerCertificate=True;User ID=HabrUser;Password=123456"
+    "DefaultConnection": "Initial Catalog=HabrParserDB; Data Source=localhost,1433;TrustServerCertificate=True;User ID=sa;Password=123456"
   }  
 }

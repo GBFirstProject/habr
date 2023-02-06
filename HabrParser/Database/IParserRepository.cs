@@ -1,4 +1,4 @@
-﻿using HabrParser.Models.ArticleOnly;
+﻿using HabrParser.Models.APIArticles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,6 @@ namespace HabrParser.Database
 {
     public interface IParserRepository : IDisposable
     {
-        void CreateHabrArticle(ParsedArticle article);
+        void CreateHabrArticle(Article article);
     }
 }

@@ -13,7 +13,7 @@ namespace HabrParser.Models.ArticleOnly
             Id = id;
             TitleHtml = titleHtml;
         }
-        public Tag(int tagId, ArticlesDBContext dBContext)
+       /* public Tag(int tagId, ArticlesDBContext dBContext)
         {
             var existTag = dBContext.Tags.FirstOrDefault(t => t.TagId == tagId);
             if(existTag != null)
@@ -22,7 +22,7 @@ namespace HabrParser.Models.ArticleOnly
                 Id = existTag.Id;
                 TitleHtml = existTag.TitleHtml;
             }
-        }
+        }*/
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

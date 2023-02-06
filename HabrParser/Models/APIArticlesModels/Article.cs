@@ -1,11 +1,11 @@
-﻿using FirstProject.ArticlesAPI.Models.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FirstProject.ArticlesAPI.Models
+namespace HabrParser.Models.APIArticles
 {
     public class Article : BaseModel<Guid>
     {
+        public int hubrId { get; set; }
         [Required]
         public string Title { get; set; } = string.Empty;
         public ArticleLanguage Language { get; set; } = ArticleLanguage.Russian;
@@ -24,5 +24,15 @@ namespace FirstProject.ArticlesAPI.Models
         public List<Tag> Tags { get; set; } = new List<Tag>();
         public List<Hub> Hubs { get; set; } = new List<Hub>();
         
-    }    
+    }
+
+    public enum ArticleLanguage
+    {
+        Russian,
+        English,
+        Chinese,
+        French,
+        Deutsche,
+        Arabic
+    }
 }

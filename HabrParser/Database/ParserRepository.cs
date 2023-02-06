@@ -1,4 +1,4 @@
-﻿using HabrParser.Models.ArticleOnly;
+﻿using HabrParser.Models.APIArticles;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace HabrParser.Database
             _dbContext = dbContext;
         }
 
-        public void CreateHabrArticle(ParsedArticle article)
+        public void CreateHabrArticle(Article article)
         {
             if (article == null) return;
             Author authorForTable = AddAuthor(article.Author);
@@ -31,15 +31,15 @@ namespace HabrParser.Database
                 AddHub(hub);
             }
             _dbContext.Articles.Add(article);        
-            UdpateLastId(article.Id);
-            _dbContext.SaveChangesAsync();
+            UdpateLastId(article.hubrId);
+            _dbContext.SaveChanges();
         }
 
         public Author AddAuthor(Author author)
         {
             if(author == null) return null;            
-            string existAlias = author.Alias;            
-            Author existAuthor = _dbContext.Authors.FirstOrDefault(a => a.Alias == existAlias);
+            string existAlias = author.NickName;            
+            Author existAuthor = _dbContext.Authors.FirstOrDefault(a => a.NickName == existAlias);
             if (existAuthor == null) 
             {
                 _dbContext.Authors.Add(author);
@@ -53,7 +53,7 @@ namespace HabrParser.Database
         }
         public void AddTag(Tag tag)
         {
-            Tag? existTag = _dbContext.Tags.FirstOrDefault(t => t.TitleHtml == tag.TitleHtml);
+            Tag? existTag = _dbContext.Tags.FirstOrDefault(t => t.TagName == tag.TagName);
             if(existTag == null)
             {
                 

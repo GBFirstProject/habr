@@ -1,8 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AutoMapper;
+using HabrParser;
 using HabrParser.Database;
-using HabrParser.Models;
-using HabrParser.Models.ArticleOnly;
+using HabrParser.Models.APIArticles;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,13 +16,13 @@ try
                 .ConfigureServices(services => {
                     services.AddDbContext<ArticlesDBContext>(options =>
                     {
-                        options.UseSqlServer(@"Initial Catalog=HabrParserDB; Data Source=localhost,1433;TrustServerCertificate=True;User ID=HabrUser;Password=123456");
+                        options.UseSqlServer(@"Initial Catalog=ArticlesDb; Data Source=localhost,1433;TrustServerCertificate=True;User ID=sa;Password=123456");
                     });
                     services.AddTransient<IParserRepository, ParserRepository>();
                 }).Build();
 
     int lastIdAdded;
-    using (var context = new ArticlesDBContext(@"Initial Catalog=HabrParserDB; Data Source=localhost,1433;TrustServerCertificate=True;User ID=HabrUser;Password=123456"))
+    using (var context = new ArticlesDBContext(@"Initial Catalog=ArticlesDb; Data Source=localhost,1433;TrustServerCertificate=True;User ID=sa;Password=123456"))
     {
         var lastParsedIdItem = context.ParserResult.FirstOrDefault();
         if(lastParsedIdItem != null)
@@ -43,23 +43,46 @@ try
             doc.Save(fs);
         }*/
 
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<HabrParser.Models.Article, HabrParser.Models.ArticleOnly.ParsedArticle>();
+            cfg.CreateMap<HabrParser.Models.Author, HabrParser.Models.ArticleOnly.Author>();
+            cfg.CreateMap<HabrParser.Models.Flow, HabrParser.Models.ArticleOnly.Flow>();
+            cfg.CreateMap<HabrParser.Models.Hub, HabrParser.Models.ArticleOnly.Hub>();
+            cfg.CreateMap<HabrParser.Models.LeadData, HabrParser.Models.ArticleOnly.LeadData>();
+            cfg.CreateMap<HabrParser.Models.Tag, HabrParser.Models.ArticleOnly.Tag>();
+
+            cfg.CreateMap<string, Guid>().ConvertUsing(s => LocalConverters.Str2Guid(s));
+
+            cfg.CreateMap<HabrParser.Models.Article, Article>()
+                .ForMember(m => m.hubrId,
+                opt => opt.MapFrom(a => a.id));
+            cfg.CreateMap<HabrParser.Models.Contact, Contact>();
+            cfg.CreateMap<HabrParser.Models.Author, Author>()
+                .ForMember(a => a.NickName,
+                opt => opt.MapFrom(a => a.alias))
+                .ForMember(a => a.FirstName,
+                opt => opt.MapFrom(a => a.fullname))
+                .ForMember(a => a.hubrId,
+                opt => opt.MapFrom(a => a.id));
+            cfg.CreateMap<HabrParser.Models.Hub, Hub>()
+                .ForMember(a => a.hubrId,
+                opt => opt.MapFrom(a => a.id));
+            cfg.CreateMap<HabrParser.Models.LeadData, LeadData>();
+            cfg.CreateMap<HabrParser.Models.Tag, Tag>()
+                .ForMember(t => t.TagName,
+                opt => opt.MapFrom(t => t.titleHtml));
+        });
+        // Настройка AutoMapper
+        var mapper = new Mapper(config);
+
         foreach (var script in doc.DocumentNode.Descendants("script").ToArray())
         {            
             string s = script.InnerText;
 
             try
             {
-                var config = new MapperConfiguration(cfg =>
-                {
-                    cfg.CreateMap<Article, ParsedArticle>();
-                    cfg.CreateMap<HabrParser.Models.Author, HabrParser.Models.ArticleOnly.Author>();
-                    cfg.CreateMap<HabrParser.Models.Flow, HabrParser.Models.ArticleOnly.Flow>();
-                    cfg.CreateMap<HabrParser.Models.Hub, HabrParser.Models.ArticleOnly.Hub>();
-                    cfg.CreateMap<HabrParser.Models.LeadData, HabrParser.Models.ArticleOnly.LeadData>();
-                    cfg.CreateMap<HabrParser.Models.Tag, HabrParser.Models.ArticleOnly.Tag>();
-                });
-                // Настройка AutoMapper
-                var mapper = new Mapper(config);
+                
                 if (s.Length > 26)
                 {
                     if (s.Substring(0, 25) == "window.__INITIAL_STATE__=")
@@ -67,14 +90,16 @@ try
                         var jsonStr = s.Substring(25, s.Length - 147);
                         string strToReplace = $"\"articlesList\":{{\"{i}\"";
                         jsonStr = jsonStr.Replace(strToReplace, "\"articlesList\":{\"article\"");
-                        Root data;
-                        data = JsonConvert.DeserializeObject<Root>(jsonStr);
+                        HabrParser.Models.Root data;
+                        data = JsonConvert.DeserializeObject<HabrParser.Models.Root>(jsonStr);
                         Console.ResetColor();
 
                         if (data.articlesList.articlesList.article != null)
                         {
                             Console.WriteLine($"ст. № {i} - {data.articlesList.articlesList.article.titleHtml}");
-                            ParsedArticle article = mapper.Map<Article, ParsedArticle>(data.articlesList.articlesList.article);
+                            //ParsedArticle article = mapper.Map<Article, ParsedArticle>(data.articlesList.articlesList.article);
+                            Article article = mapper.Map<HabrParser.Models.Article,
+                                Article>(data.articlesList.articlesList.article);
                             host.Services.GetRequiredService<IParserRepository>().CreateHabrArticle(article);
                         }
                     }
