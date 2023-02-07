@@ -14,15 +14,13 @@ namespace FirstProject.NotificationAPI.Producers
             this.bus=bus;
         }
 
-        public Task<bool> Notify(IModeratorRequested notification)
+        public Task<bool> PublishModeratorRequested(ModeratorRequested notification)
         {
             try
             {
                 bus.Publish(notification);
 
                 return Task.FromResult(true);
-
-
             }
             catch (Exception)
             {
@@ -32,14 +30,13 @@ namespace FirstProject.NotificationAPI.Producers
           
         }
 
-        public Task<bool> ArticleLiked(IArticleLiked notification)
+        public Task<bool> PublishArticleLiked(ArticleLiked notification)
         {
             try
             {
                 bus.Publish(notification);
 
                 return Task.FromResult(true);
-
 
             }
             catch (Exception)
@@ -50,15 +47,13 @@ namespace FirstProject.NotificationAPI.Producers
 
         }
 
-        public Task<bool> ArticleDisliked(IArticleDisliked notification)
+        public Task<bool> PublishArticleDisliked(ArticleDisliked notification)
         {
             try
             {
                 bus.Publish(notification);
 
                 return Task.FromResult(true);
-
-
             }
             catch (Exception)
             {
@@ -69,25 +64,19 @@ namespace FirstProject.NotificationAPI.Producers
 
 
 
-        public Task<bool> ArticleCommented(IArticleCommented notification)
+        public Task<bool> PublishArticleCommented(ArticleCommented notification)
         {
             try
             {
                 bus.Publish(notification);
 
                 return Task.FromResult(true);
-
-
             }
             catch (Exception)
             {
                 return Task.FromResult(false);
                 throw;
             }
-
         }
-
-
-
     }
 }

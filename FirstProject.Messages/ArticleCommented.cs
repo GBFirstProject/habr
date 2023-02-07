@@ -8,7 +8,7 @@ namespace FirstProject.Messages
 { /// <summary>
   /// Класс сообщения о комментировании статьи
   /// </summary>
-    public class ArticleCommented : IArticleCommented
+    public class ArticleCommented 
     {
         
         /// <summary>

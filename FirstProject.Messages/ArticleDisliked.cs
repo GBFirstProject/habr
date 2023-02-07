@@ -8,7 +8,7 @@ namespace FirstProject.Messages
 {  /// <summary>
    /// Класс сообщения о дизлайке статьи
    /// </summary>
-    public class ArticleDisiked : IArticleDisliked
+    public class ArticleDisliked 
     {  
         /// <summary>
         /// Идентификатор статьи

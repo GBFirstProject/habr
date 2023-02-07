@@ -2,8 +2,8 @@
 {/// <summary>
  /// Класс сообщения запроса модератора
  /// </summary>
-    public class ModeratorRequested : IModeratorRequested
-    {
+    public class ModeratorRequested
+    { 
         /// <summary>
         /// Идентификатор отправителя
         /// </summary>

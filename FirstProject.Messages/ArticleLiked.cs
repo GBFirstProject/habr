@@ -9,12 +9,8 @@ namespace FirstProject.Messages
     /// <summary>
     /// Класс сообщения о лайке статьи
     /// </summary>
-    public class ArticleLiked : IArticleLiked
-    {/// <summary>
-     /// Идентификатор сообщения
-     /// </summary>
-        public Guid Id{ get; set; }
-
+    public class ArticleLiked 
+    {
         /// <summary>
         /// Идентификатор статьи
         /// </summary>
