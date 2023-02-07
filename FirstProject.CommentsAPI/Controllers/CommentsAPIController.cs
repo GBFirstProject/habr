@@ -2,14 +2,19 @@
 using FirstProject.CommentsAPI.Interfaces;
 using FirstProject.CommentsAPI.Models.DTO;
 using FirstProject.CommentsAPI.Models.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstProject.CommentsAPI.Controllers
 {
+    [Authorize]
     [Route("api/comments")]
     [ApiController]
     public class CommentsAPIController : ControllerBase
     {
+        private const string ID = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+        private const string ROLE = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+
         private readonly ICommentsRepository _repository;
         private readonly ILogger<CommentsAPIController> _logger;
         private readonly IMapper _mapper;
@@ -29,6 +34,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="count">Количество</param>
         /// <param name="cts"></param>
         /// <returns>Список комментариев</returns>
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts)
         {
@@ -54,6 +60,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="articleId">Guid статьи</param>
         /// <param name="cts"></param>
         /// <returns>Количество комментариев</returns>
+        [AllowAnonymous]
         [HttpGet("getcount")]
         public async Task<IActionResult> GetCommentsCountByArticleId(string articleId, CancellationToken cts)
         {
@@ -158,6 +165,11 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
+                if (!await IsHasRights(request.CommentId, cts))
+                {
+                    return Unauthorized();
+                }
+
                 var result = await _repository.ChangeContentComment(request.CommentId, request.Content, cts);
                 return Ok(new ResponseDTO()
                 {
@@ -174,16 +186,20 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <summary>
         /// Удаление комментария
         /// </summary>
-        /// <param name="id">Guid комментария</param>
+        /// <param name="commentId">Guid комментария</param>
         /// <param name="cts"></param>
         /// <returns>Результат операции</returns>
         [HttpDelete]
-        public async Task<IActionResult> DeleteComment(string id, CancellationToken cts)
+        public async Task<IActionResult> DeleteComment(Guid commentId, CancellationToken cts)
         {
             try
             {
-                var guid = Guid.Parse(id);
-                var result = await _repository.DeleteComment(guid, cts);
+                if (!await IsHasRights(commentId, cts))
+                {
+                    return Unauthorized();
+                }
+
+                var result = await _repository.DeleteComment(commentId, cts);
 
                 return Ok(new ResponseDTO()
                 {
@@ -207,6 +223,23 @@ namespace FirstProject.CommentsAPI.Controllers
             };
             response.ErrorMessages.Add(ex.Message);
             return Ok(response);
+        }
+
+        private async Task<bool> IsHasRights(Guid commentId, CancellationToken cts)
+        {
+            var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
+            var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+
+            if (role != "Admin" && role != "Moderator")
+            {
+                var ownerId = await _repository.GetUserIdByCommentId(commentId, cts);
+                if (userId != ownerId)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
