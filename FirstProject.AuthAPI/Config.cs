@@ -1,70 +1,65 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
-using IdentityModel;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
-namespace FirstProject.AuthAPI;
-
-public static class Config
+namespace FirstProject.AuthAPI
 {
-    public static IEnumerable<IdentityResource> IdentityResources =>
-        new List<IdentityResource>
-        { 
-            new IdentityResources.OpenId(),
-            new IdentityResources.Profile(),
-            new IdentityResource()
+    public static class Config
+    {
+        public const string Admin = "Admin";
+        public const string Moderator = "Moderator";
+        public const string User = "User";
+
+        public static IEnumerable<IdentityResource> IdentityResources =>
+            new List<IdentityResource>
             {
-                Name = "verification",
-                UserClaims = new List<string> 
-                { 
-                    JwtClaimTypes.Email,
-                    JwtClaimTypes.EmailVerified
-                }
-            }
-        };
+                new IdentityResources.OpenId(),
+                new IdentityResources.Email(),
+                new IdentityResources.Profile()
+            };
 
-    public static IEnumerable<ApiScope> ApiScopes =>
-        new List<ApiScope>
-        { 
-            new ApiScope("allAPI", "All API application") 
-        };
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new List<ApiScope> {
+                new ApiScope("firstProject", "All API application")
+            };
 
-    public static IEnumerable<ApiResource> ApiResources =>
-        new List<ApiResource>
-        { 
-        };
-
-    public static IEnumerable<Client> Clients =>
-        new List<Client> 
+        public static IEnumerable<Client> Clients(IConfiguration configuration)
         {
-            // machine-to-machine client
-            new Client
+            var bffClientUrl = configuration["serviceURI:javascriptbff-client"]!.ToString();
+
+            return new List<Client>
             {
-                ClientId = "client",
-                ClientSecrets = { new Secret("Ncydu%ggus&txgyYFTd$56h_dk".Sha256()) },
-                AllowedGrantTypes = GrantTypes.ClientCredentials,
-                // scopes that client has access to
-                AllowedScopes = { "allAPI" }
-            },
-            // JavaScript BFF client
-            new Client
-            {
-                ClientId = "webClient",
-                ClientSecrets = { new Secret("Bdg&6ed3hfh(jcB@3r5fDwJdyd".Sha256()) },
-
-                AllowedGrantTypes = GrantTypes.Code,
-                
-                // where to redirect to after login
-                RedirectUris = { "https://localhost:5003/signin-oidc" },
-
-                // where to redirect to after logout
-                PostLogoutRedirectUris = { "https://localhost:5003/signout-callback-oidc" },
-
-                AllowedScopes = new List<string>
+                new Client
                 {
-                    IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile,
-                    "allAPI"
+                    ClientId="clientApp",
+                    ClientSecrets= { new Secret("VdhjadcjihB5d4xfssjcugugVddn$xsvBxuy7xh".Sha256())},
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    AllowedScopes={ "firstProject"}
+                },
+                new Client
+                {
+                    ClientId="clientUser",
+                    ClientSecrets= {
+                        new Secret("Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd".Sha256())
+                    },
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RedirectUris = { $"{bffClientUrl}/signin-oidc" },
+                    PostLogoutRedirectUris = { $"{bffClientUrl}/signout-callback-oidc" },
+                    FrontChannelLogoutUri = $"{bffClientUrl}/signout-oidc",
+                    AllowedScopes=new List<string>
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "firstProject"
+                    },
+                    AllowOfflineAccess=true
                 }
-            }
-        };
+            };
+        }
+
+    }
 }
+
+
