@@ -12,7 +12,11 @@
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || obj.GetType() != typeof(CommentDTO)) return false;
+            if (obj == null || obj.GetType() != typeof(CommentDTO))
+            {
+                return false;
+            }
+
             var dto = (CommentDTO)obj;
 
             return Id.Equals(dto.Id) &&

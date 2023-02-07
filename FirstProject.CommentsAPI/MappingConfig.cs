@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using FirstProject.CommentsAPI.Models.DTO;
 using FirstProject.CommentsAPI.Models;
+using FirstProject.CommentsAPI.Models.DTO;
 using FirstProject.CommentsAPI.Models.Requests;
 
 namespace FirstProject.CommentsAPI

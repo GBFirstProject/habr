@@ -57,9 +57,9 @@ namespace FirstProject.Tests.CommentsAPI
         {
             CommentDTO input = null!;
 
-            async Task Check() 
+            async Task Check()
             {
-                await _repository.CreateComment(input, default); 
+                await _repository.CreateComment(input, default);
             }
 
             Assert.CatchAsync(Check);

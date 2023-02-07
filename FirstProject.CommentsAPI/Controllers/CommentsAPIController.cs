@@ -141,7 +141,7 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var result = await _repository.DislikeComment(request.CommentId,Guid.Empty, cts);
+                var result = await _repository.DislikeComment(request.CommentId, Guid.Empty, cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,

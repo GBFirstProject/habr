@@ -1,8 +1,8 @@
+using FirstProject.CommentsAPI;
 using FirstProject.CommentsAPI.Interfaces;
 using FirstProject.CommentsAPI.Repositories;
-using FirstProject.CommentsAPI;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);

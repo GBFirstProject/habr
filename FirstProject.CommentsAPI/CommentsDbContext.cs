@@ -1,6 +1,5 @@
 ﻿using FirstProject.CommentsAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace FirstProject.CommentsAPI
 {
