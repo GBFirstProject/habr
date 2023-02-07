@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Duende.Bff.Yarp;
 using FirstProject.Web;
+using FirstProject.Web.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 
@@ -9,21 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-Config.ArticlesAPIBase = builder.Configuration["ServiceUrls:ArticlesAPI"];
+builder.Services.ConfigureAPIBase(builder.Configuration);
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 builder.Services
     .AddBff()
     .AddRemoteApis();
-
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.ConfigureHttpsDefaults(listenOptions =>
-//    {
-//        listenOptions.AllowAnyClientCertificate(); 
-//    });
-//});
 
 builder.Services
     .AddAuthorization()

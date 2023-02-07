@@ -10,5 +10,8 @@ namespace FirstProject.AuthAPI.Data
             : base(options)
         {
         }
+
+        public DbSet<ApplicationUser> Users { get; set; }
+
     }
 }

@@ -1,12 +1,8 @@
 ﻿using Duende.Bff;
-using IdentityModel.Client;
+using FirstProject.Web.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using System.Data;
-using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace FirstProject.Web.Controllers
@@ -39,7 +35,7 @@ namespace FirstProject.Web.Controllers
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var content = await client.GetStringAsync(
-                Config.ArticlesAPIBase + "/api/article/testAdmin");
+                RequestConfig.ArticlesAPIBase + "/api/article/testAdmin");
 
             return new JsonResult(content);
         }
@@ -62,7 +58,7 @@ namespace FirstProject.Web.Controllers
             var client = new HttpClient(httpClientHandler);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var content = await client.GetStringAsync(
-                Config.ArticlesAPIBase + "/api/article/test");
+                RequestConfig.ArticlesAPIBase + "/api/article/test");
 
             return new JsonResult(content);
         }

@@ -1,0 +1,42 @@
+﻿@page
+@model FirstProject.AuthAPI.Areas.Identity.Pages.Account.Manage.UsersManagerModel
+@{
+    ViewData["Title"] = "Управление пользователями";
+}
+
+<h3>@ViewData["Title"]</h3>
+
+<p>
+    <a asp-page="./User/Create">Новый пользователь</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].FirstName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Users)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    <a asp-page="./User/Edit" asp-route-id="@item.Id">Изменить</a> |
+                    <a asp-page="./User/Details" asp-route-id="@item.Id">Просмотр</a> |
+                    <a asp-page="./User/Delete" asp-route-id="@item.Id">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
