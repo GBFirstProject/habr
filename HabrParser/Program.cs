@@ -36,7 +36,7 @@ try
         context.SaveChanges();*/
     }    
     if (lastIdAdded < 0) return;
-    for (int i = lastIdAdded; i < 600000; i++)
+    for (int i = lastIdAdded; i < 715400; i++)
     {
 
         var url = $"https://habr.com/ru/post/{i}/";
@@ -66,7 +66,9 @@ try
                 .ForMember(m => m.Title,
                 opt => opt.MapFrom(a => a.titleHtml))
                 .ForMember(m => m.Id,
-                opt => opt.Ignore());
+                opt => opt.Ignore())
+                .ForMember(m => m.Language,
+                opt => opt.MapFrom(a => LocalConverters.StrToLanguage(a.lang)));
             cfg.CreateMap<HabrParser.Models.Contact, Contact>()
                 .ForMember(x => x.Id, opt => opt.Ignore());
             cfg.CreateMap<HabrParser.Models.Author, Author>()

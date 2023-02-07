@@ -4,7 +4,7 @@
     {
         public int AuthroId { get; set; }
         public string Title { get; set; }
-        public string Language { get; set; } = "ru";
+        public string Language { get; set; } = "Russian";
         public string TextHtml { get; set; }
         public string ImageUrl { get; set; }
         public bool CommentsEnabled { get; set; }

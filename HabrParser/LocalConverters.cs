@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HabrParser.Models.APIArticles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,6 +43,13 @@ namespace HabrParser
             string[] arr = str.Split(' ');
             if (arr.Length < 2) return "";
             return arr[1];
+        }
+
+        public static ArticleLanguage StrToLanguage(string str)
+        {
+            if(str == "ru") return ArticleLanguage.Russian;
+            if(str == "en") return ArticleLanguage.English;
+            return ArticleLanguage.Russian;
         }
 
     }

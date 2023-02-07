@@ -3,12 +3,24 @@
 namespace FirstProject.ArticlesAPI.Data.Interfaces
 {
     public interface IRepository<TEntity>
-    {                
-        void Create(TEntity data);
-        void Update(TEntity data);
-        void Delete(TEntity data);
-        void Edit(TEntity data);
-        IQueryable<TEntity> FindAll();
-        Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
+    where TEntity : class
+    {
+        IQueryable<TEntity> Query(params Expression<Func<TEntity, object>>[] includes);
+
+        Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken);
+
+        Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
+
+        Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
+
+        Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken);
+
+        Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken);
+
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+        ValueTask<TEntity> GetByIdAsync(CancellationToken cancellationToken, params object[] keys);
+
+        void Delete(TEntity entity);        
     }
 }

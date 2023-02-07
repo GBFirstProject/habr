@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FirstProject.ArticlesAPI.Data.Interfaces;
 using FirstProject.ArticlesAPI.Models.DTO;
+using FirstProject.ArticlesAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,13 +11,13 @@ namespace FirstProject.ArticlesAPI.Controllers
     [ApiController]
     public class ArticleController : ControllerBase
     {
-        private readonly IArticlesRepository _articlesRepository;
+        private readonly IArticleService _articlesService;
         private readonly ILogger<ArticleController> _logger;
         private readonly IMapper _mapper;
 
-        public ArticleController(IArticlesRepository articlesRepository, ILogger<ArticleController> logger, IMapper mapper)
+        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper)
         {
-            _articlesRepository = articlesRepository;
+            _articlesService = articlesService;
             _logger = logger;
             _mapper = mapper;
         }
@@ -32,7 +33,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         {
             try
             {
-                var entries = await _articlesRepository.GetArticleById(articleId, token);
+                var entries = await _articlesService.GetArticleByIdAsync(articleId, token);
 
                 return Ok(new ResponseDTO()
                 {
