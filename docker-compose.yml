@@ -3,7 +3,7 @@ version: '3.2'
 services:
   db:
     build: ./mssqldocker
-    image: mssql
+    image: dakendak/mssql
     volumes:
       - mssql-data:/var/opt/mssql
     environment:
@@ -15,10 +15,12 @@ services:
     ports:
       - "1433:1433"
     container_name: mssqldev
+
   auth:
     build: ./FirstProject.AuthAPI
-    image: auth
+    image: dakendak/auth
     container_name: authdev
+    hostname: authApi
     volumes:
       - "C:/Users/kiver/.aspnet/https:/https/"
     environment:
@@ -28,9 +30,10 @@ services:
         condition: service_healthy
     ports:
       - "5001:5001"
+
   articles:
     build: ./FirstProject.ArticlesAPI
-    image: articles
+    image: dakendak/articles
     container_name: articlesdev
     volumes:
       - "C:/Users/kiver/.aspnet/https:/https/"
@@ -39,9 +42,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
   web:
     build: ./FirstProject.Web
-    image: web
+    image: dakendak/web
     container_name: webdev
     volumes:
       - "C:/Users/kiver/.aspnet/https:/https/"

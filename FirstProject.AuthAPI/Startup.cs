@@ -14,6 +14,7 @@ using FirstProject.AuthAPI.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Linq;
+using FirstProject.AuthAPI.Repository;
 
 namespace FirstProject.AuthAPI
 {
@@ -39,6 +40,8 @@ namespace FirstProject.AuthAPI
                 options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddRazorPages();
 
@@ -89,7 +92,7 @@ namespace FirstProject.AuthAPI
             }
             else
             {
-                app.UseExceptionHandler("/Error");
+                app.UseDeveloperExceptionPage();
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
