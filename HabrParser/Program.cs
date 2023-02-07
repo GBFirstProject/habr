@@ -29,6 +29,11 @@ try
             lastIdAdded = lastParsedIdItem.LastArtclelId;
         else
             lastIdAdded = 1;
+
+        
+        /*context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT Articles ON");
+        context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT dbo.ArticleTag ON");
+        context.SaveChanges();*/
     }    
     if (lastIdAdded < 0) return;
     for (int i = lastIdAdded; i < 600000; i++)
@@ -43,6 +48,7 @@ try
             doc.Save(fs);
         }*/
 
+        
         var config = new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<HabrParser.Models.Article, HabrParser.Models.ArticleOnly.ParsedArticle>();
@@ -56,22 +62,39 @@ try
 
             cfg.CreateMap<HabrParser.Models.Article, Article>()
                 .ForMember(m => m.hubrId,
-                opt => opt.MapFrom(a => a.id));
-            cfg.CreateMap<HabrParser.Models.Contact, Contact>();
+                opt => opt.MapFrom(a => a.id))
+                .ForMember(m => m.Title,
+                opt => opt.MapFrom(a => a.titleHtml))
+                .ForMember(m => m.Id,
+                opt => opt.Ignore());
+            cfg.CreateMap<HabrParser.Models.Contact, Contact>()
+                .ForMember(x => x.Id, opt => opt.Ignore());
             cfg.CreateMap<HabrParser.Models.Author, Author>()
                 .ForMember(a => a.NickName,
                 opt => opt.MapFrom(a => a.alias))
                 .ForMember(a => a.FirstName,
-                opt => opt.MapFrom(a => a.fullname))
+                opt => opt.MapFrom(a => LocalConverters.FirstNameFromStr(a.fullname)))
+                .ForMember(a => a.LastName,
+                opt => opt.MapFrom(a => LocalConverters.LastNameFromStr(a.fullname)))
                 .ForMember(a => a.hubrId,
-                opt => opt.MapFrom(a => a.id));
+                opt => opt.MapFrom(a => a.id))
+                .ForMember(m => m.Id,
+                opt => opt.Ignore());
             cfg.CreateMap<HabrParser.Models.Hub, Hub>()
                 .ForMember(a => a.hubrId,
-                opt => opt.MapFrom(a => a.id));
-            cfg.CreateMap<HabrParser.Models.LeadData, LeadData>();
+                opt => opt.MapFrom(a => a.id))
+                .ForMember(m => m.Id,
+                opt => opt.Ignore());
+            cfg.CreateMap<HabrParser.Models.LeadData, LeadData>()
+                .ForMember(m => m.Id,
+                opt => opt.Ignore());
             cfg.CreateMap<HabrParser.Models.Tag, Tag>()
                 .ForMember(t => t.TagName,
-                opt => opt.MapFrom(t => t.titleHtml));
+                opt => opt.MapFrom(t => t.titleHtml))
+                .ForMember(m => m.Id,
+                opt => opt.Ignore());
+            cfg.CreateMap<HabrParser.Models.Statistics, Statistics>()
+                .ForMember(x => x.Id, opt => opt.Ignore());
         });
         // Настройка AutoMapper
         var mapper = new Mapper(config);

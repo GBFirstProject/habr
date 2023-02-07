@@ -4,8 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FirstProject.ArticlesAPI.Models
 {
+    [Table("Articles")]
     public class Article : BaseModel<Guid>
     {
+        public int hubrId { get; set; }
         [Required]
         public string Title { get; set; } = string.Empty;
         public ArticleLanguage Language { get; set; } = ArticleLanguage.Russian;
@@ -15,14 +17,17 @@ namespace FirstProject.ArticlesAPI.Models
         public DateTimeOffset? TimePublished { get; set; } = DateTime.UtcNow;
         public bool CommentsEnabled { get; set; } = true;
         public string ImageLink { get; set; } = string.Empty;
-        public int? LeadDataId { get; set; }
+        public Guid LeadDataId { get; set; }
         [ForeignKey("LeadDataId")]
         public LeadData LeadData { get; set; } = new LeadData();
         public int AuthorId { get; set; }
         [ForeignKey("AuthorId")]
         public Author Author { get; set; } = new Author();
+        public Guid StatisticsId { get; set; }
+        [ForeignKey("StatisticsId")]
+        public Statistics Statistics { get; set; }
         public List<Tag> Tags { get; set; } = new List<Tag>();
         public List<Hub> Hubs { get; set; } = new List<Hub>();
-        
-    }    
+
+    }
 }

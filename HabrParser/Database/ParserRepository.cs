@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,19 +21,30 @@ namespace HabrParser.Database
         {
             if (article == null) return;
             Author authorForTable = AddAuthor(article.Author);
+            if (authorForTable.Contacts != null)
+            {
+                for (int i = 0; i < authorForTable.Contacts.Count; i++)
+                {
+                    Contact contact = AddContact(authorForTable.Contacts[i]);
+                    authorForTable.Contacts[i] = contact;
+                }
+            }
             article.Author = authorForTable;
             _dbContext.Leads.Add(article.LeadData);           
-            foreach(var tag in article.Tags)
+            for(int i = 0; i < article.Tags.Count; i++)
             {
-                AddTag(tag);
+                Tag tag = AddTag(article.Tags[i]);
+                article.Tags[i] = tag;
             }
-            foreach(var hub in article.Hubs)
+            for (int i = 0; i < article.Hubs.Count; i++)
             {
-                AddHub(hub);
+                Hub hub = AddHub(article.Hubs[i]);
+                article.Hubs[i] = hub;
             }
             _dbContext.Articles.Add(article);        
             UdpateLastId(article.hubrId);
-            _dbContext.SaveChanges();
+            _dbContext.ChangeTracker.DetectChanges();
+            _dbContext.SaveChangesAsync();
         }
 
         public Author AddAuthor(Author author)
@@ -51,41 +63,45 @@ namespace HabrParser.Database
                 return existAuthor;
             }            
         }
-        public void AddTag(Tag tag)
+        public Tag AddTag(Tag tag)
         {
             Tag? existTag = _dbContext.Tags.FirstOrDefault(t => t.TagName == tag.TagName);
             if(existTag == null)
             {
                 
                 _dbContext.Tags.Add(tag);
-                //_dbContext.SaveChanges();
-                
+                return tag;
             }
-            /*else
+            else
             {
-                if (existTag.TitleHtml != tag.TitleHtml)
-                {
-                    _dbContext.Tags.Add(tag);
-                    //_dbContext.SaveChanges();
-                }
-            }*/
+                return existTag;
+            }
         }
-        public void AddHub(Hub hub)
+        public Hub AddHub(Hub hub)
         {
             Hub? existHub = _dbContext.Hubs.FirstOrDefault(h => h.Title == hub.Title);
             if(existHub == null)
             {
                 _dbContext.Hubs.Add(hub);
-                //_dbContext.SaveChangesAsync();
+                return hub;
             }
-            /*else
+            else
             {
-                if (existHub.Title != hub.Title)
-                {
-                    _dbContext.Hubs.Add(hub);
-                    //_dbContext.SaveChangesAsync();
-                }
-            }*/
+                return existHub;
+            }
+        }
+        public Contact AddContact(Contact contact)
+        {
+            Contact? existContact = _dbContext.Contacts.FirstOrDefault(c => c.Equals(contact));
+            if(existContact == null)
+            {
+                _dbContext.Contacts.Add(contact);
+                return contact;
+            }
+            else
+            { 
+                return existContact; 
+            }
         }
 
         public void UdpateLastId(int id)

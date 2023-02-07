@@ -138,7 +138,7 @@ namespace HabrParser.Models
         public string avatarUrl { get; set; }
         public string speciality { get; set; }
         public ScoreStats scoreStats { get; set; }
-        public int rating { get; set; }
+        public float rating { get; set; }
         public object relatedData { get; set; }
         public List<Contact> contacts { get; set; }
         public List<AuthorContact> authorContacts { get; set; }

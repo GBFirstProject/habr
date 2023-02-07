@@ -68,11 +68,15 @@ namespace FirstProject.ArticlesAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Language")
-                        .HasColumnType("int");
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LeadDataId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("LeadDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StatisticsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TextHtml")
                         .IsRequired()
@@ -86,9 +90,18 @@ namespace FirstProject.ArticlesAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("hubrId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("LeadDataId")
+                        .IsUnique();
+
+                    b.HasIndex("StatisticsId")
+                        .IsUnique();
 
                     b.ToTable("Articles");
                 });
@@ -102,7 +115,6 @@ namespace FirstProject.ArticlesAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AvatarUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
@@ -121,19 +133,25 @@ namespace FirstProject.ArticlesAPI.Migrations
 
                     b.Property<string>("NickName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Patronymic")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
+                    b.Property<float>("Rating")
+                        .HasPrecision(17, 1)
+                        .HasColumnType("real");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("hubrId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("NickName");
 
                     b.ToTable("Authors");
                 });
@@ -178,13 +196,18 @@ namespace FirstProject.ArticlesAPI.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("hubrId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Title");
 
                     b.ToTable("Hubs");
                 });
@@ -195,11 +218,10 @@ namespace FirstProject.ArticlesAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("int");
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TextHtml")
@@ -209,6 +231,38 @@ namespace FirstProject.ArticlesAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LeadData");
+                });
+
+            modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Statistics", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CommentsCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FavoritesCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReadingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VotesCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VotesCountMinus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VotesCountPlus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Statistics");
                 });
 
             modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Tag", b =>
@@ -221,9 +275,11 @@ namespace FirstProject.ArticlesAPI.Migrations
 
                     b.Property<string>("TagName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TagName");
 
                     b.ToTable("Tags");
                 });
@@ -266,7 +322,23 @@ namespace FirstProject.ArticlesAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FirstProject.ArticlesAPI.Models.LeadData", "LeadData")
+                        .WithOne("Article")
+                        .HasForeignKey("FirstProject.ArticlesAPI.Models.Article", "LeadDataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FirstProject.ArticlesAPI.Models.Statistics", "Statistics")
+                        .WithOne("Article")
+                        .HasForeignKey("FirstProject.ArticlesAPI.Models.Article", "StatisticsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Author");
+
+                    b.Navigation("LeadData");
+
+                    b.Navigation("Statistics");
                 });
 
             modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Contact", b =>
@@ -280,28 +352,23 @@ namespace FirstProject.ArticlesAPI.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("FirstProject.ArticlesAPI.Models.LeadData", b =>
-                {
-                    b.HasOne("FirstProject.ArticlesAPI.Models.Article", "Article")
-                        .WithOne("LeadData")
-                        .HasForeignKey("FirstProject.ArticlesAPI.Models.LeadData", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Article");
-                });
-
-            modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Article", b =>
-                {
-                    b.Navigation("LeadData")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Author", b =>
                 {
                     b.Navigation("Articles");
 
                     b.Navigation("Contacts");
+                });
+
+            modelBuilder.Entity("FirstProject.ArticlesAPI.Models.LeadData", b =>
+                {
+                    b.Navigation("Article")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Statistics", b =>
+                {
+                    b.Navigation("Article")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

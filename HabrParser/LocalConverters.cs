@@ -28,5 +28,21 @@ namespace HabrParser
             return bint;
         }
 
+        public static string FirstNameFromStr(string str)
+        {
+            if (str == null) return "";
+            string[] arr = str.Split(' ');
+            if (arr.Length < 1) return "";
+            return arr[0];
+        }
+
+        public static string LastNameFromStr(string str)
+        {
+            if (str == null) return "";
+            string[] arr = str.Split(' ');
+            if (arr.Length < 2) return "";
+            return arr[1];
+        }
+
     }
 }

@@ -68,11 +68,15 @@ namespace HabrParser.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Language")
-                        .HasColumnType("int");
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LeadDataId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("LeadDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StatisticsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TextHtml")
                         .IsRequired()
@@ -93,6 +97,12 @@ namespace HabrParser.Migrations
 
                     b.HasIndex("AuthorId");
 
+                    b.HasIndex("LeadDataId")
+                        .IsUnique();
+
+                    b.HasIndex("StatisticsId")
+                        .IsUnique();
+
                     b.ToTable("Articles");
                 });
 
@@ -105,7 +115,6 @@ namespace HabrParser.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AvatarUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
@@ -124,14 +133,15 @@ namespace HabrParser.Migrations
 
                     b.Property<string>("NickName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Patronymic")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
+                    b.Property<float>("Rating")
+                        .HasPrecision(17, 1)
+                        .HasColumnType("real");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -140,6 +150,8 @@ namespace HabrParser.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NickName");
 
                     b.ToTable("Authors");
                 });
@@ -184,7 +196,7 @@ namespace HabrParser.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -195,16 +207,19 @@ namespace HabrParser.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Title");
+
                     b.ToTable("Hubs");
                 });
 
             modelBuilder.Entity("HabrParser.Models.APIArticles.LeadData", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("int");
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
@@ -234,6 +249,38 @@ namespace HabrParser.Migrations
                     b.ToTable("ParserResult");
                 });
 
+            modelBuilder.Entity("HabrParser.Models.APIArticles.Statistics", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CommentsCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FavoritesCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReadingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VotesCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VotesCountMinus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VotesCountPlus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Statistics");
+                });
+
             modelBuilder.Entity("HabrParser.Models.APIArticles.Tag", b =>
                 {
                     b.Property<int>("Id")
@@ -244,9 +291,11 @@ namespace HabrParser.Migrations
 
                     b.Property<string>("TagName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TagName");
 
                     b.ToTable("Tags");
                 });
@@ -289,7 +338,23 @@ namespace HabrParser.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("HabrParser.Models.APIArticles.LeadData", "LeadData")
+                        .WithOne("Article")
+                        .HasForeignKey("HabrParser.Models.APIArticles.Article", "LeadDataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HabrParser.Models.APIArticles.Statistics", "Statistics")
+                        .WithOne("Article")
+                        .HasForeignKey("HabrParser.Models.APIArticles.Article", "StatisticsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Author");
+
+                    b.Navigation("LeadData");
+
+                    b.Navigation("Statistics");
                 });
 
             modelBuilder.Entity("HabrParser.Models.APIArticles.Contact", b =>
@@ -303,28 +368,23 @@ namespace HabrParser.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("HabrParser.Models.APIArticles.LeadData", b =>
-                {
-                    b.HasOne("HabrParser.Models.APIArticles.Article", "Article")
-                        .WithOne("LeadData")
-                        .HasForeignKey("HabrParser.Models.APIArticles.LeadData", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Article");
-                });
-
-            modelBuilder.Entity("HabrParser.Models.APIArticles.Article", b =>
-                {
-                    b.Navigation("LeadData")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("HabrParser.Models.APIArticles.Author", b =>
                 {
                     b.Navigation("Articles");
 
                     b.Navigation("Contacts");
+                });
+
+            modelBuilder.Entity("HabrParser.Models.APIArticles.LeadData", b =>
+                {
+                    b.Navigation("Article")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HabrParser.Models.APIArticles.Statistics", b =>
+                {
+                    b.Navigation("Article")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

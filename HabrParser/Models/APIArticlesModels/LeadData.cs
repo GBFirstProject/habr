@@ -7,11 +7,9 @@ namespace HabrParser.Models.APIArticles
     [Table("LeadData")]
     public class LeadData : BaseModel<Guid>
     {
-        [Required]
-        [ForeignKey("ArticleId")]
-        public int ArticleId { get; set; }
-        public Article Article { get; set; }// = new Article();
+        public Article Article { get; set; }
         public string TextHtml { get; set; } = string.Empty;        
         public string? ImageUrl { get; set; } = string.Empty;
+        public string? Image { get; set; } = string.Empty;
     }
 }
