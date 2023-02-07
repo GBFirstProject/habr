@@ -100,17 +100,65 @@ namespace FirstProject.CommentsAPI.Controllers
         }
 
         /// <summary>
-        /// Изменение комментария
+        /// Лайк комментария
         /// </summary>
-        /// <param name="request">Изменяемый комментарий</param>
+        /// <param name="request">Id комментария</param>
         /// <param name="cts"></param>
         /// <returns>Изменненый комментарий</returns>
-        [HttpPut]
-        public async Task<IActionResult> UpdateComment([FromBody] UpdateRequest request, CancellationToken cts)
+        [HttpPut("like")]
+        public async Task<IActionResult> LikeComment([FromBody] GradeRequest request, CancellationToken cts)
         {
             try
             {
-                var result = await _repository.UpdateComment(_mapper.Map<CommentDTO>(request), cts);
+                var result = await _repository.LikeComment(request.CommentId, Guid.Empty, cts);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Дизлайк комментария
+        /// </summary>
+        /// <param name="request">Id комментария</param>
+        /// <param name="cts"></param>
+        /// <returns>Измененный комментарий</returns>
+        [HttpPut("dislike")]
+        public async Task<IActionResult> DislikeComment([FromBody] GradeRequest request, CancellationToken cts)
+        {
+            try
+            {
+                var result = await _repository.DislikeComment(request.CommentId,Guid.Empty, cts);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Изменение текста комментария
+        /// </summary>
+        /// <param name="request">Запрос на изменение</param>
+        /// <param name="cts"></param>
+        /// <returns>Измененный комментарий</returns>
+        [HttpPut("change")]
+        public async Task<IActionResult> ChangeContentComment([FromBody] ChangeContentRequest request, CancellationToken cts)
+        {
+            try
+            {
+                var result = await _repository.ChangeContentComment(request.CommentId, request.Content, cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,

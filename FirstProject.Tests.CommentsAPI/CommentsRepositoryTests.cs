@@ -299,191 +299,6 @@ namespace FirstProject.Tests.CommentsAPI
         }
 
         [Test]
-        public async Task UpdateComment_NormalUpdate_ReturnsDTO()
-        {
-            Comment input = new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ArticleId = Guid.NewGuid(),
-                Content = "testcontent",
-                CreatedAt = DateTime.UtcNow
-            };
-            CommentDTO expected = new()
-            {
-                Id = input.Id,
-                UserId = input.UserId,
-                ArticleId = input.ArticleId,
-                Content = "changedcontent",
-                CreatedAt = input.CreatedAt
-            };
-
-            _context.Comments.Add(input);
-            _context.SaveChanges();
-
-            var result = await _repository.UpdateComment(expected, default);
-
-            Assert.That(result, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public void UpdateComment_NotExistedCommentId_ReturnsException()
-        {
-            Comment input = new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ArticleId = Guid.NewGuid(),
-                Content = "testcontent",
-                CreatedAt = DateTime.UtcNow
-            };
-            CommentDTO expected = new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = input.UserId,
-                ArticleId = input.ArticleId,
-                Content = "testcontent",
-                CreatedAt = input.CreatedAt
-            };
-
-            _context.Comments.Add(input);
-            _context.SaveChanges();
-
-            async Task Check()
-            {
-                await _repository.UpdateComment(expected, default);
-            }
-
-            Assert.CatchAsync(Check);
-        }
-
-        [Test]
-        public void UpdateComment_NullModel_ReturnsException()
-        {
-            CommentDTO expected = null!;
-
-            async Task Check()
-            {
-                await _repository.UpdateComment(expected, default);
-            }
-
-            Assert.CatchAsync(Check);
-        }
-
-        [Test]
-        public void UpdateComment_EmptyCommentId_ReturnsException()
-        {
-            CommentDTO input = new()
-            {
-                Id = Guid.Empty,
-                UserId = Guid.NewGuid(),
-                ArticleId = Guid.NewGuid(),
-                Content = "testcontent",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            async Task Check()
-            {
-                await _repository.UpdateComment(input, default);
-            }
-
-            Assert.CatchAsync(Check);
-        }
-
-        [Test]
-        public void UpdateComment_EmptyUserId_ReturnsException()
-        {
-            Comment input = new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ArticleId = Guid.NewGuid(),
-                Content = "testcontent",
-                CreatedAt = DateTime.UtcNow
-            };
-            CommentDTO expected = new()
-            {
-                Id = input.Id,
-                UserId = Guid.Empty,
-                ArticleId = input.ArticleId,
-                Content = "testcontent",
-                CreatedAt = input.CreatedAt
-            };
-
-            _context.Comments.Add(input);
-            _context.SaveChanges();
-
-            async Task Check()
-            {
-                await _repository.UpdateComment(expected, default);
-            }
-
-            Assert.CatchAsync(Check);
-        }
-
-        [Test]
-        public void UpdateComment_EmptyArticleId_ReturnsException()
-        {
-            Comment input = new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ArticleId = Guid.NewGuid(),
-                Content = "testcontent",
-                CreatedAt = DateTime.UtcNow
-            };
-            CommentDTO expected = new()
-            {
-                Id = input.Id,
-                UserId = input.UserId,
-                ArticleId = Guid.Empty,
-                Content = "testcontent",
-                CreatedAt = input.CreatedAt
-            };
-
-            _context.Comments.Add(input);
-            _context.SaveChanges();
-
-            async Task Check()
-            {
-                await _repository.UpdateComment(expected, default);
-            }
-
-            Assert.CatchAsync(Check);
-        }
-
-        [Test]
-        public void UpdateComment_EmptyContent_ReturnsException()
-        {
-            Comment input = new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
-                ArticleId = Guid.NewGuid(),
-                Content = "testcontent",
-                CreatedAt = DateTime.UtcNow
-            };
-            CommentDTO expected = new()
-            {
-                Id = input.Id,
-                UserId = input.UserId,
-                ArticleId = input.ArticleId,
-                Content = string.Empty,
-                CreatedAt = input.CreatedAt
-            };
-
-            _context.Comments.Add(input);
-            _context.SaveChanges();
-
-            async Task Check()
-            {
-                await _repository.UpdateComment(expected, default);
-            }
-
-            Assert.CatchAsync(Check);
-        }
-
-        [Test]
         public async Task DeleteComment_ExistedId_ReturnsTrue()
         {
             var id = Guid.NewGuid();
@@ -523,6 +338,384 @@ namespace FirstProject.Tests.CommentsAPI
             async Task Check()
             {
                 await _repository.DeleteComment(id, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+        [Test]
+        public async Task LikeComment_Like_ReturnsDTO()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
+            Comment input = new()
+            {
+                Id = commentId,
+                UserId = Guid.NewGuid(),
+                ArticleId = Guid.NewGuid(),
+                Content = "testcontent",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Comments.Add(input);
+            _context.SaveChanges();
+
+            CommentDTO expected = new()
+            {
+                Id = input.Id,
+                UserId = input.UserId,
+                ArticleId = input.ArticleId,
+                Content = input.Content,
+                CreatedAt = input.CreatedAt,
+                Likes = new() { userId }
+            };
+
+            var result = await _repository.LikeComment(commentId, userId, default);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Id, Is.EqualTo(expected.Id));
+                Assert.That(result.UserId, Is.EqualTo(expected.UserId));
+                Assert.That(result.ArticleId, Is.EqualTo(expected.ArticleId));
+                Assert.That(result.Content, Is.EqualTo(expected.Content));
+                Assert.That(result.CreatedAt, Is.EqualTo(expected.CreatedAt));
+                Assert.That(result.Likes, Is.EqualTo(expected.Likes));
+            });
+        }
+
+
+        [Test]
+        public void LikeComment_NotExistedCommentId_ReturnsException()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
+            async Task Check()
+            {
+                await _repository.LikeComment(commentId, userId, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public void LikeComment_EmptyCommentId_ReturnsException()
+        {
+            var commentId = Guid.Empty;
+            var userId = Guid.NewGuid();
+
+            async Task Check()
+            {
+                await _repository.LikeComment(commentId, userId, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public void LikeComment_EmptyUserId_ReturnsException()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.Empty;
+
+            async Task Check()
+            {
+                await _repository.LikeComment(commentId, userId, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public async Task LikeComment_LikeWithAlreadyDislike_ReturnsDTO()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
+            Comment input = new()
+            {
+                Id = commentId,
+                UserId = Guid.NewGuid(),
+                ArticleId = Guid.NewGuid(),
+                Content = "testcontent",
+                CreatedAt = DateTime.UtcNow,
+                Likes = new(),
+                Dislikes = new() { userId }
+            };
+
+            _context.Comments.Add(input);
+            _context.SaveChanges();
+
+            CommentDTO expected = new()
+            {
+                Id = input.Id,
+                UserId = input.UserId,
+                ArticleId = input.ArticleId,
+                Content = input.Content,
+                CreatedAt = input.CreatedAt,
+                Likes = new() { userId },
+                Dislikes = new()
+            };
+
+            var result = await _repository.LikeComment(commentId, userId, default);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Likes, Is.EqualTo(expected.Likes));
+                Assert.That(result.Dislikes, Is.EqualTo(expected.Dislikes));
+            });
+        }
+
+
+        [Test]
+        public async Task DislikeComment_Like_ReturnsDTO()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
+            Comment input = new()
+            {
+                Id = commentId,
+                UserId = Guid.NewGuid(),
+                ArticleId = Guid.NewGuid(),
+                Content = "testcontent",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Comments.Add(input);
+            _context.SaveChanges();
+
+            CommentDTO expected = new()
+            {
+                Id = input.Id,
+                UserId = input.UserId,
+                ArticleId = input.ArticleId,
+                Content = input.Content,
+                CreatedAt = input.CreatedAt,
+                Dislikes = new() { userId }
+            };
+
+            var result = await _repository.DislikeComment(commentId, userId, default);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Id, Is.EqualTo(expected.Id));
+                Assert.That(result.UserId, Is.EqualTo(expected.UserId));
+                Assert.That(result.ArticleId, Is.EqualTo(expected.ArticleId));
+                Assert.That(result.Content, Is.EqualTo(expected.Content));
+                Assert.That(result.CreatedAt, Is.EqualTo(expected.CreatedAt));
+                Assert.That(result.Dislikes, Is.EqualTo(expected.Dislikes));
+            });
+        }
+
+
+        [Test]
+        public void DislikeComment_NotExistedCommentId_ReturnsException()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
+            async Task Check()
+            {
+                await _repository.DislikeComment(commentId, userId, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public void DislikeComment_EmptyCommentId_ReturnsException()
+        {
+            var commentId = Guid.Empty;
+            var userId = Guid.NewGuid();
+
+            async Task Check()
+            {
+                await _repository.DislikeComment(commentId, userId, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public void DislikeComment_EmptyUserId_ReturnsException()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.Empty;
+
+            async Task Check()
+            {
+                await _repository.DislikeComment(commentId, userId, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public async Task DislikeComment_DislikeWithAlreadyLike_ReturnsDTO()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
+            Comment input = new()
+            {
+                Id = commentId,
+                UserId = Guid.NewGuid(),
+                ArticleId = Guid.NewGuid(),
+                Content = "testcontent",
+                CreatedAt = DateTime.UtcNow,
+                Likes = new() { userId },
+                Dislikes = new()
+            };
+
+            _context.Comments.Add(input);
+            _context.SaveChanges();
+
+            CommentDTO expected = new()
+            {
+                Id = input.Id,
+                UserId = input.UserId,
+                ArticleId = input.ArticleId,
+                Content = input.Content,
+                CreatedAt = input.CreatedAt,
+                Likes = new(),
+                Dislikes = new() { userId }
+            };
+
+            var result = await _repository.DislikeComment(commentId, userId, default);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Likes, Is.EqualTo(expected.Likes));
+                Assert.That(result.Dislikes, Is.EqualTo(expected.Dislikes));
+            });
+        }
+
+
+        [Test]
+        public async Task ChangeContentComment_Change_ReturnsDTO()
+        {
+            var commentId = Guid.NewGuid();
+            var changedcontent = "changedcontent";
+
+            Comment input = new()
+            {
+                Id = commentId,
+                UserId = Guid.NewGuid(),
+                ArticleId = Guid.NewGuid(),
+                Content = "testcontent",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Comments.Add(input);
+            _context.SaveChanges();
+
+            CommentDTO expected = new()
+            {
+                Id = input.Id,
+                UserId = input.UserId,
+                ArticleId = input.ArticleId,
+                Content = changedcontent,
+                CreatedAt = input.CreatedAt
+            };
+
+            var result = await _repository.ChangeContentComment(commentId, changedcontent, default);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Id, Is.EqualTo(expected.Id));
+                Assert.That(result.UserId, Is.EqualTo(expected.UserId));
+                Assert.That(result.ArticleId, Is.EqualTo(expected.ArticleId));
+                Assert.That(result.Content, Is.EqualTo(expected.Content));
+                Assert.That(result.CreatedAt, Is.EqualTo(expected.CreatedAt));
+            });
+        }
+
+
+        [Test]
+        public void ChangeContentComment_NotExistedCommentId_ReturnsException()
+        {
+            var commentId = Guid.NewGuid();
+            var content = "content";
+
+            async Task Check()
+            {
+                await _repository.ChangeContentComment(commentId, content, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public void ChangeContentComment_EmptyCommentId_ReturnsException()
+        {
+            var commentId = Guid.Empty;
+            var content = "content";
+
+            async Task Check()
+            {
+                await _repository.ChangeContentComment(commentId, content, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public void ChangeContentComment_EmptyContent_ReturnsException()
+        {
+            var commentId = Guid.NewGuid();
+            var content = string.Empty;
+
+            async Task Check()
+            {
+                await _repository.ChangeContentComment(commentId, content, default);
+            }
+
+            Assert.CatchAsync(Check);
+        }
+
+
+        [Test]
+        public async Task GetUserIdByCommentId_ExistedId_ReturnsGuid()
+        {
+            var commentId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+
+            Comment input = new()
+            {
+                Id = commentId,
+                UserId = userId,
+                ArticleId = Guid.NewGuid(),
+                Content = "testcontent",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Comments.Add(input);
+            _context.SaveChanges();
+
+            var result = await _repository.GetUserIdByCommentId(commentId, default);
+
+            Assert.That(result, Is.EqualTo(userId));
+        }
+
+
+        [Test]
+        public void GetUserIdByCommentId_NotExistedId_ReturnsException()
+        {
+            var commentId = Guid.NewGuid();
+
+            async Task Check()
+            {
+                await _repository.GetUserIdByCommentId(commentId, default);
             }
 
             Assert.CatchAsync(Check);

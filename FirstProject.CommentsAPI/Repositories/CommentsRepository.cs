@@ -84,25 +84,32 @@ namespace FirstProject.CommentsAPI.Repositories
             }
         }
 
-        public async Task<CommentDTO> UpdateComment(CommentDTO comment, CancellationToken cts)
+        public async Task<CommentDTO> LikeComment(Guid commentId, Guid userId, CancellationToken cts)
         {
             try
             {
-                if (comment == null) throw new ArgumentNullException("Comment was null");
-                if (comment.Id == Guid.Empty) throw new ArgumentException("Comment Id was empty");
-                if (comment.UserId == Guid.Empty) throw new ArgumentException("User Id was empty");
-                if (comment.ArticleId == Guid.Empty) throw new ArgumentException("Article Id was empty");
-                if (comment.Content == string.Empty) throw new ArgumentException("Content was empty");
+                if (commentId == Guid.Empty) throw new ArgumentException("Comment Id was empty");
+                if (userId == Guid.Empty) throw new ArgumentException("User Id was empty");
 
-                var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == comment.Id, cts);
+                var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == commentId, cts);
                 if (entry == null)
                 {
                     throw new Exception("Comment not found");
                 }
 
-                entry.Content = comment.Content;
-                entry.Likes = comment.Likes;
-                entry.Dislikes = comment.Dislikes;
+                if (entry.Dislikes.Contains(userId))
+                {
+                    entry.Dislikes.Remove(userId);
+                }
+
+                if (!entry.Likes.Contains(userId))
+                {
+                    entry.Likes.Add(userId);
+                }
+                else
+                {
+                    entry.Likes.Remove(userId);
+                }
 
                 await _context.SaveChangesAsync(cts);
 
@@ -114,13 +121,75 @@ namespace FirstProject.CommentsAPI.Repositories
             }
         }
 
-        public async Task<bool> DeleteComment(Guid id, CancellationToken cts)
+        public async Task<CommentDTO> DislikeComment(Guid commentId, Guid userId, CancellationToken cts)
         {
             try
             {
-                if (id == Guid.Empty) throw new ArgumentException("Comment Id was empty");
+                if (commentId == Guid.Empty) throw new ArgumentException("Comment Id was empty");
+                if (userId == Guid.Empty) throw new ArgumentException("User Id was empty");
 
-                var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == id, cts);
+                var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == commentId, cts);
+                if (entry == null)
+                {
+                    throw new Exception("Comment not found");
+                }
+
+                if (entry.Likes.Contains(userId))
+                {
+                    entry.Likes.Remove(userId);
+                }
+
+                if (!entry.Dislikes.Contains(userId))
+                {
+                    entry.Dislikes.Add(userId);
+                }
+                else
+                {
+                    entry.Dislikes.Remove(userId);
+                }
+
+                await _context.SaveChangesAsync(cts);
+
+                return _mapper.Map<CommentDTO>(entry);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<CommentDTO> ChangeContentComment(Guid commentId, string content, CancellationToken cts)
+        {
+            try
+            {
+                if (commentId == Guid.Empty) throw new ArgumentException("Comment Id was empty");
+                if (content == string.Empty) throw new ArgumentException("Content was empty");
+
+                var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == commentId, cts);
+                if (entry == null)
+                {
+                    throw new Exception("Comment not found");
+                }
+
+                entry.Content = content;
+
+                await _context.SaveChangesAsync(cts);
+
+                return _mapper.Map<CommentDTO>(entry);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> DeleteComment(Guid commentId, CancellationToken cts)
+        {
+            try
+            {
+                if (commentId == Guid.Empty) throw new ArgumentException("Comment Id was empty");
+
+                var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == commentId, cts);
                 if (entry == null)
                 {
                     return false;
@@ -131,6 +200,26 @@ namespace FirstProject.CommentsAPI.Repositories
                 await _context.SaveChangesAsync(cts);
 
                 return true;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<Guid> GetUserIdByCommentId(Guid commentId, CancellationToken cts)
+        {
+            try
+            {
+                if (commentId == Guid.Empty) throw new ArgumentException("Comment Id was empty");
+
+                var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == commentId, cts);
+                if (entry == null)
+                {
+                    throw new Exception("Comment not found");
+                }
+
+                return entry.UserId;
             }
             catch
             {

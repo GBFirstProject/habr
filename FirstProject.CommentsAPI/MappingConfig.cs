@@ -11,7 +11,6 @@ namespace FirstProject.CommentsAPI
         {
             config.CreateMap<CommentDTO, Comment>().ReverseMap();
             config.CreateMap<CreateRequest, CommentDTO>();
-            config.CreateMap<UpdateRequest, CommentDTO>();
         }
     }
 }
