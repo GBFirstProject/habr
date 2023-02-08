@@ -13,6 +13,17 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(name: MyAllowSpecificOrigins,
+                              policy =>
+                              {
+                                  policy.WithOrigins("http://example.com",
+                                                      "http://www.contoso.com");
+                              });
+        });
+
         builder.Configuration.AddJsonFile("config.json");
         builder.Services.AddDbContext<ArticlesDBContext>(options =>
         {
@@ -42,7 +53,7 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
-
+        app.UseCors(MyAllowSpecificOrigins);
         app.UseAuthorization();
 
         app.MapControllers();

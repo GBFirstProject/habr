@@ -1,10 +1,12 @@
-﻿using HabrParser.Models.APIArticles;
+﻿using Castle.Components.DictionaryAdapter.Xml;
+using HabrParser.Models.APIArticles;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HabrParser.Database
@@ -20,16 +22,24 @@ namespace HabrParser.Database
         public void CreateHabrArticle(Article article)
         {
             if (article == null) return;
-            Author authorForTable = AddAuthor(article.Author);
-            if (authorForTable.Contacts != null)
+            if (ArticleAlreadyExists(article.hubrId)) return;
+            if (article.Author != null)
             {
-                for (int i = 0; i < authorForTable.Contacts.Count; i++)
+                Author authorForTable = AddAuthor(article.Author);
+                if (authorForTable.Contacts != null)
                 {
-                    Contact contact = AddContact(authorForTable.Contacts[i]);
-                    authorForTable.Contacts[i] = contact;
+                    for (int i = 0; i < authorForTable.Contacts.Count; i++)
+                    {
+                        Contact contact = AddContact(authorForTable.Contacts[i]);
+                        authorForTable.Contacts[i] = contact;
+                    }
                 }
+                article.Author = authorForTable;
             }
-            article.Author = authorForTable;
+            else
+            {
+                article.Author = AddAuthor(new Author { NickName = "UNKNOWN" });
+            }
             _dbContext.Leads.Add(article.LeadData);           
             for(int i = 0; i < article.Tags.Count; i++)
             {
@@ -122,6 +132,13 @@ namespace HabrParser.Database
         public void Dispose()
         {
             this.Dispose();
+        }
+
+        public bool ArticleAlreadyExists(int hubrId)
+        {
+            var article = _dbContext.Articles.FirstOrDefault(article => article.hubrId == hubrId);
+            if(article == null) return false;
+            else return true;
         }
 
         public int LastArticleId 

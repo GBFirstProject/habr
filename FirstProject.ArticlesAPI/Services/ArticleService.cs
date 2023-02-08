@@ -2,6 +2,7 @@
 using FirstProject.ArticlesAPI.Data.Interfaces;
 using FirstProject.ArticlesAPI.Exceptions;
 using FirstProject.ArticlesAPI.Models;
+using FirstProject.ArticlesAPI.Models.DTO;
 using FirstProject.ArticlesAPI.Models.Enums;
 using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services.Interfaces;
@@ -24,27 +25,39 @@ namespace FirstProject.ArticlesAPI.Services
                 authorRepository, hubsRepository, mapper);
         }
 
-        public async Task<Article> GetArticleByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<FullArticleDTO> GetArticleByIdAsync(Guid id, CancellationToken cancellationToken)
+        {
+            var article = await ArticleById(id, cancellationToken).ConfigureAwait(false);
+            return _mapper.Map<FullArticleDTO>(article);
+        }
+        public async Task<PreviewArticleDTO> GetPreviewArticleByIdAsync(Guid id, CancellationToken cancellationToken)
+        {
+            var article = await ArticleById(id, cancellationToken).ConfigureAwait(false);
+            return _mapper.Map<PreviewArticleDTO>(article);
+        }
+        private async Task<Article> ArticleById(Guid id, CancellationToken cancellationToken)
         {
             var article = await _articleRepository.Query()
                 .Include(article => article.Author)
                 .Include(article => article.Hubs)
                 .Include(article => article.Tags)
+                .Include(article => article.LeadData)
+                .Include(article => article.Statistics)
                 .FirstOrDefaultAsync(article => article.Id == id, cancellationToken);
             if (article == null)
             {
                 throw new DataNotFoundException(nameof(Article), id);
-            }            
-            await _articleRepository.SaveChangesAsync(cancellationToken);
-            return _mapper.Map<Article>(article);
+            }
+            return article;
         }
-        
-        public async Task<Article> CreateArticleAsync(CreateArticleRequest articleDto, CancellationToken cancellationToken)
+
+
+        public async Task<FullArticleDTO> CreateArticleAsync(CreateArticleRequest articleDto, CancellationToken cancellationToken)
         {
             var article = _mapper.Map<Article>(articleDto);           
             await _articleRepository.AddAsync(article, cancellationToken);
             await _articleRepository.SaveChangesAsync(cancellationToken);
-            var articleModel = _mapper.Map<Article>(article);            
+            var articleModel = _mapper.Map<FullArticleDTO>(article);            
             return articleModel;
         }
         public async Task<bool> DeleteArticleAsync(Guid id, CancellationToken cancellationToken)
@@ -55,7 +68,7 @@ namespace FirstProject.ArticlesAPI.Services
             return true;
         }
 
-        public Task<Article> UpdateArticleDataAsync(UpdateArticleDataDto updateArticleDataDto, CancellationToken cancellationToken)
+        public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleDataDto updateArticleDataDto, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
