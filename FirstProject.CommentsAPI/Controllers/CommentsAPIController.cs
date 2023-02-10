@@ -92,7 +92,11 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var result = await _repository.CreateComment(_mapper.Map<CommentDTO>(request), cts);
+                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+                var dto = _mapper.Map<CommentDTO>(request);
+                dto.UserId = userId;
+
+                var result = await _repository.CreateComment(dto, cts);
 
                 return Ok(new ResponseDTO()
                 {
