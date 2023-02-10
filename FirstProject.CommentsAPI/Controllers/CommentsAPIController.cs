@@ -3,6 +3,7 @@ using FirstProject.CommentsAPI.Interfaces;
 using FirstProject.CommentsAPI.Models.DTO;
 using FirstProject.CommentsAPI.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstProject.CommentsAPI.Controllers
@@ -35,6 +36,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="cts"></param>
         /// <returns>Список комментариев</returns>
         [AllowAnonymous]
+        [DisableCors]
         [HttpGet]
         public async Task<IActionResult> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts)
         {
@@ -61,6 +63,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="cts"></param>
         /// <returns>Количество комментариев</returns>
         [AllowAnonymous]
+        [DisableCors]
         [HttpGet("getcount")]
         public async Task<IActionResult> GetCommentsCountByArticleId(string articleId, CancellationToken cts)
         {
@@ -87,6 +90,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Создаваемый комментарий</param>
         /// <param name="cts"></param>
         /// <returns>Созданный комментарий</returns>
+        [DisableCors]
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] CreateRequest request, CancellationToken cts)
         {
@@ -116,6 +120,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Id комментария</param>
         /// <param name="cts"></param>
         /// <returns>Изменненый комментарий</returns>
+        [DisableCors]
         [HttpPut("like")]
         public async Task<IActionResult> LikeComment([FromBody] GradeRequest request, CancellationToken cts)
         {
@@ -140,6 +145,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Id комментария</param>
         /// <param name="cts"></param>
         /// <returns>Измененный комментарий</returns>
+        [DisableCors]
         [HttpPut("dislike")]
         public async Task<IActionResult> DislikeComment([FromBody] GradeRequest request, CancellationToken cts)
         {
@@ -164,6 +170,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Запрос на изменение</param>
         /// <param name="cts"></param>
         /// <returns>Измененный комментарий</returns>
+        [DisableCors]
         [HttpPut("change")]
         public async Task<IActionResult> ChangeContentComment([FromBody] ChangeContentRequest request, CancellationToken cts)
         {
@@ -193,6 +200,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="commentId">Guid комментария</param>
         /// <param name="cts"></param>
         /// <returns>Результат операции</returns>
+        [DisableCors]
         [HttpDelete]
         public async Task<IActionResult> DeleteComment(Guid commentId, CancellationToken cts)
         {
