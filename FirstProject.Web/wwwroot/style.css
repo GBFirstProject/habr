@@ -1,4 +1,4 @@
-﻿* {
+* {
 	box-sizing: border-box;
 }
 
@@ -32,6 +32,7 @@ body {
 .header_flex {
 	display: flex;
 	justify-content: space-between;
+
 }
 
 .header_nav {
@@ -61,12 +62,6 @@ body {
 	justify-content: space-between;
 	margin-top: 20px;
 }
-
-.section_new_post_img {
-	width: 300px;
-}
-
-/* потом размеры картинок изменить при необходимости*/
 
 .all_posts_item_flex {
 	display: flex;
@@ -109,6 +104,10 @@ body {
 	margin-bottom: 10px;
 }
 
+.footer {
+	border: 1px solid blue;
+}
+
 .footer_flex {
 	display: flex;
 	justify-content: space-between;
@@ -125,4 +124,15 @@ body {
 	display: block;
 	align-self: center;
 	margin-right: 10px;
+}
+
+.section_new_post_img_item {
+	width: 30%;
+	float: left;
+	margin-right: 20px;
+	margin-bottom: 20px;
+}
+
+.all_posts_pag {
+	font-weight: 700;
 }
