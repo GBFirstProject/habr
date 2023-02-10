@@ -1,129 +1,138 @@
 * {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 html {
-    scroll-behavior: smooth;
-    overflow-x: hidden;
+	scroll-behavior: smooth;
+	overflow-x: hidden;
 }
 
 body {
-    font-family: 'Inika', serif;
-    font-family: 'Inter', sans-serif;
-    font-family: 'Tenor Sans', sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 100vh;
-    padding: 0;
-    margin: 0;
-    overflow-x: hidden;
+	font-family: 'Inika', serif;
+	font-family: 'Inter', sans-serif;
+	font-family: 'Tenor Sans', sans-serif;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	min-height: 100vh;
+	padding: 0;
+	margin: 0;
+	overflow-x: hidden;
 }
 
 .container {
-    max-width: 1440px;
-    margin: 0 auto;
+	max-width: 1440px;
+	margin: 0 auto;
 }
 
 .header {
-    border: 1px solid blue;
+	border: 1px solid blue;
 }
 
 .header_flex {
-    display: flex;
-    justify-content: space-between;
+	display: flex;
+	justify-content: space-between;
 
 }
 
 .header_nav {
-    display: flex;
+	display: flex;
 }
 
 .header_nav_list {
-    display: flex;
-    list-style-type: none;
+	display: flex;
+	list-style-type: none;
 }
 
 .header_nav_item {
-    margin-right: 10px;
+	margin-right: 10px;
 }
 
 .site_links {
-    text-decoration: none;
-    color: black;
+	text-decoration: none;
+	color: black;
 }
 
 .section_new_post {
-    border: 1px solid purple;
+	border: 1px solid purple;
 }
 
 .section_new_post_flex {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+	display: flex;
+	justify-content: space-between;
+	margin-top: 20px;
 }
-
-.section_new_post_img {
-    width: 300px;
-}
-
-/* потом размеры картинок изменить при необходимости*/
 
 .all_posts_item_flex {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 30px;
 }
 
 .all_posts_item_texts {
-    margin-left: 20px;
+	margin-left: 20px;
 }
 
 .all_posts_pagination {
-    text-align: center;
-    margin-bottom: 30px;
+	text-align: center;
+	margin-bottom: 30px;
 }
 
 .all_posts_pag {
-    text-decoration: none;
-    color: black;
+	text-decoration: none;
+	color: black;
 }
 
 .section_all_hubs_flex {
-    display: flex;
-    justify-content: space-between;
+	display: flex;
+	justify-content: space-between;
 }
 
 .all_hubs_item {
-    margin-right: 20px;
-    border: 1px solid green;
+	margin-right: 20px;
+	border: 1px solid green;
 }
 
 .section_reg_welcome {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border: 1px solid red;
-    text-align: center;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	border: 1px solid red;
+	text-align: center;
 }
 
 .btn_welcome_reg {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
+}
+
+.footer {
+	border: 1px solid blue;
 }
 
 .footer_flex {
-    display: flex;
-    justify-content: space-between;
+	display: flex;
+	justify-content: space-between;
 }
 
 .footer_right {
-    display: flex;
-    justify-content: space-between;
+	display: flex;
+	justify-content: space-between;
 }
 
 .footer_nav {
-    text-decoration: none;
-    color: black;
-    display: block;
-    align-self: center;
-    margin-right: 10px;
+	text-decoration: none;
+	color: black;
+	display: block;
+	align-self: center;
+	margin-right: 10px;
+}
+
+.section_new_post_img_item {
+	width: 30%;
+	float: left;
+	margin-right: 20px;
+	margin-bottom: 20px;
+}
+
+.all_posts_pag {
+	font-weight: 700;
 }
