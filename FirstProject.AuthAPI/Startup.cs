@@ -73,8 +73,9 @@ namespace FirstProject.AuthAPI
                         {
                             policy
                                 .WithOrigins(
-                                    Configuration["serviceURI:javascriptbff-client"]!.ToString(),
-                                    Configuration["serviceURI:article-api"]!.ToString())
+                                    Configuration["serviceURI:javascriptbff-client"],
+                                    Configuration["serviceURI:article-api"],
+                                    Configuration["serviceURI:comments-api"])
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
                         });
@@ -116,7 +117,6 @@ namespace FirstProject.AuthAPI
             {
                 endpoints.MapRazorPages();
             });
-
         }
     }
 }

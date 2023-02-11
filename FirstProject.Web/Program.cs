@@ -1,9 +1,9 @@
-using System.IdentityModel.Tokens.Jwt;
 using Duende.Bff.Yarp;
-using FirstProject.Web;
 using FirstProject.Web.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +54,9 @@ builder.Services
 
 builder.Services.AddControllers();
 
+builder.Configuration.AddJsonFile("ocelot.json");
+builder.Services.AddOcelot().AddDelegatingHandler<HttpDelegatingHandler>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -79,5 +82,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers()
          .AsBffApiEndpoint();
 });
+
+app.UseOcelot().Wait();
 
 app.Run();
