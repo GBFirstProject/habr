@@ -40,6 +40,7 @@ document.getElementById("login").addEventListener("click", login, false);
 document.getElementById("remote").addEventListener("click", localApi, false);
 document.getElementById("remote-admin").addEventListener("click", remoteApi, false);
 document.getElementById("logout").addEventListener("click", logout, false);
+document.getElementById("testocelot").addEventListener("click", testocelot, false);
 
 function login() {
     window.location = "/bff/login";
@@ -94,4 +95,8 @@ async function remoteApi() {
     } catch (e) {
         log("error calling remote API");
     }
+}
+
+function testocelot() {
+    document.location = "/testocelot.html"
 }

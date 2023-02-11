@@ -190,20 +190,21 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <summary>
         /// Удаление комментария
         /// </summary>
-        /// <param name="commentId">Guid комментария</param>
+        /// <param name="id">Guid комментария</param>
         /// <param name="cts"></param>
         /// <returns>Результат операции</returns>
         [HttpDelete]
-        public async Task<IActionResult> DeleteComment(Guid commentId, CancellationToken cts)
+        public async Task<IActionResult> DeleteComment(string id, CancellationToken cts)
         {
             try
             {
-                if (!await IsHasRights(commentId, cts))
+                var guid = Guid.Parse(id);
+                if (!await IsHasRights(guid, cts))
                 {
                     return Unauthorized();
                 }
 
-                var result = await _repository.DeleteComment(commentId, cts);
+                var result = await _repository.DeleteComment(guid, cts);
 
                 return Ok(new ResponseDTO()
                 {

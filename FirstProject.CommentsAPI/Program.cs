@@ -7,6 +7,20 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(setup =>
+{
+    setup.AddDefaultPolicy(policy =>
+    {
+        policy
+            .WithOrigins(
+                builder.Configuration["ServiceUrls:AuthAPI"],
+                builder.Configuration["ServiceUrls:Web"]
+                )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddDbContext<CommentsDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Database"));
@@ -35,7 +49,7 @@ builder.Services.AddAuthentication(options =>
 })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
-        options.Authority = builder.Configuration["ServiceUrls:AuthAPI"]!.ToString().TrimEnd('/');
+        options.Authority = builder.Configuration["ServiceUrls:AuthAPI"];
 
         options.BackchannelHttpHandler = new HttpClientHandler
         {
@@ -54,16 +68,9 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiScope", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        policy.RequireClaim("firstProject");
-    });
-});
-
 var app = builder.Build();
+
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
