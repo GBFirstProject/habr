@@ -73,5 +73,34 @@ namespace FirstProject.ArticlesAPI.Services
         {
             throw new NotImplementedException();
         }
+
+        public async Task<IEnumerable<PreviewArticleDTO>> GetPreviewArticles(PagingParameters paging, CancellationToken cancellationToken)
+        {
+            Task<List<Article>> articles = _articleRepository.Query()
+                .Include(a => a.Author)
+                .Include(a => a.LeadData)
+                .Include(a => a.Statistics)
+                .Include(a => a.Tags)
+                .Where(a => a.TimePublished > DateTime.Now.AddYears(-1))
+                .OrderBy(on => on.TimePublished)
+                .Skip((paging.PageNumber - 1) * paging.PageSize)
+                .Take(paging.PageSize)
+                .ToListAsync(cancellationToken);
+            var articlePreviews = _mapper
+                .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
+            return articlePreviews;
+        }
+
+        public int GetArticlesCount(CancellationToken cancellationToken)
+        {
+            Task<List<Article>> articles = _articleRepository.Query()
+                .Include(a => a.Author)
+                .Include(a => a.LeadData)
+                .Include(a => a.Statistics)
+                .Where(a => a.TimePublished > DateTime.Now.AddYears(-1))
+                .ToListAsync(cancellationToken);
+            if (articles == null) return 0;
+            else return articles.Result.Count;
+        }
     }
 }

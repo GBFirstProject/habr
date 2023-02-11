@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
+using FirstProject.ArticlesAPI.Data;
 using FirstProject.ArticlesAPI.Data.Interfaces;
 using FirstProject.ArticlesAPI.Models.DTO;
+using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using System.Net.NetworkInformation;
 
 namespace FirstProject.ArticlesAPI.Controllers
 {
@@ -79,6 +83,45 @@ namespace FirstProject.ArticlesAPI.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetArticlesPreview([FromQuery] PagingParameters paging, CancellationToken token)
+        {
+            try
+            {
+                var articles = await _articlesService.GetPreviewArticles(paging, token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = articles
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Получение полное количество статей
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("get-articles-count")]
+        public IActionResult GetArticlesCount(CancellationToken token)
+        {
+            try
+            {
+                int articlesCount = _articlesService.GetArticlesCount(token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = articlesCount
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
         /// <summary>
         /// Тест сваггера
         /// </summary>

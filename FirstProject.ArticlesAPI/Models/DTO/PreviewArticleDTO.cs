@@ -9,5 +9,6 @@
         public string Text { get; set; }
         public long TimePublished { get; set; }
         public int ReadingCount { get; set; }
+        public List<string> Tags { get; set; }
     }
 }
