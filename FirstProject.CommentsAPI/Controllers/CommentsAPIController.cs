@@ -3,7 +3,6 @@ using FirstProject.CommentsAPI.Interfaces;
 using FirstProject.CommentsAPI.Models.DTO;
 using FirstProject.CommentsAPI.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstProject.CommentsAPI.Controllers

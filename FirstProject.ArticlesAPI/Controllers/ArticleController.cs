@@ -1,13 +1,8 @@
 ﻿using AutoMapper;
-using FirstProject.ArticlesAPI.Data;
-using FirstProject.ArticlesAPI.Data.Interfaces;
 using FirstProject.ArticlesAPI.Models.DTO;
 using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using System.Net.NetworkInformation;
 
 namespace FirstProject.ArticlesAPI.Controllers
 {

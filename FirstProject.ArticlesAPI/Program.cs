@@ -5,7 +5,9 @@ using FirstProject.ArticlesAPI.Data.Interfaces;
 using FirstProject.ArticlesAPI.Models;
 using FirstProject.ArticlesAPI.Services;
 using FirstProject.ArticlesAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 internal class Program
 {
@@ -13,15 +15,18 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-        builder.Services.AddCors(options =>
+        builder.Services.AddCors(setup =>
         {
-            options.AddPolicy(name: MyAllowSpecificOrigins,
-                              policy =>
-                              {
-                                  policy.WithOrigins("http://example.com",
-                                                      "http://www.contoso.com");
-                              });
+            setup.AddDefaultPolicy(policy =>
+            {
+                policy
+                    .WithOrigins(
+                        builder.Configuration["ServiceUrls:AuthAPI"]!,
+                        builder.Configuration["ServiceUrls:Web"]!
+                        )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
         });
 
         builder.Configuration.AddJsonFile("config.json");
@@ -45,7 +50,35 @@ internal class Program
             options.IncludeXmlComments($"{AppContext.BaseDirectory}\\FirstProject.ArticlesAPI.xml");
         });
 
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.Authority = builder.Configuration["ServiceUrls:AuthAPI"];
+
+                options.BackchannelHttpHandler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    ValidateIssuerSigningKey = false,
+                    ValidateLifetime = false,
+                    RequireExpirationTime = false,
+                    RequireSignedTokens = false
+                };
+            });
+
         var app = builder.Build();
+        app.UseCors();
+
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
@@ -53,7 +86,8 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
-        app.UseCors(MyAllowSpecificOrigins);
+
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

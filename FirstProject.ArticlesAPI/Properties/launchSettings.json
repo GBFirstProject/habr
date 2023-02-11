@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "FirstProject.Web": {
+    "FirstProject.ArticlesAPI": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
