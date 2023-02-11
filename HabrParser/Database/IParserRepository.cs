@@ -9,6 +9,8 @@ namespace HabrParser.Database
 {
     public interface IParserRepository : IDisposable
     {
-        void CreateHabrArticle(Article article);
+        void CreateHabrArticle(Article article, ArticleThreadLevelType threadLevel = ArticleThreadLevelType.None);
+        public int LastArticleId(ArticleThreadLevelType levelType);
+        public bool ArticleAlreadyExists(int hubrId);
     }
 }

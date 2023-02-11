@@ -14,10 +14,13 @@ namespace HabrParser.Models.APIArticles
         [Required]
         public DateTimeOffset? TimePublished { get; set; } = DateTime.UtcNow;
         public bool CommentsEnabled { get; set; } = true;
-        public string ImageLink { get; set; } = string.Empty;
+        //public string ImageLink { get; set; } = string.Empty;
         public Guid LeadDataId { get; set; }
         [ForeignKey("LeadDataId")]
         public LeadData LeadData { get; set; } = new LeadData();
+        public Guid MetaDataId { get; set; }
+        [ForeignKey("MetaDataId")]
+        public Metadata MetaData { get; set; } = new Metadata();
         public int AuthorId { get; set; }
         [ForeignKey("AuthorId")]
         public Author Author { get; set; } = new Author();

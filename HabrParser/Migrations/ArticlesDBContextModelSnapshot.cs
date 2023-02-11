@@ -64,15 +64,14 @@ namespace HabrParser.Migrations
                     b.Property<bool>("CommentsEnabled")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ImageLink")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Language")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("LeadDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MetaDataId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("StatisticsId")
@@ -98,6 +97,9 @@ namespace HabrParser.Migrations
                     b.HasIndex("AuthorId");
 
                     b.HasIndex("LeadDataId")
+                        .IsUnique();
+
+                    b.HasIndex("MetaDataId")
                         .IsUnique();
 
                     b.HasIndex("StatisticsId")
@@ -139,9 +141,9 @@ namespace HabrParser.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Rating")
-                        .HasPrecision(17, 1)
-                        .HasColumnType("real");
+                    b.Property<decimal>("Rating")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -233,6 +235,50 @@ namespace HabrParser.Migrations
                     b.ToTable("LeadData");
                 });
 
+            modelBuilder.Entity("HabrParser.Models.APIArticles.Metadata", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Amp")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CustomTrackerLinks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MainImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MetaDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchemaJsonLd")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ScriptUrls")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ShareImageHeight")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ShareImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ShareImageWidth")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StylesUrls")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VKShareImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Metadata");
+                });
+
             modelBuilder.Entity("HabrParser.Models.APIArticles.ParserResult", b =>
                 {
                     b.Property<int>("ParserResultId")
@@ -241,7 +287,52 @@ namespace HabrParser.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ParserResultId"));
 
-                    b.Property<int>("LastArtclelId")
+                    b.Property<int>("LastArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId100")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId150")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId200")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId250")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId300")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId350")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId400")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId450")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId50")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId500")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId550")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId600")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId650")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastArticleId700")
                         .HasColumnType("int");
 
                     b.HasKey("ParserResultId");
@@ -344,6 +435,12 @@ namespace HabrParser.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("HabrParser.Models.APIArticles.Metadata", "MetaData")
+                        .WithOne("Article")
+                        .HasForeignKey("HabrParser.Models.APIArticles.Article", "MetaDataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("HabrParser.Models.APIArticles.Statistics", "Statistics")
                         .WithOne("Article")
                         .HasForeignKey("HabrParser.Models.APIArticles.Article", "StatisticsId")
@@ -353,6 +450,8 @@ namespace HabrParser.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("LeadData");
+
+                    b.Navigation("MetaData");
 
                     b.Navigation("Statistics");
                 });
@@ -376,6 +475,12 @@ namespace HabrParser.Migrations
                 });
 
             modelBuilder.Entity("HabrParser.Models.APIArticles.LeadData", b =>
+                {
+                    b.Navigation("Article")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HabrParser.Models.APIArticles.Metadata", b =>
                 {
                     b.Navigation("Article")
                         .IsRequired();

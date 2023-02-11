@@ -23,7 +23,7 @@ namespace HabrParser.Migrations
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Patronymic = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AvatarUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Rating = table.Column<float>(type: "real(17)", precision: 17, scale: 1, nullable: false),
+                    Rating = table.Column<decimal>(type: "decimal(6,2)", precision: 6, scale: 2, nullable: false),
                     Logo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Link = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -64,12 +64,49 @@ namespace HabrParser.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Metadata",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StylesUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ScriptUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShareImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShareImageWidth = table.Column<int>(type: "int", nullable: true),
+                    ShareImageHeight = table.Column<int>(type: "int", nullable: true),
+                    VKShareImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SchemaJsonLd = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MetaDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MainImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Amp = table.Column<bool>(type: "bit", nullable: false),
+                    CustomTrackerLinks = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Metadata", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ParserResult",
                 columns: table => new
                 {
                     ParserResultId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    LastArtclelId = table.Column<int>(type: "int", nullable: false)
+                    LastArticleId = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId1 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId50 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId100 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId150 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId200 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId250 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId300 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId350 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId400 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId450 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId500 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId550 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId600 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId650 = table.Column<int>(type: "int", nullable: false),
+                    LastArticleId700 = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -139,8 +176,8 @@ namespace HabrParser.Migrations
                     TextHtml = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TimePublished = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CommentsEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    ImageLink = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LeadDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MetaDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
                     StatisticsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -157,6 +194,12 @@ namespace HabrParser.Migrations
                         name: "FK_Articles_LeadData_LeadDataId",
                         column: x => x.LeadDataId,
                         principalTable: "LeadData",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Articles_Metadata_MetaDataId",
+                        column: x => x.MetaDataId,
+                        principalTable: "Metadata",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -232,6 +275,12 @@ namespace HabrParser.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Articles_MetaDataId",
+                table: "Articles",
+                column: "MetaDataId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Articles_StatisticsId",
                 table: "Articles",
                 column: "StatisticsId",
@@ -292,6 +341,9 @@ namespace HabrParser.Migrations
 
             migrationBuilder.DropTable(
                 name: "LeadData");
+
+            migrationBuilder.DropTable(
+                name: "Metadata");
 
             migrationBuilder.DropTable(
                 name: "Statistics");
