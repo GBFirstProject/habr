@@ -54,7 +54,7 @@ builder.Services
 
 builder.Services.AddControllers();
 
-builder.Services.AddTransient<HttpDelegatingHandler>();
+builder.Configuration.AddJsonFile("ocelot.json");
 builder.Services.AddOcelot().AddDelegatingHandler<HttpDelegatingHandler>();
 
 var app = builder.Build();
