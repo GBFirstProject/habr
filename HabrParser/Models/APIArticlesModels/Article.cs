@@ -1,10 +1,8 @@
-using FirstProject.ArticlesAPI.Models.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FirstProject.ArticlesAPI.Models
+namespace HabrParser.Models.APIArticles
 {
-    [Table("Articles")]
     public class Article : BaseModel<Guid>
     {
         public int hubrId { get; set; }
@@ -15,7 +13,8 @@ namespace FirstProject.ArticlesAPI.Models
         public string TextHtml { get; set; } = string.Empty;
         [Required]
         public DateTimeOffset? TimePublished { get; set; } = DateTime.UtcNow;
-        public bool CommentsEnabled { get; set; } = true;        
+        public bool CommentsEnabled { get; set; } = true;
+        //public string ImageLink { get; set; } = string.Empty;
         public Guid LeadDataId { get; set; }
         [ForeignKey("LeadDataId")]
         public LeadData LeadData { get; set; } = new LeadData();
@@ -30,6 +29,16 @@ namespace FirstProject.ArticlesAPI.Models
         public Statistics Statistics { get; set; }
         public List<Tag> Tags { get; set; } = new List<Tag>();
         public List<Hub> Hubs { get; set; } = new List<Hub>();
+        
+    }
 
+    public enum ArticleLanguage
+    {
+        Russian,
+        English,
+        Chinese,
+        French,
+        Deutsche,
+        Arabic
     }
 }
