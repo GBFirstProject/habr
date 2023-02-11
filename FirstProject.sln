@@ -27,6 +27,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D06149F3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirstProject.Tests.CommentsAPI", "FirstProject.Tests.CommentsAPI\FirstProject.Tests.CommentsAPI.csproj", "{97B47359-D229-4217-A215-0A1C006D1DC8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{D7DDDEBC-A6ED-47BC-8638-F9AA4FCE4C4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HabrParser", "HabrParser\HabrParser.csproj", "{4EB1A8BF-CA6B-4977-898F-E359B510DC02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,10 @@ Global
 		{97B47359-D229-4217-A215-0A1C006D1DC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97B47359-D229-4217-A215-0A1C006D1DC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97B47359-D229-4217-A215-0A1C006D1DC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EB1A8BF-CA6B-4977-898F-E359B510DC02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EB1A8BF-CA6B-4977-898F-E359B510DC02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EB1A8BF-CA6B-4977-898F-E359B510DC02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EB1A8BF-CA6B-4977-898F-E359B510DC02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +91,7 @@ Global
 		{C5FEA0E0-BA15-4C6D-B638-2FDDCCE9E1CA} = {08854E8D-35CE-42B8-8023-0E1165AD5629}
 		{5DFBEF2F-ACA3-4B70-8EE9-0E067ECC1EC4} = {08854E8D-35CE-42B8-8023-0E1165AD5629}
 		{97B47359-D229-4217-A215-0A1C006D1DC8} = {D06149F3-EA06-4BD4-95B7-7C87F3E6EB91}
+		{4EB1A8BF-CA6B-4977-898F-E359B510DC02} = {D7DDDEBC-A6ED-47BC-8638-F9AA4FCE4C4A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {960C6F74-5EED-4071-B033-C606146CBE7D}
