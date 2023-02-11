@@ -1,0 +1,3 @@
+﻿https://learn.microsoft.com/ru-ru/ef/core/modeling/value-conversions?tabs=data-annotations
+https://forproger.ru/article/paginaciya-v-aspnet-core-web-api
+https://learn.microsoft.com/ru-ru/aspnet/core/data/ef-mvc/sort-filter-page?view=aspnetcore-6.0
