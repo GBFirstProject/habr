@@ -23,7 +23,7 @@ namespace FirstProject.ArticlesAPI.Migrations
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Patronymic = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AvatarUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Rating = table.Column<float>(type: "real(17)", precision: 17, scale: 1, nullable: false),
+                    Rating = table.Column<decimal>(type: "decimal(6,2)", precision: 6, scale: 2, nullable: false),
                     Logo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Link = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -61,6 +61,28 @@ namespace FirstProject.ArticlesAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LeadData", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Metadata",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StylesUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ScriptUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShareImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShareImageWidth = table.Column<int>(type: "int", nullable: true),
+                    ShareImageHeight = table.Column<int>(type: "int", nullable: true),
+                    VKShareImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SchemaJsonLd = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MetaDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MainImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Amp = table.Column<bool>(type: "bit", nullable: false),
+                    CustomTrackerLinks = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Metadata", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -126,8 +148,8 @@ namespace FirstProject.ArticlesAPI.Migrations
                     TextHtml = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TimePublished = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CommentsEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    ImageLink = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LeadDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MetaDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
                     StatisticsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -144,6 +166,12 @@ namespace FirstProject.ArticlesAPI.Migrations
                         name: "FK_Articles_LeadData_LeadDataId",
                         column: x => x.LeadDataId,
                         principalTable: "LeadData",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Articles_Metadata_MetaDataId",
+                        column: x => x.MetaDataId,
+                        principalTable: "Metadata",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -219,6 +247,12 @@ namespace FirstProject.ArticlesAPI.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Articles_MetaDataId",
+                table: "Articles",
+                column: "MetaDataId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Articles_StatisticsId",
                 table: "Articles",
                 column: "StatisticsId",
@@ -276,6 +310,9 @@ namespace FirstProject.ArticlesAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "LeadData");
+
+            migrationBuilder.DropTable(
+                name: "Metadata");
 
             migrationBuilder.DropTable(
                 name: "Statistics");

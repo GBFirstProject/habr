@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FirstProject.ArticlesAPI.Migrations
 {
     [DbContext(typeof(ArticlesDBContext))]
-    [Migration("20230207124445_InitialCreate")]
+    [Migration("20230211180151_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -67,15 +67,14 @@ namespace FirstProject.ArticlesAPI.Migrations
                     b.Property<bool>("CommentsEnabled")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ImageLink")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Language")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("LeadDataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MetaDataId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("StatisticsId")
@@ -101,6 +100,9 @@ namespace FirstProject.ArticlesAPI.Migrations
                     b.HasIndex("AuthorId");
 
                     b.HasIndex("LeadDataId")
+                        .IsUnique();
+
+                    b.HasIndex("MetaDataId")
                         .IsUnique();
 
                     b.HasIndex("StatisticsId")
@@ -142,9 +144,9 @@ namespace FirstProject.ArticlesAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Rating")
-                        .HasPrecision(17, 1)
-                        .HasColumnType("real");
+                    b.Property<decimal>("Rating")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
@@ -234,6 +236,50 @@ namespace FirstProject.ArticlesAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LeadData");
+                });
+
+            modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Metadata", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Amp")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CustomTrackerLinks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MainImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MetaDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchemaJsonLd")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ScriptUrls")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ShareImageHeight")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ShareImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ShareImageWidth")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StylesUrls")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VKShareImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Metadata");
                 });
 
             modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Statistics", b =>
@@ -331,6 +377,12 @@ namespace FirstProject.ArticlesAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FirstProject.ArticlesAPI.Models.Metadata", "MetaData")
+                        .WithOne("Article")
+                        .HasForeignKey("FirstProject.ArticlesAPI.Models.Article", "MetaDataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FirstProject.ArticlesAPI.Models.Statistics", "Statistics")
                         .WithOne("Article")
                         .HasForeignKey("FirstProject.ArticlesAPI.Models.Article", "StatisticsId")
@@ -340,6 +392,8 @@ namespace FirstProject.ArticlesAPI.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("LeadData");
+
+                    b.Navigation("MetaData");
 
                     b.Navigation("Statistics");
                 });
@@ -363,6 +417,12 @@ namespace FirstProject.ArticlesAPI.Migrations
                 });
 
             modelBuilder.Entity("FirstProject.ArticlesAPI.Models.LeadData", b =>
+                {
+                    b.Navigation("Article")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Metadata", b =>
                 {
                     b.Navigation("Article")
                         .IsRequired();

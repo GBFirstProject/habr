@@ -2,6 +2,7 @@
 using FirstProject.ArticlesAPI.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Newtonsoft.Json;
 
 namespace FirstProject.ArticlesAPI.Data
 {
@@ -14,19 +15,32 @@ namespace FirstProject.ArticlesAPI.Data
         public DbSet<LeadData> Leads { get; set; } = null!;
         public DbSet<Tag> Tags { get; set; } = null!;
         public DbSet<Statistics> Statistics { get; set; } = null!;
+        public DbSet<Metadata> Metadata { get; set; } = null!;
         public ArticlesDBContext(DbContextOptions options) : base(options)
         {            
             Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            //optionsBuilder.UseSqlServer(_connectionString);
+        {            
             base.OnConfiguring(optionsBuilder);            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entity.ClrType.GetProperties())
+                {
+                    if (property.PropertyType == typeof(List<string>))
+                    {
+                        modelBuilder.Entity(entity.Name)
+                            .Property(property.Name)
+                            .HasConversion(new ValueConverter<List<string>, string>(v => JsonConvert.SerializeObject(v), v => JsonConvert.DeserializeObject<List<string>>(v)));
+                    }
+                }
+            }
+
             modelBuilder.Entity<Article>()
                 .HasOne(a => a.Author)
                 .WithMany(a => a.Articles)
@@ -70,7 +84,7 @@ namespace FirstProject.ArticlesAPI.Data
             modelBuilder.Entity<Author>()
                 .HasIndex(a => a.NickName);
             modelBuilder.Entity<Author>()
-                .Property(x => x.Rating).HasColumnType("real").HasPrecision(17, 1);
+                .Property(x => x.Rating).HasColumnType("decimal").HasPrecision(6, 2);
 
             modelBuilder.Entity<Contact>()
                 .HasOne(a => a.Author)
@@ -80,11 +94,17 @@ namespace FirstProject.ArticlesAPI.Data
                 .HasOne(le => le.Article)
                 .WithOne(le => le.LeadData)
                 .HasForeignKey<Article>(le => le.LeadDataId);
+                        
+            modelBuilder.Entity<Metadata>()
+                .HasOne(me => me.Article)
+                .WithOne(me => me.MetaData)
+                .HasForeignKey<Article>(le => le.MetaDataId);
 
             modelBuilder.Entity<Statistics>()
                 .HasOne(le => le.Article)
                 .WithOne(le => le.Statistics)
                 .HasForeignKey<Article>(le => le.StatisticsId);
+
 
         }
     }

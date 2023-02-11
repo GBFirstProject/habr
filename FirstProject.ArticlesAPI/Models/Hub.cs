@@ -11,11 +11,6 @@ namespace FirstProject.ArticlesAPI.Models
         public string Title { get; set; } = string.Empty;
         public List<Article> Articles { get; set; } = new List<Article>();
 
-        public Hub(string title)
-        {
-            Title = title;
-        }
-
         public override bool Equals(object? obj)
         {
             if (obj == null || obj.GetType() != typeof(Hub)) return false;

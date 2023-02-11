@@ -43,6 +43,7 @@ namespace FirstProject.ArticlesAPI.Services
                 .Include(article => article.Tags)
                 .Include(article => article.LeadData)
                 .Include(article => article.Statistics)
+                .Include(article => article.MetaData)
                 .FirstOrDefaultAsync(article => article.Id == id, cancellationToken);
             if (article == null)
             {

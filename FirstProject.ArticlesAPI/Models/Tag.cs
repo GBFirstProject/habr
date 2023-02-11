@@ -8,10 +8,6 @@ namespace FirstProject.ArticlesAPI.Models
         public string TagName { get; set; } = string.Empty;
         public List<Article> Articles { get; set; } = new List<Article>();
 
-        /*public Tag(string name)
-        {
-            TagName = name;
-        }*/
         public override bool Equals(object? obj)
         {
             if (obj == null || obj.GetType() != typeof(Tag)) return false;
