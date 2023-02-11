@@ -173,7 +173,7 @@ async function changecomment() {
     var commentId = document.getElementById("commentIdChange").value;
     var content = document.getElementById("contentChange").value;
 
-    var req = new Request(`/comments/changecontent`, {
+    var req = new Request(`/comments/change`, {
         headers: new Headers({
             "X-CSRF": "1",
             "Content-Type": "application/json"
