@@ -1,4 +1,4 @@
-{
+﻿{
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/comments?articleId={articleId}&index={index}&count={count}",
@@ -6,11 +6,16 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10009
+          "Port": "10009"
         }
       ],
       "UpstreamPathTemplate": "/comments?articleId={articleId}&index={index}&count={count}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": null,
+      "DelegatingHandlers": null,
+      "ListBoxLine": "GET https://localhost:10009/api/comments"
     },
     {
       "DownstreamPathTemplate": "/api/comments/getCount?articleId={articleId}",
@@ -18,11 +23,16 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10009
+          "Port": "10009"
         }
       ],
       "UpstreamPathTemplate": "/comments/getCount?articleId={articleId}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": null,
+      "DelegatingHandlers": null,
+      "ListBoxLine": "GET https://localhost:10009/api/comments/getCount"
     },
     {
       "DownstreamPathTemplate": "/api/comments",
@@ -30,17 +40,20 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10009
+          "Port": "10009"
         }
       ],
       "UpstreamPathTemplate": "/comments",
-      "UpstreamHttpMethod": [ "POST" ],
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "oidc"
       },
       "DelegatingHandlers": [
         "HttpDelegatingHandler"
-      ]
+      ],
+      "ListBoxLine": "POST https://localhost:10009/api/comments"
     },
     {
       "DownstreamPathTemplate": "/api/comments/like",
@@ -48,17 +61,20 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10009
+          "Port": "10009"
         }
       ],
       "UpstreamPathTemplate": "/comments/like",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "oidc"
       },
       "DelegatingHandlers": [
         "HttpDelegatingHandler"
-      ]
+      ],
+      "ListBoxLine": "PUT https://localhost:10009/api/comments/like"
     },
     {
       "DownstreamPathTemplate": "/api/comments/dislike",
@@ -66,17 +82,20 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10009
+          "Port": "10009"
         }
       ],
       "UpstreamPathTemplate": "/comments/dislike",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "oidc"
       },
       "DelegatingHandlers": [
         "HttpDelegatingHandler"
-      ]
+      ],
+      "ListBoxLine": "PUT https://localhost:10009/api/comments/dislike"
     },
     {
       "DownstreamPathTemplate": "/api/comments/change",
@@ -84,17 +103,20 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10009
+          "Port": "10009"
         }
       ],
       "UpstreamPathTemplate": "/comments/change",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "oidc"
       },
       "DelegatingHandlers": [
         "HttpDelegatingHandler"
-      ]
+      ],
+      "ListBoxLine": "PUT https://localhost:10009/api/comments/change"
     },
     {
       "DownstreamPathTemplate": "/api/comments?id={id}",
@@ -102,17 +124,20 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10009
+          "Port": "10009"
         }
       ],
       "UpstreamPathTemplate": "/comments?id={id}",
-      "UpstreamHttpMethod": [ "DELETE" ],
+      "UpstreamHttpMethod": [
+        "DELETE"
+      ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "oidc"
       },
       "DelegatingHandlers": [
         "HttpDelegatingHandler"
-      ]
+      ],
+      "ListBoxLine": "DELETE https://localhost:10009/api/comments"
     },
     {
       "DownstreamPathTemplate": "/api/articles/get-by-id?articleId={articleId}",
@@ -120,11 +145,20 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10005
+          "Port": "10005"
         }
       ],
       "UpstreamPathTemplate": "/articles/get-by-id?articleId={articleId}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ],
+      "ListBoxLine": "GET https://localhost:10005/api/articles/get-by-id"
     },
     {
       "DownstreamPathTemplate": "/api/articles/get-preview-by-id?articleId=articleId",
@@ -132,11 +166,20 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10005
+          "Port": "10005"
         }
       ],
       "UpstreamPathTemplate": "/articles/get-preview-by-id?articleId=articleId",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ],
+      "ListBoxLine": "GET https://localhost:10005/api/articles/get-preview-by-id"
     },
     {
       "DownstreamPathTemplate": "/api/articles?PageNumber={PageNumber}&={PageSize}",
@@ -144,23 +187,41 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10005
+          "Port": "10005"
         }
       ],
       "UpstreamPathTemplate": "/articles?PageNumber={PageNumber}&={PageSize}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ],
+      "ListBoxLine": "GET https://localhost:10005/api/articles"
     },
     {
-      "DownstreamPathTemplate": "/api/articles/get-articles-count",
+      "DownstreamPathTemplate": "/api/articles/get-articles-count?/api/articles/get-articles-count",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 10005
+          "Port": "10005"
         }
       ],
-      "UpstreamPathTemplate": "/articles/get-articles-count",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamPathTemplate": "/articles/get-articles-count?/api/articles/get-articles-count",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ],
+      "ListBoxLine": "GET https://localhost:10005/api/articles/get-articles-count"
     }
   ]
 }
