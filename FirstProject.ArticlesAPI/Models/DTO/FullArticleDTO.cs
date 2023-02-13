@@ -9,7 +9,7 @@
         public string Language { get; set; }
         public string PreviewTextHtml { get; set; }
         public string FullTextHtml { get; set; }        
-        public long TimePublished { get; set; }
+        public DateTime TimePublished { get; set; }
         public bool CommentsEnabled { get; set; }
         public int ReadingCount { get; set; }
         public List<string> Tags { get; set; } = new List<string>();
