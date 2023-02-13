@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=.\\SQLEXPRESS;Database=TestParser;Trusted_Connection=True;TrustServerCertificate=True;"
+  }
+}
