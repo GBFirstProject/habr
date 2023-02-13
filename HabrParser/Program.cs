@@ -15,6 +15,7 @@ class Program
     static IMapper mapper;
     static IHost host;
     static ArticleThreadLevelType levelType;
+    static string MainTitle;
     static async Task Main(string[] args)
     {
         try
@@ -48,7 +49,8 @@ class Program
 
             int endArticleId = ArticleThreadLevel.IteratorLastNumber(levelType);
             int lastIdAdded = host.Services.GetRequiredService<IParserRepository>().LastArticleId(levelType);
-            Console.Title = $"Парсинг статей с {lastIdAdded} по {endArticleId} - {levelType.ToString()}";
+            MainTitle = $"Парсинг статей с {lastIdAdded} по {endArticleId} - {levelType.ToString()}";
+            Console.Title = MainTitle;
 
             if (lastIdAdded < 0) return;
 
@@ -174,6 +176,7 @@ class Program
 
                             if (data.articlesList.articlesList.article != null)
                             {
+                                Console.Title = MainTitle + $" - ст. № {articleId} - {data.articlesList.articlesList.article.titleHtml}";
                                 Console.WriteLine($"ст. № {articleId} - {data.articlesList.articlesList.article.titleHtml}");
                                 //ParsedArticle article = mapper.Map<Article, ParsedArticle>(data.articlesList.articlesList.article);
                                 Article article = mapper.Map<HabrParser.Models.Article,

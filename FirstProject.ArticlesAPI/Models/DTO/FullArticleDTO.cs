@@ -8,8 +8,7 @@
         public string Title { get; set; }
         public string Language { get; set; }
         public string PreviewTextHtml { get; set; }
-        public string FullTextHtml { get; set; }
-        public string ImageUrl { get; set; }
+        public string FullTextHtml { get; set; }        
         public long TimePublished { get; set; }
         public bool CommentsEnabled { get; set; }
         public int ReadingCount { get; set; }

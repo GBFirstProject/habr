@@ -81,7 +81,8 @@ namespace FirstProject.ArticlesAPI.Services
                 .Include(a => a.LeadData)
                 .Include(a => a.Statistics)
                 .Include(a => a.Tags)
-                .Where(a => a.TimePublished > DateTime.Now.AddYears(-1))
+                .Include(a => a.Hubs)
+                .Where(a => a.TimePublished > DateTime.Now.AddMonths(-1))
                 .OrderBy(on => on.TimePublished)
                 .Skip((paging.PageNumber - 1) * paging.PageSize)
                 .Take(paging.PageSize)
@@ -93,11 +94,9 @@ namespace FirstProject.ArticlesAPI.Services
 
         public int GetArticlesCount(CancellationToken cancellationToken)
         {
-            Task<List<Article>> articles = _articleRepository.Query()
-                .Include(a => a.Author)
-                .Include(a => a.LeadData)
-                .Include(a => a.Statistics)
-                .Where(a => a.TimePublished > DateTime.Now.AddYears(-1))
+            Task<List<Article>> articles = _articleRepository.Query()                
+                .Where(a => a.TimePublished > DateTime.Now.AddMonths(-1))
+                .OrderBy(on => on.TimePublished)
                 .ToListAsync(cancellationToken);
             if (articles == null) return 0;
             else return articles.Result.Count;
