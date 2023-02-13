@@ -83,6 +83,12 @@ namespace FirstProject.ArticlesAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Постраничный вывод предварительных статей
+        /// </summary>
+        /// <param name="paging">параметры страницы</param>
+        /// <param name="token">отмена</param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetArticlesPreview([FromQuery] PagingParameters paging, CancellationToken token)
         {
@@ -132,7 +138,7 @@ namespace FirstProject.ArticlesAPI.Controllers
             return Ok(new ResponseDTO()
             {
                 IsSuccess = true,
-                Result = new PreviewArticleDTO { Text = "test", TimePublished = 0, Title = "test_title" }
+                Result = new PreviewArticleDTO { Text = "test", TimePublished = DateTime.Now, Title = "test_title" }
             });
         }
         private IActionResult Error(Exception ex)
