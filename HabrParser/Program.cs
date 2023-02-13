@@ -5,9 +5,11 @@ using HabrParser.Database;
 using HabrParser.Models.APIArticles;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using System.Diagnostics.Metrics;
 using System.Xml;
 
 class Program
@@ -20,41 +22,49 @@ class Program
     {
         try
         {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("config.json", optional: false);
+            IConfiguration configuration = builder.Build();
+            configuration.GetConnectionString("DefaultConnection");
+
+
             host = Host.CreateDefaultBuilder(args)
                         .ConfigureServices(services =>
                         {
                             services.AddDbContext<ArticlesDBContext>(options =>
                             {
-                                options.UseSqlServer(@"Initial Catalog=ArticlesDbNew; Data Source=localhost,1433;TrustServerCertificate=True;User ID=sa;Password=123456");
+                                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
                             });
-                            services.AddTransient<IParserRepository, ParserRepository>();
-                            //services.AddScoped<IParserRepository, ParserRepository>();
+                            services.AddTransient<IParserRepository, ParserRepository>();                            
                         }).Build();
-
             
-            /*using (var context = new ArticlesDBContext(@"Initial Catalog=ArticlesDb; Data Source=localhost,1433;TrustServerCertificate=True;User ID=sa;Password=123456"))
-            {
-                var lastParsedIdItem = context.ParserResult.FirstOrDefault();
-                if (lastParsedIdItem != null)
-                    lastIdAdded = lastParsedIdItem.LastArtcleId;
-                else
-                    lastIdAdded = 1;
-            }*/
-            
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("Введите номер блока статей, который собираемся парсить |1 = 1; (номер * 1000 = номер первой статьи)|: ");
+            Console.ForegroundColor = ConsoleColor.Red;            
+            Console.Write("Введите номер блока статей (* 1000) (50, 100, ..., 700), либо ID статьи, с которой нужно начать: ");
             var levelNumber = Console.ReadLine();
             levelType = ArticleThreadLevel.ThreadLevel(levelNumber);
             Console.ResetColor();
 
-            int endArticleId = ArticleThreadLevel.IteratorLastNumber(levelType);
-            int lastIdAdded = host.Services.GetRequiredService<IParserRepository>().LastArticleId(levelType);
+            int endArticleId = 0;
+            int lastIdAdded = 0;
+            if (levelType != ArticleThreadLevelType.None)
+            {
+                lastIdAdded = host.Services.GetRequiredService<IParserRepository>().LastArticleId(levelType); 
+                endArticleId = ArticleThreadLevel.IteratorLastNumber(levelType);
+            }
+            else
+            {
+                lastIdAdded = Convert.ToInt32(levelNumber);
+                endArticleId = ArticleThreadLevel.IteratorLastNumber(levelType);
+            }
+            
+            
             MainTitle = $"Парсинг статей с {lastIdAdded} по {endArticleId} - {levelType.ToString()}";
             Console.Title = MainTitle;
 
             if (lastIdAdded < 0) return;
 
-            var config = new MapperConfiguration(cfg =>
+            var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<HabrParser.Models.Article, HabrParser.Models.ArticleOnly.ParsedArticle>();
                 cfg.CreateMap<HabrParser.Models.Author, HabrParser.Models.ArticleOnly.Author>();
@@ -103,7 +113,7 @@ class Program
                     .ForMember(x => x.Id, opt => opt.Ignore());
             });
             // Настройка AutoMapper
-            mapper = new Mapper(config);
+            mapper = new Mapper(mapperConfig);
 
             for (int i = lastIdAdded; i < endArticleId; i++)
             //for (int i = 75651; i < 715400; i++)
