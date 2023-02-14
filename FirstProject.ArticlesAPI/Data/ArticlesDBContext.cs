@@ -54,7 +54,7 @@ namespace FirstProject.ArticlesAPI.Data
             modelBuilder.Entity<Article>()
                 .HasOne(l => l.LeadData)
                 .WithOne(l => l.Article)
-                .HasForeignKey<LeadData>(l => l.Id);
+                .HasForeignKey<LeadData>(l => l.Id);            
             modelBuilder.Entity<Article>()
                 .Property(a => a.Language)
                 .HasConversion(new EnumToStringConverter<ArticleLanguage>());
@@ -62,6 +62,10 @@ namespace FirstProject.ArticlesAPI.Data
                 .HasOne(a => a.Statistics)
                 .WithOne(a => a.Article)
                 .HasForeignKey<Statistics>(a => a.Id);
+            modelBuilder.Entity<Article>()
+                .HasOne(l => l.MetaData)
+                .WithOne(l => l.Article)
+                .HasForeignKey<Metadata>(l => l.Id);
 
             modelBuilder.Entity<Tag>()
                 .HasMany(tag => tag.Articles)

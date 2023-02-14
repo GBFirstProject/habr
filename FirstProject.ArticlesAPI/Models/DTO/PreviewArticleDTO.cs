@@ -12,5 +12,9 @@
         public int ReadingCount { get; set; }
         public List<string> Tags { get; set; }
         public List<string> Hubs { get; set; }
+        /// <summary>
+        /// номер статьи на хабре для отладки
+        /// </summary>
+        public int HubrId { get; set; }
     }
 }

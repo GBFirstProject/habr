@@ -82,6 +82,7 @@ namespace FirstProject.ArticlesAPI.Services
                 .Include(a => a.Statistics)
                 .Include(a => a.Tags)
                 .Include(a => a.Hubs)
+                .Include(a => a.MetaData)
                 .Where(a => a.TimePublished > DateTime.Now.AddMonths(-1))
                 .OrderBy(on => on.TimePublished)
                 .Skip((paging.PageNumber - 1) * paging.PageSize)
