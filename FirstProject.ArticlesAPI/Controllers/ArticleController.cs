@@ -79,7 +79,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         }
 
         /// <summary>
-        /// Постраничный вывод предварительных статей
+        /// Постраничный вывод предварительных статей, созданных за последний месяц
         /// </summary>
         /// <param name="paging">параметры страницы</param>
         /// <param name="token">отмена</param>
@@ -103,7 +103,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         }
 
         /// <summary>
-        /// Получение полное количество статей
+        /// Получение количества статей созданных за последний месяц
         /// </summary>
         /// <returns></returns>
         [HttpGet("get-articles-count")]
@@ -123,19 +123,7 @@ namespace FirstProject.ArticlesAPI.Controllers
                 return Error(ex);
             }
         }
-        /// <summary>
-        /// Тест сваггера
-        /// </summary>
-        /// <returns>тестовая preview статья</returns>
-        [HttpGet("get-test-article")]
-        public IActionResult GetTestArticle(CancellationToken token)
-        {
-            return Ok(new ResponseDTO()
-            {
-                IsSuccess = true,
-                Result = new PreviewArticleDTO { Text = "test", TimePublished = DateTime.Now, Title = "test_title" }
-            });
-        }
+        
         private IActionResult Error(Exception ex)
         {
             _logger.LogError(ex, "Исключение");
