@@ -8,9 +8,7 @@ html {
 }
 
 body {
-	font-family: 'Inika', serif;
-	font-family: 'Inter', sans-serif;
-	font-family: 'Tenor Sans', sans-serif;
+	font-family: 'Overpass';
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -26,13 +24,28 @@ body {
 }
 
 .header {
+	/* border: 1px solid blue; */
+	background-color: rgb(130, 138, 250);
+}
+
+.lk_btn {
+	font-family: 'Overpass';
+	padding: 10px 20px;
+	background-color: azure;
+	border-radius: 10px;
 	border: 1px solid blue;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	transition: 0.3s;
+}
+
+.lk_btn:hover {
+	background-color: rgb(199, 199, 245);
 }
 
 .header_flex {
 	display: flex;
 	justify-content: space-between;
-
 }
 
 .header_nav {
@@ -46,6 +59,16 @@ body {
 
 .header_nav_item {
 	margin-right: 10px;
+	transition: 0.3s;
+}
+
+.header_nav_item:hover {
+	color: azure;
+}
+
+.text_logo {
+	color: azure;
+	margin-left: 10px;
 }
 
 .site_links {
@@ -70,8 +93,9 @@ body {
 }
 
 .all_posts_item {
-	background-color: rgb(195, 209, 245);
+	background-color: rgb(215, 224, 245);
 	margin: 0 auto;
+	box-shadow: 3px 3px 3px 3px rgba(174, 174, 238, 0.2);
 }
 
 .all_posts_item_texts {
@@ -105,9 +129,14 @@ body {
 
 .section_reg_welcome {
 	margin-top: 20px;
-	margin-bottom: 20px;
-	border: 1px solid red;
+	/* margin-bottom: 20px; */
+	/* border: 1px solid red; */
 	text-align: center;
+	background-color: rgb(222, 222, 245);
+}
+
+.reg_welcome_h3 {
+	padding-top: 20px;
 }
 
 .btn_welcome_reg {
@@ -115,7 +144,13 @@ body {
 }
 
 .footer {
-	border: 1px solid blue;
+	/* border: 1px solid blue; */
+	background-color: rgb(9, 9, 83);
+}
+
+.footer_left {
+	color: azure;
+	margin-left: 10px;
 }
 
 .footer_flex {
@@ -134,6 +169,12 @@ body {
 	display: block;
 	align-self: center;
 	margin-right: 10px;
+	color: azure;
+	transition: 0.3s;
+}
+
+.footer_nav:hover {
+	color: rgb(170, 169, 240);
 }
 
 .section_new_post_img {
@@ -153,4 +194,26 @@ body {
 
 .all_posts_pag {
 	font-weight: 700;
+	transition: 0.3s;
+}
+
+.all_posts_pag:hover {
+	color: rgba(36, 24, 216, 0.541);
+}
+
+.btn_welcome_reg {
+	font-family: 'Overpass';
+	padding: 10px 20px;
+	background-color: azure;
+	border-radius: 10px;
+	border: 1px solid blue;
+	margin-top: 5px;
+	/* margin-bottom: 5px; */
+	transition: 0.3s;
+	margin-bottom: 20px;
+}
+
+
+.btn_welcome_reg:hover {
+	background-color: rgb(170, 169, 240);
 }
