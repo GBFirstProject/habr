@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Initial Catalog=ArticlesDbNew; Data Source=.\\SQLEXPRESS;TrustServerCertificate=True;User ID=sa;Password=bdw"
+  }  
+}
