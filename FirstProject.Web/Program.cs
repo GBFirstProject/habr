@@ -1,18 +1,25 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Duende.Bff.Yarp;
-using Microsoft.AspNetCore.Authorization;
+using FirstProject.Web.Infrastructure;
+using Microsoft.AspNetCore.Authentication;
+using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthorization();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+builder.Services.ConfigureAPIBase(builder.Configuration);
+
+JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 builder.Services
     .AddBff()
     .AddRemoteApis();
 
-JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 builder.Services
+    .AddAuthorization()
     .AddAuthentication(options =>
     {
         options.DefaultScheme = "Cookies";
@@ -22,14 +29,33 @@ builder.Services
     .AddCookie("Cookies")
     .AddOpenIdConnect("oidc", options =>
     {
-        options.Authority = "https://localhost:5001";
-        options.ClientId = "webClient";
-        options.ClientSecret = "Bdg&6ed3hfh(jcB@3r5fDwJdyd";
+        options.Authority = builder.Configuration["ServiceUrls:AuthAPI"];
+        options.ClientId = "clientUser";
+        options.ClientSecret = "Acbudhbfsigfdgd773bcibkaf23bcgisid7gYgd";
         options.ResponseType = "code";
-        options.Scope.Add("allAPI");
+
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+        options.Scope.Add("firstProject");
+        options.Scope.Add("offline_access");
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
+        options.BackchannelHttpHandler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+        options.ClaimActions.MapJsonKey("role", "role", "role");
+        options.ClaimActions.MapJsonKey("sub", "sub", "sub");
+        options.TokenValidationParameters.NameClaimType = "name";
+        options.TokenValidationParameters.RoleClaimType = "role";
     });
+
+builder.Services.AddControllers();
+
+builder.Configuration.AddJsonFile("ocelot.json");
+builder.Services.AddOcelot().AddDelegatingHandler<HttpDelegatingHandler>();
 
 var app = builder.Build();
 
@@ -38,6 +64,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
+app.UseHttpLogging();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
@@ -51,6 +78,11 @@ app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapBffManagementEndpoints();
+
+    endpoints.MapControllers()
+         .AsBffApiEndpoint();
 });
+
+app.UseOcelot().Wait();
 
 app.Run();
