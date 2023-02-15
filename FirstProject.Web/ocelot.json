@@ -1,0 +1,216 @@
+﻿{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/comments?articleId={articleId}&index={index}&count={count}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments?articleId={articleId}&index={index}&count={count}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": null,
+      "DelegatingHandlers": null
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments/getCount?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments/getCount?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": null,
+      "DelegatingHandlers": null
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments/like",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments/like",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments/dislike",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments/dislike",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments/change",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments/change",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments?id={id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments?id={id}",
+      "UpstreamHttpMethod": [
+        "DELETE"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/get-by-id?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10005"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/get-by-id?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/get-preview-by-id?articleId=articleId",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10005"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/get-preview-by-id?articleId=articleId",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles?PageNumber={PageNumber}&PageSize={PageSize}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10005"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles?PageNumber={PageNumber}&PageSize={PageSize}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/get-articles-count?/api/articles/get-articles-count",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10005"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/get-articles-count",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    }
+  ]
+}

@@ -1,35 +1,26 @@
-﻿using FirstProject.AuthAPI;
-using Serilog;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-Log.Logger = new LoggerConfiguration()
-.WriteTo.Console()
-.CreateBootstrapLogger();
-
-Log.Information("Starting up");
-
-try
+namespace FirstProject.AuthAPI
 {
-    var builder = WebApplication.CreateBuilder(args);
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
 
-    builder.Host.UseSerilog((ctx, lc) => lc
-        .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
-        .Enrich.FromLogContext()
-        .ReadFrom.Configuration(ctx.Configuration));
-
-    var app = builder
-        .ConfigureServices()
-        .ConfigurePipeline();
-
-    app.Run();
-}
-catch (Exception ex) when (
-    // https://github.com/dotnet/runtime/issues/60600
-    ex.GetType().Name is not "StopTheHostException")
-{
-    Log.Fatal(ex, "Unhandled exception");
-}
-finally
-{
-    Log.Information("Shut down complete");
-    Log.CloseAndFlush();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
 }
