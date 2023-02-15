@@ -33,7 +33,11 @@ namespace FirstProject.ArticlesAPI.Services
         }
         public async Task<PreviewArticleDTO> GetPreviewArticleByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var article = await ArticleById(id, cancellationToken).ConfigureAwait(false);            
+            Article article = await ArticleById(id, cancellationToken).ConfigureAwait(false);
+            if (article.LeadData.ImageUrl == null)
+            {
+                article.LeadData.ImageUrl = article.MetaData.ShareImageUrl;
+            }
             return _mapper.Map<PreviewArticleDTO>(article);
         }
         private async Task<Article> ArticleById(Guid id, CancellationToken cancellationToken)
@@ -89,6 +93,13 @@ namespace FirstProject.ArticlesAPI.Services
                 .Skip((paging.PageNumber - 1) * paging.PageSize)
                 .Take(paging.PageSize)
                 .ToListAsync(cancellationToken);
+            foreach(Article article in articles.Result)
+            {
+                if(article.LeadData.ImageUrl == null)
+                {
+                    article.LeadData.ImageUrl = article.MetaData.ShareImageUrl;
+                }
+            }
             var articlePreviews = _mapper
                 .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
             return articlePreviews;
