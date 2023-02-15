@@ -81,7 +81,7 @@ namespace HabrParser.Database
             switch(levelType)
             {
                 case ArticleThreadLevelType.None:
-                    return 715928;
+                    return 716968;
                 case ArticleThreadLevelType.Level1:
                     return 50000;
                 case ArticleThreadLevelType.Level50:
@@ -111,11 +111,11 @@ namespace HabrParser.Database
                 case ArticleThreadLevelType.Level650:
                     return 700000;
                 case ArticleThreadLevelType.Level700:
-                    return 715928;
+                    return 716968;
                 default:
-                    return 715928;
+                    return 716968;
             }
-            return 715928;
+            return 716968;
         }
     }
     public enum ArticleThreadLevelType

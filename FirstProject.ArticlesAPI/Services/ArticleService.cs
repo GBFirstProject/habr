@@ -6,6 +6,7 @@ using FirstProject.ArticlesAPI.Models.DTO;
 using FirstProject.ArticlesAPI.Models.Enums;
 using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services.Interfaces;
+using FirstProject.ArticlesAPI.Utility;
 using Microsoft.EntityFrameworkCore;
 
 namespace FirstProject.ArticlesAPI.Services
@@ -32,7 +33,7 @@ namespace FirstProject.ArticlesAPI.Services
         }
         public async Task<PreviewArticleDTO> GetPreviewArticleByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var article = await ArticleById(id, cancellationToken).ConfigureAwait(false);
+            var article = await ArticleById(id, cancellationToken).ConfigureAwait(false);            
             return _mapper.Map<PreviewArticleDTO>(article);
         }
         private async Task<Article> ArticleById(Guid id, CancellationToken cancellationToken)
