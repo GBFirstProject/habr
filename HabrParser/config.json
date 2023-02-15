@@ -1,5 +1,5 @@
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=.\\SQLEXPRESS;Database=TestParser;Trusted_Connection=True;TrustServerCertificate=True;"
+    "DefaultConnection": "Initial Catalog=ArticlesDbNew; Data Source=localhost,1433;TrustServerCertificate=True;User ID=sa;Password=123456"
   }
 }
