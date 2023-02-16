@@ -29,7 +29,6 @@ internal class Program
             });
         });
 
-        builder.Configuration.AddJsonFile("config.json");
         builder.Services.AddDbContext<ArticlesDBContext>(options =>
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

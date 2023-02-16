@@ -138,7 +138,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10005"
+          "Port": "5033"
         }
       ],
       "UpstreamPathTemplate": "/articles?PageNumber={PageNumber}&PageSize={PageSize}",
@@ -152,7 +152,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10005"
+          "Port": "5033"
         }
       ],
       "UpstreamPathTemplate": "/articles/get-articles-count?/api/articles/get-articles-count",
@@ -166,7 +166,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10005"
+          "Port": "5033"
         }
       ],
       "UpstreamPathTemplate": "/articles/get-by-id?articleId={articleId}",
@@ -180,7 +180,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10005"
+          "Port": "5033"
         }
       ],
       "UpstreamPathTemplate": "/articles/get-preview-by-id?articleId=articleId",
