@@ -23,7 +23,49 @@ namespace FirstProject.ArticlesAPI.Utility
             { "strong", new List<string>() },
             { "ul", new List<string>() },
             { "li", new List<string>() },
-            { "a", new List<string> { "href", "target" } }
+            { "a", new List<string> { "href", "target" } },
+            
+            {"div", new List<string>        {"style", "class", "align"}},
+            {"span", new List<string>      {"style", "class"}},
+            {"br", new List<string>        {"style", "class"}},
+            {"hr", new List<string>        {"style", "class"}},
+            {"label", new List<string>     {"style", "class"}},
+
+            {"h1", new List<string>        {"style", "class"}},
+            {"h2", new List<string>         {"style", "class"}},
+            {"h3", new List<string>         {"style", "class"}},
+            {"h4", new List<string>        {"style", "class"}},
+            {"h5", new List<string>         {"style", "class"}},
+            {"h6", new List<string>         {"style", "class"}},
+
+            {"font", new List<string>     {"style", "class", "color", "face", "size"}},
+            
+            {"b", new List<string>         {"style", "class"}},
+            {"em", new List<string>       {"style", "class"}},
+            {"i", new List<string>         {"style", "class"}},
+            {"u", new List<string>         {"style", "class"}},
+            {"strike", new List<string>    {"style", "class"}},
+            {"ol", new List<string>        {"style", "class"}},
+            
+            {"blockquote", new List<string> {"style", "class"}},
+            {"code", new List<string>      {"style", "class"}},
+
+            
+            
+            {"table", new List<string>      {"style", "class"}},
+            {"thead", new List<string>     {"style", "class"}},
+            {"tbody", new List<string>     {"style", "class"}},
+            {"tfoot", new List<string>     {"style", "class"}},
+            {"th", new List<string>         {"style", "class", "scope"}},
+            {"tr", new List<string>         {"style", "class"}},
+            {"td", new List<string>       {"style", "class", "colspan"}},
+
+            {"q", new List<string>       {"style", "class", "cite"}},
+            {"cite", new List<string>     {"style", "class"}},
+            {"abbr", new List<string>       {"style", "class"}},
+            {"acronym", new List<string>   {"style", "class"}},
+            {"del", new List<string>    {"style", "class"}},
+            {"ins", new List<string>      {"style", "class"}}
     };
 
         /// <summary>
