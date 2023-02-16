@@ -1,0 +1,108 @@
+﻿﻿
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FirstProjectDevelopment</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/favicon.ico">
+</head>
+
+<body>
+    <div class="container">
+        <table>
+            <tr>
+                <td>Id статьи</td>
+                <td><input id="articleIdGet" type="text" /></td>
+            </tr>
+            <tr>
+                <td>Индекс</td>
+                <td><input id="indexGet" type="text" /></td>
+            </tr>
+            <tr>
+                <td>Количество</td>
+                <td><input id="countGet" type="text" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="getcomments">Получить комментарии</button></td>
+            </tr>
+        </table>
+        <br />
+        <table>
+            <tr>
+                <td>Id статьи</td>
+                <td><input id="articleIdCount" type="text" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="getcommentscount">Получить количество комментариев</button></td>
+            </tr>
+        </table>
+        <br />
+        <table>
+            <tr>
+                <td>Id статьи</td>
+                <td><input id="articleIdCreate" type="text" /></td>
+            </tr>
+            <tr>
+                <td>Контент</td>
+                <td><input id="contentCreate" type="text" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="createcomment">Создать комментарий</button></td>
+            </tr>
+        </table>
+        <br />
+        <table>
+            <tr>
+                <td>Id комментария</td>
+                <td><input id="commentIdLike" type="text" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="likecomment">Лайкнуть комментарий</button></td>
+            </tr>
+        </table>
+        <br />
+        <table>
+            <tr>
+                <td>Id комментария</td>
+                <td><input id="commentIdDislike" type="text" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="dislikecomment">Дизлайкнуть комментарий</button></td>
+            </tr>
+        </table>
+        <br />
+        <table>
+            <tr>
+                <td>Id комментария</td>
+                <td><input id="commentIdChange" type="text" /></td>
+            </tr>
+            <tr>
+                <td>Контент</td>
+                <td><input id="contentChange" type="text" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="changecomment">Изменить комментарий</button></td>
+            </tr>
+        </table>
+        <br />
+        <table>
+            <tr>
+                <td>Id комментария</td>
+                <td><input id="commentIdDelete" type="text" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="deletecomment">Удалить комментарий</button></td>
+            </tr>
+        </table>
+
+        <pre id="results"></pre>
+    </div>
+
+    <script src="testocelot.js"></script>
+</body>
+
+</html>
