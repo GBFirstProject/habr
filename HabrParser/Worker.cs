@@ -143,12 +143,13 @@ namespace HabrParser
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
             }
         }
 
         private async Task ParseComment(HtmlNode comment, Guid replyId, Guid articleId, CancellationToken cancellationToken)
         {
+            
             try
             {
                 var temp1 = comment.Element("article").Element("div").Elements("div");
@@ -159,10 +160,36 @@ namespace HabrParser
                 var content = temp1.First().Element("div").InnerHtml;
                 var rating = temp1.Last().FirstChild.FirstChild?.FirstChild.InnerText.Split(':').Last().TrimStart().TrimEnd();
 
-                var likes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[0].Remove(0, 1));
-                var dislikes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[1].Remove(0, 1));
-
-
+                //var likes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[0].Remove(0, 1));
+                int likes = 0;
+                if (!string.IsNullOrEmpty(rating))
+                {
+                    string[] parts = rating.Split(" и ");
+                    if (parts.Length > 0)
+                    {
+                        string likesString = parts[0].Remove(0, 1);
+                        int parsedLikes;
+                        if (int.TryParse(likesString, out parsedLikes))
+                        {
+                            likes = parsedLikes;
+                        }
+                    }
+                }
+                //var dislikes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[1].Remove(0, 1));
+                int dislikes = 0;
+                if (!string.IsNullOrEmpty(rating))
+                {
+                    string[] parts = rating.Split(" и ");
+                    if (parts.Length > 1)
+                    {
+                        string dislikesString = parts[1].Remove(0, 1);
+                        int parsedDislikes;
+                        if (int.TryParse(dislikesString, out parsedDislikes))
+                        {
+                            dislikes = parsedDislikes;
+                        }
+                    }
+                }
 
                 Author author = new()
                 {
@@ -174,7 +201,7 @@ namespace HabrParser
                     ArticleId = articleId,
                     UserId = author_result.Id,
                     Content = content,
-                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date),
+                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date.Split('\n')[0]),
                     ReplyTo = replyId
                 };
                 for (int i = 0; i < likes; i++)
@@ -199,9 +226,9 @@ namespace HabrParser
                     await ParseComment(replyComment, entry.Id, articleId, cancellationToken);
                 }
             }
-            catch
+            catch(Exception ex) 
             {
-
+                Console.WriteLine(ex.ToString());
             }
         }
     }

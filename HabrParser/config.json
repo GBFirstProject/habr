@@ -1,6 +1,6 @@
 {
   "ConnectionStrings": {
-    "Articles": "Server=localhost;Database=ArticlesDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=commentsdbuser;pwd=e9XLuSKvqe5OVSzio;Encrypt=false",
-    "Comments": "Server=localhost;Database=CommentsDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=commentsdbuser;pwd=e9XLuSKvqe5OVSzio;Encrypt=false"
+    "Articles": "Server=localhost;Database=ArticlesDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=123456;Encrypt=false",
+    "Comments": "Server=localhost;Database=CommentsDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=123456;Encrypt=false"
   }
 }

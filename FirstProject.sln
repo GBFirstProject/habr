@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HabrParser", "HabrParser\Ha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OcelotConfigBuilder", "OcelotConfigBuilder\OcelotConfigBuilder.csproj", "{5985D247-BA66-4A5D-9C4A-2B040CF8BCAE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.HabrParser", "Tests.HabrParser\Tests.HabrParser.csproj", "{3E96EF52-2B92-4EDA-847A-EBF947DA3567}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{5985D247-BA66-4A5D-9C4A-2B040CF8BCAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5985D247-BA66-4A5D-9C4A-2B040CF8BCAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5985D247-BA66-4A5D-9C4A-2B040CF8BCAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E96EF52-2B92-4EDA-847A-EBF947DA3567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E96EF52-2B92-4EDA-847A-EBF947DA3567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E96EF52-2B92-4EDA-847A-EBF947DA3567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E96EF52-2B92-4EDA-847A-EBF947DA3567}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +105,7 @@ Global
 		{97B47359-D229-4217-A215-0A1C006D1DC8} = {D06149F3-EA06-4BD4-95B7-7C87F3E6EB91}
 		{4EB1A8BF-CA6B-4977-898F-E359B510DC02} = {D7DDDEBC-A6ED-47BC-8638-F9AA4FCE4C4A}
 		{5985D247-BA66-4A5D-9C4A-2B040CF8BCAE} = {D7DDDEBC-A6ED-47BC-8638-F9AA4FCE4C4A}
+		{3E96EF52-2B92-4EDA-847A-EBF947DA3567} = {D7DDDEBC-A6ED-47BC-8638-F9AA4FCE4C4A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {960C6F74-5EED-4071-B033-C606146CBE7D}
