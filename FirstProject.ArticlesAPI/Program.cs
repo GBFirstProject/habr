@@ -28,7 +28,6 @@ internal class Program
                     .AllowAnyMethod();
             });
         });
-        
         builder.Services.AddDbContext<ArticlesDBContext>(options =>
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
