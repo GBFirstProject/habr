@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace HabrParser.Models.APIArticles
 {
     [Table("Authors")]
-    public class Author : BaseModel<int>
+    public class Author : BaseModel<Guid>
     {
         public int hubrId { get; set; }
         [Required]
