@@ -28,7 +28,7 @@ namespace FirstProject.ArticlesAPI.Services
 
         public async Task<FullArticleDTO> GetArticleByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var article = await ArticleById(id, cancellationToken).ConfigureAwait(false);
+            Article article = await ArticleById(id, cancellationToken).ConfigureAwait(false);
             return _mapper.Map<FullArticleDTO>(article);
         }
         public async Task<PreviewArticleDTO> GetPreviewArticleByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -82,6 +82,8 @@ namespace FirstProject.ArticlesAPI.Services
         public async Task<IEnumerable<PreviewArticleDTO>> GetPreviewArticles(PagingParameters paging, CancellationToken cancellationToken)
         {
             Task<List<Article>> articles = _articleRepository.Query()
+                .AsNoTracking()
+                .AsSplitQuery()
                 .Include(a => a.Author)
                 .Include(a => a.LeadData)
                 .Include(a => a.Statistics)
@@ -107,7 +109,9 @@ namespace FirstProject.ArticlesAPI.Services
 
         public int GetArticlesCount(CancellationToken cancellationToken)
         {
-            Task<List<Article>> articles = _articleRepository.Query()                
+            Task<List<Article>> articles = _articleRepository.Query()
+                .AsNoTracking()
+                .AsSplitQuery()
                 .Where(a => a.TimePublished > DateTime.Now.AddMonths(-1))
                 .OrderBy(on => on.TimePublished)
                 .ToListAsync(cancellationToken);
