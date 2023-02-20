@@ -14,9 +14,11 @@ try
         {
             services.AddAutoMapper(config => config.RegisterMaps());
 
-            services.AddDbContext<ArticlesDBContext>(options => options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ArticlesDBContext>(options => options.UseSqlServer(context.Configuration.GetConnectionString("Articles")));
+            services.AddDbContext<CommentsDbContext>(options => options.UseSqlServer(context.Configuration.GetConnectionString("Comments")));
 
-            services.AddTransient<IParserRepository, ParserRepository>();
+            services.AddTransient<IArticlesRepository, ArticlesRepository>();
+            services.AddTransient<ICommentsRepository, CommentsRepository>();
 
             services.AddHostedService<Worker>();
         }).Build();

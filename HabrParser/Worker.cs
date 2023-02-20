@@ -2,9 +2,12 @@
 using HabrParser.Database;
 using HabrParser.Database.Repositories;
 using HabrParser.Models.APIArticles;
+using HabrParser.Models.APIComments;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using System.Threading;
+using System.Xml.Linq;
 
 namespace HabrParser
 {
@@ -13,12 +16,14 @@ namespace HabrParser
         private string _mainTitle = string.Empty;
         private ArticleThreadLevelType _levelType;
 
-        private readonly IParserRepository _parserRepository;
+        private readonly IArticlesRepository _articlesRepository;
+        private readonly ICommentsRepository _commentsRepository;
         private readonly IMapper _mapper;
 
-        public Worker(IParserRepository parserRepository, IMapper mapper)
+        public Worker(IArticlesRepository articlesRepository, ICommentsRepository commentsRepository, IMapper mapper)
         {
-            _parserRepository = parserRepository;
+            _articlesRepository = articlesRepository;
+            _commentsRepository = commentsRepository;
             _mapper = mapper;
         }
 
@@ -36,7 +41,7 @@ namespace HabrParser
 
             if (_levelType != ArticleThreadLevelType.None)
             {
-                lastIdAdded = await _parserRepository.LastArticleId(_levelType, stoppingToken);
+                lastIdAdded = await _articlesRepository.LastArticleId(_levelType, stoppingToken);
                 endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
             }
             else
@@ -63,9 +68,13 @@ namespace HabrParser
             HtmlDocument doc;
             try
             {
-                var article_repo = await _parserRepository.ArticleAlreadyExists(articleId, cancellationToken);
+                var article_repo = await _articlesRepository.ArticleAlreadyExists(articleId, cancellationToken);
                 if (article_repo != null)
                 {
+                    if (!await _commentsRepository.CommentsAlreadyExists(article_repo.Id, cancellationToken))
+                    {
+                        await GetCommentsAndSaveToDb(article_repo, cancellationToken);
+                    }
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine($"ст. № {articleId} уже присутствует в БД");
                     Console.ResetColor();
@@ -95,7 +104,9 @@ namespace HabrParser
                                     Console.Title = _mainTitle + $" - ст. № {articleId} - {data.articlesList.articlesList.article.titleHtml}";
                                     Console.WriteLine($"ст. № {articleId} - {data.articlesList.articlesList.article.titleHtml}");
                                     Article article = _mapper.Map<Models.Article, Article>(data.articlesList.articlesList.article);
-                                    await _parserRepository.CreateHabrArticle(article, _levelType, cancellationToken);
+
+                                    var result = await _articlesRepository.CreateHabrArticle(article, _levelType, cancellationToken);
+                                    await GetCommentsAndSaveToDb(result, cancellationToken);
                                 }
                             }
                         }
@@ -109,6 +120,88 @@ namespace HabrParser
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+            }
+        }
+
+        private async Task GetCommentsAndSaveToDb(Article article, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var web = new HtmlWeb();
+                var url = $"https://habr.com/ru/post/{article.hubrId}/comments";
+                HtmlDocument doc = web.Load(url);
+
+                var comments = doc.DocumentNode.Descendants(20).FirstOrDefault(n => n.HasClass("tm-comments__tree"));
+                if (comments == null)
+                {
+                    return;
+                }
+                foreach (var comment in comments.ChildNodes)
+                {
+                    await ParseComment(comment, Guid.Empty, article.Id, cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        private async Task ParseComment(HtmlNode comment, Guid replyId, Guid articleId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var temp1 = comment.Element("article").Element("div").Elements("div");
+                var temp2 = temp1.First().Element("header")?.FirstChild.FirstChild.Element("span");
+                var nickname = temp2?.FirstChild.InnerText.TrimStart().TrimEnd();
+                var date = temp2?.LastChild.InnerText.TrimStart().TrimEnd().Replace(" в ", " ");
+
+                var content = temp1.First().Element("div").InnerHtml;
+                var rating = temp1.Last().FirstChild.FirstChild?.FirstChild.InnerText.Split(':').Last().TrimStart().TrimEnd();
+
+                var likes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[0].Remove(0, 1));
+                var dislikes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[1].Remove(0, 1));
+
+
+
+                Author author = new()
+                {
+                    NickName = string.IsNullOrEmpty(nickname) ? "UNKNOWN" : nickname,
+                };
+                var author_result = await _articlesRepository.CreateAuthor(author, cancellationToken);
+                Comment entry = new()
+                {
+                    ArticleId = articleId,
+                    UserId = author_result.Id,
+                    Content = content,
+                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date),
+                    ReplyTo = replyId
+                };
+                for (int i = 0; i < likes; i++)
+                {
+                    entry.Likes.Add(Guid.NewGuid());
+                }
+                for (int i = 0; i < dislikes; i++)
+                {
+                    entry.Dislikes.Add(Guid.NewGuid());
+                }
+                await _commentsRepository.CreateComment(entry, cancellationToken);
+
+
+
+                var replyComments = comment.Element("div");
+                if (replyComments == null)
+                {
+                    return;
+                }
+                foreach (var replyComment in replyComments.ChildNodes)
+                {
+                    await ParseComment(replyComment, entry.Id, articleId, cancellationToken);
+                }
+            }
+            catch
+            {
+
             }
         }
     }

@@ -4,11 +4,11 @@ using System.Text;
 
 namespace HabrParser.Database.Repositories
 {
-    public class ParserRepository : IParserRepository
+    public class ArticlesRepository : IArticlesRepository
     {
         public readonly ArticlesDBContext _dbContext;
         private ArticleThreadLevelType _levelType = ArticleThreadLevelType.None;
-        public ParserRepository(ArticlesDBContext dbContext)
+        public ArticlesRepository(ArticlesDBContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -310,6 +310,26 @@ namespace HabrParser.Database.Repositories
                     break;
             }
             return lastArcticleId;
+        }
+
+        public async Task<Author> CreateAuthor(Author author, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _dbContext.Authors.FirstOrDefaultAsync(s => s.NickName == author.NickName, cancellationToken);
+                if (result != null)
+                {
+                    return result;
+                }
+                await _dbContext.AddAsync(author, cancellationToken);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+
+                return author;
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
