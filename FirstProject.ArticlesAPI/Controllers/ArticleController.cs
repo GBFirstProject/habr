@@ -123,7 +123,39 @@ namespace FirstProject.ArticlesAPI.Controllers
                 return Error(ex);
             }
         }
-        
+
+        // POST: api/Articles
+        /*[HttpPost]
+        public async Task<ActionResult<Article>> CreateArticle(Article article)
+        {
+            await _articleRepository.AddAsync(article);
+
+            return CreatedAtAction(nameof(GetArticle), new { id = article.Id }, article);
+        }
+
+        // PUT: api/Articles/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateArticle(Guid id, Article article)
+        {
+            if (id != article.Id)
+            {
+                return BadRequest();
+            }
+
+            await _articleRepository.UpdateAsync(article);
+
+            return NoContent();
+        }
+
+        // DELETE: api/Articles/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteArticle(Guid id)
+        {
+            await _articleRepository.DeleteAsync(id);
+
+            return NoContent();
+        }*/
+
         private IActionResult Error(Exception ex)
         {
             _logger.LogError(ex, "Исключение");
