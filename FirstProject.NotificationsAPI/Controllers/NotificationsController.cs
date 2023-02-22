@@ -1,6 +1,7 @@
 ﻿using FirstProject.Messages;
 using FirstProject.NotificationAPI.Producers;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace FirstProject.NotificationAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+   
     public class NotificationsController : ControllerBase
     {
         private readonly Notifier notifier;
@@ -18,6 +20,7 @@ namespace FirstProject.NotificationAPI.Controllers
         }
 
          [HttpPost]
+         [Route("moderatorRequested")]
          
          public Task<bool> ModeratorRequested(ModeratorRequested notification)
          {
@@ -26,7 +29,7 @@ namespace FirstProject.NotificationAPI.Controllers
          }
 
         [HttpPost]
-        [Route("/liked")]
+        [Route("liked")]
 
         public Task<bool> ArticleLiked(ArticleLiked notification)
         {
@@ -36,7 +39,7 @@ namespace FirstProject.NotificationAPI.Controllers
         }
 
         [HttpPost]
-        [Route("/disliked")]
+        [Route("disliked")]
 
         public Task<bool> ArticleDisliked(ArticleDisliked notification)
         {
@@ -46,7 +49,7 @@ namespace FirstProject.NotificationAPI.Controllers
 
 
         [HttpPost]
-        [Route("/commented")]
+        [Route("commented")]
 
         public Task<bool> ArticleCommented(ArticleCommented notification)
         {

@@ -2,6 +2,8 @@
 using FirstProject.CommentsAPI.Interfaces;
 using FirstProject.CommentsAPI.Models;
 using FirstProject.CommentsAPI.Models.DTO;
+using FirstProject.Messages;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace FirstProject.CommentsAPI.Repositories
@@ -10,11 +12,15 @@ namespace FirstProject.CommentsAPI.Repositories
     {
         private readonly CommentsDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly string _notificationServiceUrl;
 
-        public CommentsRepository(CommentsDbContext context, IMapper mapper)
+        public CommentsRepository(CommentsDbContext context, IMapper mapper, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
             _mapper = mapper;
+            _httpClientFactory=httpClientFactory;
+            _notificationServiceUrl = configuration.GetConnectionString("NotificationService");
         }
 
         public async Task<CommentDTO> CreateComment(CommentDTO comment, CancellationToken cts)
@@ -48,6 +54,23 @@ namespace FirstProject.CommentsAPI.Repositories
                 await _context.AddAsync(entry, cts);
 
                 await _context.SaveChangesAsync(cts);
+
+
+                /////
+                var client = _httpClientFactory.CreateClient();
+
+                var message = new ArticleCommented();
+
+                message.ArticleId = comment.ArticleId;
+
+                message.UserId= comment.UserId;
+
+                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/commented");
+
+                request.Content = JsonContent.Create(message);
+
+                await client.SendAsync(request);
+                /////
 
                 return _mapper.Map<CommentDTO>(entry);
             }
