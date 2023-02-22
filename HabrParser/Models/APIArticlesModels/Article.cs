@@ -29,7 +29,8 @@ namespace HabrParser.Models.APIArticles
         public Statistics Statistics { get; set; }
         public List<Tag> Tags { get; set; } = new List<Tag>();
         public List<Hub> Hubs { get; set; } = new List<Hub>();
-        
+        public bool IsPublished { get; set; } = false;
+
     }
 
     public enum ArticleLanguage
