@@ -15,7 +15,7 @@ namespace FirstProject.ArticlesAPI.Migrations
                 name: "Authors",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     hubrId = table.Column<int>(type: "int", nullable: false),
                     NickName = table.Column<string>(type: "nvarchar(450)", nullable: false),

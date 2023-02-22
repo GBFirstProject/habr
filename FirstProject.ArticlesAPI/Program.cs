@@ -39,6 +39,7 @@ internal class Program
         builder.Services.AddTransient<IRepository<Author>, Repository<Author>>();
         builder.Services.AddTransient<IRepository<Hub>, Repository<Hub>>();
         builder.Services.AddTransient<IArticleService, ArticleService>();
+        builder.Services.AddScoped<IArticleImageService, ArticleImageService>();
 
         builder.Services.AddControllers();
 

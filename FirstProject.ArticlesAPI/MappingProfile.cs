@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FirstProject.ArticlesAPI.Models;
 using FirstProject.ArticlesAPI.Models.DTO;
+using FirstProject.ArticlesAPI.Models.Enums;
 using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Utility;
 
@@ -25,7 +26,11 @@ namespace FirstProject.ArticlesAPI
                 .ForMember(a => a.ImageURL, opt => opt.MapFrom(a => a.LeadData.ImageUrl))
                 .ForMember(a => a.ReadingCount, opt => opt.MapFrom(a => a.Statistics.ReadingCount))
                 .ForMember(a => a.HubrId, opt => opt.MapFrom(a => a.hubrId));
-            CreateMap<CreateArticleRequest, FullArticleDTO>();
+            CreateMap<CreateArticleRequest, Article>()
+                .ForMember(dest => dest.LeadData, opt => opt.MapFrom(src => new LeadData { ImageUrl = src.ImageUrl }))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(tag => new Tag { TagName = tag })))
+                .ForMember(dest => dest.Hubs, opt => opt.MapFrom(src => src.Hubs.Select(hub => new Hub { Title = hub })))
+                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => Enum.Parse<ArticleLanguage>(src.Language)));
         }
     }
 }

@@ -22,7 +22,7 @@ namespace FirstProject.ArticlesAPI.Models
         public Guid MetaDataId { get; set; }
         [ForeignKey("MetaDataId")]
         public Metadata MetaData { get; set; } = new Metadata();
-        public int AuthorId { get; set; }
+        public Guid AuthorId { get; set; }
         [ForeignKey("AuthorId")]
         public Author Author { get; set; } = new Author();
         public Guid StatisticsId { get; set; }
@@ -30,6 +30,7 @@ namespace FirstProject.ArticlesAPI.Models
         public Statistics Statistics { get; set; }
         public List<Tag> Tags { get; set; } = new List<Tag>();
         public List<Hub> Hubs { get; set; } = new List<Hub>();
+        public bool IsPublished { get; set; } = false;
 
     }
 }

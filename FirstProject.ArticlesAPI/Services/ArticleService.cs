@@ -58,14 +58,15 @@ namespace FirstProject.ArticlesAPI.Services
         }
 
 
-        public async Task<FullArticleDTO> CreateArticleAsync(CreateArticleRequest articleDto, CancellationToken cancellationToken)
+        public async Task<Guid> CreateArticleAsync(CreateArticleRequest articleDto, CancellationToken cancellationToken)
         {
             var article = _mapper.Map<Article>(articleDto);           
             await _articleRepository.AddAsync(article, cancellationToken);
             await _articleRepository.SaveChangesAsync(cancellationToken);
             var articleModel = _mapper.Map<FullArticleDTO>(article);            
-            return articleModel;
-        }
+            return articleModel.Id;
+        }       
+
         public async Task<bool> DeleteArticleAsync(Guid id, CancellationToken cancellationToken)
         {
             var article = await _articleRepository.GetByIdAsync(cancellationToken, id);
@@ -74,7 +75,7 @@ namespace FirstProject.ArticlesAPI.Services
             return true;
         }
 
-        public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleDataDto updateArticleDataDto, CancellationToken cancellationToken)
+        public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleDTO updateArticleDataDto, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -117,6 +118,6 @@ namespace FirstProject.ArticlesAPI.Services
                 .ToListAsync(cancellationToken);
             if (articles == null) return 0;
             else return articles.Result.Count;
-        }
+        }        
     }
 }
