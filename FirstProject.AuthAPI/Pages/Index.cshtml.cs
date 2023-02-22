@@ -17,9 +17,13 @@ namespace FirstProject.AuthAPI.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public RedirectResult OnGet()
         {
-
+            if ((bool)!HttpContext.User?.Identity.IsAuthenticated)
+            {
+                return Redirect("/Identity/Account/Login");
+            }
+            return Redirect("/Identity/Account/Manage/Index");
         }
     }
 }

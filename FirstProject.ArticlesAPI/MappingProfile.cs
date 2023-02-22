@@ -21,7 +21,7 @@ namespace FirstProject.ArticlesAPI
             CreateMap<Article, PreviewArticleDTO>()
                 .ForMember(a => a.TimePublished, opt => opt.MapFrom(source => DateTime.Parse(source.TimePublished.ToString())))
                 .ForMember(a => a.AuthorNickName, opt => opt.MapFrom(a => a.Author.NickName))
-                .ForMember(a => a.Text, opt => opt.MapFrom(a => HtmlSanitizeExtension.FilterHtmlToWhitelist(a.LeadData.TextHtml)))
+                .ForMember(a => a.Text, opt => opt.MapFrom(a => HtmlSanitizeExtension.FilterHtmlToWhitelist(a.LeadData.TextHtml)))                
                 .ForMember(a => a.ImageURL, opt => opt.MapFrom(a => a.LeadData.ImageUrl))
                 .ForMember(a => a.ReadingCount, opt => opt.MapFrom(a => a.Statistics.ReadingCount))
                 .ForMember(a => a.HubrId, opt => opt.MapFrom(a => a.hubrId));
