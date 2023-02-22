@@ -22,7 +22,7 @@ namespace FirstProject.ArticlesAPI.Models
         public Guid MetaDataId { get; set; }
         [ForeignKey("MetaDataId")]
         public Metadata MetaData { get; set; } = new Metadata();
-        public int AuthorId { get; set; }
+        public Guid AuthorId { get; set; }
         [ForeignKey("AuthorId")]
         public Author Author { get; set; } = new Author();
         public Guid StatisticsId { get; set; }
