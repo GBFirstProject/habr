@@ -39,6 +39,9 @@ internal class Program
         builder.Services.AddTransient<IRepository<Article>, Repository<Article>>();
         builder.Services.AddTransient<IRepository<Author>, Repository<Author>>();
         builder.Services.AddTransient<IRepository<Hub>, Repository<Hub>>();
+        builder.Services.AddTransient<IRepository<Statistics>, Repository<Statistics>>();
+        builder.Services.AddTransient<IRepository<Tag>, Repository<Tag>>();
+        builder.Services.AddTransient<IRepository<LeadData>, Repository<LeadData>>();
         builder.Services.AddTransient<IArticleService, ArticleService>();
         builder.Services.AddScoped<IArticleImageService, ArticleImageService>();
         //builder.Services.AddTransient<ServiceClass<IWebHostEnvironment>>();
