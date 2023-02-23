@@ -12,7 +12,6 @@ namespace HabrParser.Database
 {
     public class ArticlesDBContext : DbContext
     {
-        private readonly string _connectionString = "";
         public DbSet<Article> Articles { get; set; } = null!;
         public DbSet<Author> Authors { get; set; } = null!;
         public DbSet<Contact> Contacts { get; set; } = null!;
@@ -22,14 +21,12 @@ namespace HabrParser.Database
         public DbSet<ParserResult> ParserResult { get; set; } = null!;
         public DbSet<Statistics> Statistics { get; set; } = null!;
         public DbSet<Metadata> Metadata { get; set; } = null!;
-        public ArticlesDBContext(DbContextOptions options) : base(options)
+
+        public ArticlesDBContext(DbContextOptions<ArticlesDBContext> options) : base(options)
         {            
             Database.EnsureCreated();
         }
-        public ArticlesDBContext(string connectionString)
-        {
-            _connectionString= connectionString;
-        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
@@ -132,18 +129,6 @@ namespace HabrParser.Database
             //    .HasNoKey();
 
             base.OnModelCreating(modelBuilder);
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (_connectionString != "")
-            {
-                optionsBuilder.UseSqlServer(_connectionString);
-            }
-            else
-            {
-                base.OnConfiguring(optionsBuilder);
-            }            
         }
     }
 }

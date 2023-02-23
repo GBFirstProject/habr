@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,18 @@ namespace HabrParser.Database
 {
     public static class ArticleThreadLevel
     {
+        private static int LastIdInHabr;
+        static ArticleThreadLevel()
+        {
+            // создание конфигурации из файла
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("config.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            // получение значения из секции
+            string settingValue = configuration["LastIdInHabr"];
+            LastIdInHabr = Convert.ToInt32(settingValue);
+        }
         public static ArticleThreadLevelType ThreadLevel(int level)
         {
             switch(level)
@@ -81,7 +94,7 @@ namespace HabrParser.Database
             switch(levelType)
             {
                 case ArticleThreadLevelType.None:
-                    return 716968;
+                    return 718968;
                 case ArticleThreadLevelType.Level1:
                     return 50000;
                 case ArticleThreadLevelType.Level50:
@@ -111,11 +124,11 @@ namespace HabrParser.Database
                 case ArticleThreadLevelType.Level650:
                     return 700000;
                 case ArticleThreadLevelType.Level700:
-                    return 716968;
+                    return LastIdInHabr;
                 default:
-                    return 716968;
+                    return LastIdInHabr;
             }
-            return 716968;
+            return LastIdInHabr;
         }
     }
     public enum ArticleThreadLevelType
