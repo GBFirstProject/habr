@@ -94,7 +94,8 @@ namespace FirstProject.ArticlesAPI.Services
             }
             await _articleRepository.AddAsync(article, cancellationToken);
             await _articleRepository.SaveChangesAsync(cancellationToken);            
-            var articleModel = _mapper.Map<FullArticleDTO>(article);            
+            var articleModel = _mapper.Map<FullArticleDTO>(article);    
+            
             return articleModel.Id;
         }       
 
