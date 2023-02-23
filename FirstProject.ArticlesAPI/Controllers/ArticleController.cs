@@ -136,7 +136,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="request">тело статьи</param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        [AllowAnonymous]
+        //[AllowAnonymous]
         [HttpPost("add-article")]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request, CancellationToken cancellation)
         {

@@ -16,14 +16,33 @@ namespace FirstProject.ArticlesAPI.Services
         private readonly IRepository<Article> _articleRepository;
         private readonly IRepository<Author> _authorRepository;
         private readonly IRepository<Hub> _hubsRepository;
+        private readonly IRepository<Statistics> _statisticsRepository;
+        private readonly IRepository<Tag> _tagsRepository;
+        private readonly IRepository<LeadData> _leadDataRepository;
+
         private readonly IMapper _mapper;
         public ArticleService(IRepository<Article> articleRepository, 
                                 IRepository<Author> authorRepository, 
                                 IRepository<Hub> hubsRepository, 
+                                IRepository<Statistics> statisticsRepository,
+                                IRepository<Tag> tagsRepository,
+                                IRepository<LeadData> leadDataRepository,
                                 IMapper mapper)
         {            
-            (_articleRepository, _authorRepository, _hubsRepository, _mapper) = (articleRepository,
-                authorRepository, hubsRepository, mapper);
+            (_articleRepository, 
+                _authorRepository, 
+                _hubsRepository, 
+                _statisticsRepository,
+                _tagsRepository,
+                _leadDataRepository,
+                _mapper) = 
+                (articleRepository,
+                authorRepository, 
+                hubsRepository,
+                statisticsRepository,
+                tagsRepository,
+                leadDataRepository,
+                mapper);
         }
 
         public async Task<FullArticleDTO> GetArticleByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -62,8 +81,19 @@ namespace FirstProject.ArticlesAPI.Services
         {
             var article = _mapper.Map<Article>(articleDto);
             article.Author ??= new Author { NickName = "UNKNOWN" };
+            article.Statistics = new Statistics(); 
+            for (int i = 0; i < article.Tags.Count; i++)
+            {
+                Task<Tag> tag = AddTag(article.Tags[i], cancellationToken);
+                article.Tags[i] = tag.Result;
+            }
+            for (int i = 0; i < article.Hubs.Count; i++)
+            {
+                Task <Hub> hub = AddHub(article.Hubs[i], cancellationToken);
+                article.Hubs[i] = hub.Result;
+            }
             await _articleRepository.AddAsync(article, cancellationToken);
-            await _articleRepository.SaveChangesAsync(cancellationToken);
+            await _articleRepository.SaveChangesAsync(cancellationToken);            
             var articleModel = _mapper.Map<FullArticleDTO>(article);            
             return articleModel.Id;
         }       
@@ -119,6 +149,36 @@ namespace FirstProject.ArticlesAPI.Services
                 .ToListAsync(cancellationToken);
             if (articles == null) return 0;
             else return articles.Result.Count;
-        }        
+        }
+
+        private async Task<Tag> AddTag(Tag tag, CancellationToken cancellation)
+        {
+            Task<Tag> existTag = _tagsRepository.Query()
+                .FirstOrDefaultAsync(t => t.TagName == tag.TagName); 
+            if (existTag.Result == null)
+            {
+
+                _tagsRepository.AddAsync(tag, cancellation);
+                return tag;
+            }
+            else
+            {
+                return existTag.Result;
+            }
+        }
+        private async Task<Hub> AddHub(Hub hub, CancellationToken cancellation)
+        {
+            Task<Hub> existHub = _hubsRepository.Query()
+                .FirstOrDefaultAsync(h => h.Title == hub.Title);
+            if (existHub.Result == null)
+            {
+                _hubsRepository.AddAsync(hub, cancellation);
+                return hub;
+            }
+            else
+            {
+                return existHub.Result;
+            }
+        }
     }
 }
