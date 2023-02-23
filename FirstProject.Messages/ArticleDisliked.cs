@@ -9,14 +9,26 @@ namespace FirstProject.Messages
    /// Класс сообщения о дизлайке статьи
    /// </summary>
     public class ArticleDisliked 
-    {  
+    {
+
         /// <summary>
         /// Идентификатор статьи
         /// </summary>
         public Guid ArticleId { get; set; }
         /// <summary>
-     /// Идентификатор отправителя
-     /// </summary>
+        /// Идентификатор сообщения
+        /// </summary>
         public Guid UserId { get; set; }
+        /// <summary>
+        /// Дата сообщения
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
+
+        public ArticleDisliked(Guid articleId, Guid userId, DateTime createdAt)
+        {
+            ArticleId= articleId;
+            UserId= userId;
+            CreatedAt = createdAt;
+        }
     }
 }

@@ -59,11 +59,7 @@ namespace FirstProject.CommentsAPI.Repositories
                 /////
                 var client = _httpClientFactory.CreateClient();
 
-                var message = new ArticleCommented();
-
-                message.ArticleId = comment.ArticleId;
-
-                message.UserId= comment.UserId;
+                var message = new ArticleCommented(comment.ArticleId, comment.UserId, comment.CreatedAt);
 
                 var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/commented");
 

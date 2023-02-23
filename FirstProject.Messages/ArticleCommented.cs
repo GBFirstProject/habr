@@ -19,6 +19,17 @@ namespace FirstProject.Messages
         /// Идентификатор сообщения
         /// </summary>
         public Guid UserId{ get; set; }
+        /// <summary>
+        /// Дата сообщения
+        /// </summary>
+        public DateTime CreatedAt{ get; set; }
+
+        public ArticleCommented(Guid articleId, Guid userId , DateTime createdAt)
+        {
+                ArticleId= articleId;
+                UserId= userId;
+                CreatedAt = createdAt;
+        }
 
     }
 }
