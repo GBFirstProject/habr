@@ -11,25 +11,20 @@ namespace FirstProject.ArticlesAPI.Controllers
     /// Сервис работы со статьями
     /// </summary>
     [Authorize]
-    [Route("api/articles")]
-    [ApiController]
-    public class ArticleController : ControllerBase
+    [Route("api/articles")]    
+    public class ArticleController : BaseController
     {
         private readonly IArticleService _articlesService;
-        private readonly ILogger<ArticleController> _logger;
-        private readonly IMapper _mapper;
-
+        
         /// <summary>
         /// Конструктор сервиса работы со статьями
         /// </summary>
         /// <param name="articlesService"></param>
         /// <param name="logger"></param>
         /// <param name="mapper"></param>
-        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper)
+        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper) : base(logger,mapper) 
         {
-            _articlesService = articlesService;
-            _logger = logger;
-            _mapper = mapper;
+            _articlesService = articlesService;            
         }
 
         /// <summary>
@@ -108,6 +103,58 @@ namespace FirstProject.ArticlesAPI.Controllers
         }
 
         /// <summary>
+        /// выборка статей из базы по тэгам
+        /// </summary>
+        /// <param name="paging"></param>
+        /// <param name="tags"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet("get-by-tags")]
+        public async Task<IActionResult> GetArticlesPreviewByTag([FromQuery] PagingParameters paging, string[] tags, CancellationToken token)
+        {
+            try
+            {
+                var articles = await _articlesService.GetPreviewArticles(paging, token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = articles
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// выборка статей из базы по хабам
+        /// </summary>
+        /// <param name="paging"></param>
+        /// <param name="hubs"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet("get-by-hubs")]
+        public async Task<IActionResult> GetArticlesPreviewByHub([FromQuery] PagingParameters paging, string[] hubs, CancellationToken token)
+        {
+            try
+            {
+                var articles = await _articlesService.GetPreviewArticles(paging, token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = articles
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
         /// Получение количества статей созданных за последний месяц
         /// </summary>
         /// <returns></returns>
@@ -154,18 +201,6 @@ namespace FirstProject.ArticlesAPI.Controllers
             {
                 return Error(ex);
             }
-        }        
-
-        private IActionResult Error(Exception ex)
-        {
-            _logger.LogError(ex, "Исключение");
-            var response = new ResponseDTO()
-            {
-                IsSuccess = false,
-                DisplayMessage = "Создано исключение"
-            };
-            response.ErrorMessage = ex.Message;
-            return Ok(response);
-        }
+        }                
     }
 }

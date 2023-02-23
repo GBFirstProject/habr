@@ -71,5 +71,10 @@ namespace FirstProject.ArticlesAPI.Data
                 throw new ArgumentNullException(nameof(entity), "Запись для добавления не может быть null");
             }
         }
+
+        public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken)
+        {
+            return await _dbContext.Set<TEntity>().ToListAsync(cancellationToken);
+        }
     }
 }
