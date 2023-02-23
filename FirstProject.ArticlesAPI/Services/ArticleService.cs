@@ -60,7 +60,8 @@ namespace FirstProject.ArticlesAPI.Services
 
         public async Task<Guid> CreateArticleAsync(CreateArticleRequest articleDto, CancellationToken cancellationToken)
         {
-            var article = _mapper.Map<Article>(articleDto);           
+            var article = _mapper.Map<Article>(articleDto);
+            article.Author ??= new Author { NickName = "UNKNOWN" };
             await _articleRepository.AddAsync(article, cancellationToken);
             await _articleRepository.SaveChangesAsync(cancellationToken);
             var articleModel = _mapper.Map<FullArticleDTO>(article);            

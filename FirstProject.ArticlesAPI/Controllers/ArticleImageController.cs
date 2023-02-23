@@ -6,6 +6,7 @@ using FirstProject.ArticlesAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
 
 namespace FirstProject.ArticlesAPI.Controllers
@@ -33,23 +34,34 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="id">Guid искомой статьи</param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("get-article-image-by-id")]
         [Authorize]
         [AllowAnonymous]
         public async Task<IActionResult> GetOrGenerateImage(Guid id, CancellationToken cancellation)
         {
-            // Retrieve article data from the database using the article ID
-            var article = _articleRepository.GetByIdAsync(cancellation, id);
-            if (article.Result == null)
+            try
             {
-                return NotFound();
+                // Retrieve article data from the database using the article ID
+                //var article = _articleRepository.GetByIdAsync(cancellation, id);
+                var article = await _articleRepository.Query()                    
+                    .Include(article => article.Hubs)
+                    .Include(article => article.Tags)                    
+                    .FirstOrDefaultAsync(article => article.Id == id, cancellation);
+                if (article == null)
+                {
+                    return NotFound();
+                }                
+
+                // Generate or get the image using the ArticleImageService
+                var imageBytes = _articleImageService.GetImageBytes(article);
+
+                // Return the image as a file
+                return File(imageBytes, "image/jpeg");
             }
-
-            // Generate or get the image using the ArticleImageService
-            var imageBytes = _articleImageService.GetImageBytes(article.Result);
-
-            // Return the image as a file
-            return File(imageBytes, "image/jpeg");        
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

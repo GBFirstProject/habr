@@ -16,6 +16,11 @@ namespace FirstProject.ArticlesAPI.Migrations
                 type: "bit",
                 nullable: false,
                 defaultValue: false);
+            migrationBuilder.AddColumn<string>(
+                name: "AuthorNickName",
+                table: "Articles",
+                type: "nvarchar(450)",
+                nullable: false);            
         }
 
         /// <inheritdoc />

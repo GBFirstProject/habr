@@ -6,6 +6,7 @@ using FirstProject.ArticlesAPI.Models;
 using FirstProject.ArticlesAPI.Services;
 using FirstProject.ArticlesAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -40,6 +41,7 @@ internal class Program
         builder.Services.AddTransient<IRepository<Hub>, Repository<Hub>>();
         builder.Services.AddTransient<IArticleService, ArticleService>();
         builder.Services.AddScoped<IArticleImageService, ArticleImageService>();
+        //builder.Services.AddTransient<ServiceClass<IWebHostEnvironment>>();
 
         builder.Services.AddControllers();
 
