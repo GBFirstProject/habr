@@ -3,7 +3,7 @@
     public class FullArticleDTO
     {
         public Guid Id { get; set; }
-        public int AuthorId { get; set; }
+        public Guid AuthorId { get; set; }
         public string AuthorNickName { get; set; }
         public string Title { get; set; }
         public string Language { get; set; }

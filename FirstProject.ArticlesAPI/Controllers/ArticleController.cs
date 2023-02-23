@@ -2,6 +2,7 @@
 using FirstProject.ArticlesAPI.Models.DTO;
 using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstProject.ArticlesAPI.Controllers
@@ -9,6 +10,7 @@ namespace FirstProject.ArticlesAPI.Controllers
     /// <summary>
     /// Сервис работы со статьями
     /// </summary>
+    [Authorize]
     [Route("api/articles")]
     [ApiController]
     public class ArticleController : ControllerBase
@@ -36,6 +38,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="articleId">Guid статьи</param>
         /// <param name="token"></param>
         /// <returns>Полная статья</returns>
+        [AllowAnonymous]
         [HttpGet("get-by-id")]
         public async Task<IActionResult> GetArticleById(Guid articleId, CancellationToken token)
         {
@@ -60,6 +63,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="articleId">Guid статьи</param>
         /// <param name="token">Токен отмены операции</param>
         /// <returns>Полная статья</returns>
+        [AllowAnonymous]
         [HttpGet("get-preview-by-id")]
         public async Task<IActionResult> GetPreviewArticleById(Guid articleId, CancellationToken token)
         {
@@ -84,6 +88,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="paging">параметры страницы</param>
         /// <param name="token">отмена</param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetArticlesPreview([FromQuery] PagingParameters paging, CancellationToken token)
         {
@@ -106,6 +111,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// Получение количества статей созданных за последний месяц
         /// </summary>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("get-articles-count")]
         public IActionResult GetArticlesCount(CancellationToken token)
         {
@@ -123,7 +129,33 @@ namespace FirstProject.ArticlesAPI.Controllers
                 return Error(ex);
             }
         }
-        
+
+        /// <summary>
+        /// Добавляет статью
+        /// </summary>
+        /// <param name="request">тело статьи</param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpPost("add-article")]
+        public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request, CancellationToken cancellation)
+        {
+            try
+            {
+                var articleId = await _articlesService.CreateArticleAsync(request, cancellation);
+
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = articleId
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }        
+
         private IActionResult Error(Exception ex)
         {
             _logger.LogError(ex, "Исключение");

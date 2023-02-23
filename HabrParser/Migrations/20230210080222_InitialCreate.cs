@@ -179,7 +179,8 @@ namespace HabrParser.Migrations
                     LeadDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MetaDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
-                    StatisticsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    StatisticsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsPublished = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -20,7 +20,34 @@ namespace HabrParser.Database.Repositories
             var entry = await ArticleAlreadyExists(article.hubrId, cancellationToken);
             if (entry != null) return entry;
 
-            article.Author ??= AddAuthor(new Author { NickName = "UNKNOWN" });
+            if (article.Author != null)
+            {
+                Author authorForTable = AddAuthor(article.Author);
+                if (authorForTable.Contacts != null)
+                {
+                    for (int i = 0; i < authorForTable.Contacts.Count; i++)
+                    {
+                        Contact contact = AddContact(authorForTable.Contacts[i]);
+                        authorForTable.Contacts[i] = contact;
+                    }
+                }
+                article.Author = authorForTable;
+            }
+            else
+            {
+                article.Author = AddAuthor(new Author { NickName = "UNKNOWN" });
+            }
+            
+            for (int i = 0; i < article.Tags.Count; i++)
+            {
+                Tag tag = AddTag(article.Tags[i]);
+                article.Tags[i] = tag;
+            }
+            for (int i = 0; i < article.Hubs.Count; i++)
+            {
+                Hub hub = AddHub(article.Hubs[i]);
+                article.Hubs[i] = hub;
+            }
 
             await _dbContext.Articles.AddAsync(article, cancellationToken);
             UdpateLastId(article.hubrId);
@@ -98,44 +125,7 @@ namespace HabrParser.Database.Repositories
                 return Task.FromResult(lastId);
             }
 
-            /*ParserResult lastArcticleId = GetParsedResultMatchToLevelType(_levelType);
-            if (lastArcticleId == null) return ArticleThreadLevel.IteratorFirstNumber(levelType);
             
-            switch (levelType)
-            {
-                case ArticleThreadLevelType.Level1:
-                    { lastId = lastArcticleId.LastArticleId1; if (lastId < 1 || lastId > 50000) lastId = 1; break; }
-                case ArticleThreadLevelType.Level50:
-                    { lastId = lastArcticleId.LastArticleId50; if (lastId < 50000 || lastId > 100000) lastId = 50000; break; }
-                case ArticleThreadLevelType.Level100:
-                    { lastId = lastArcticleId.LastArticleId100; if (lastId < 100000 || lastId > 150000) lastId = 100000; break; }
-                case ArticleThreadLevelType.Level150:
-                    { lastId = lastArcticleId.LastArticleId150; if (lastId < 150000 || lastId > 200000) lastId = 150000; break; }
-                case ArticleThreadLevelType.Level200:
-                    { lastId = lastArcticleId.LastArticleId200; if (lastId < 200000 || lastId > 250000) lastId = 200000; break; }
-                case ArticleThreadLevelType.Level250:
-                    { lastId = lastArcticleId.LastArticleId250; if (lastId < 250000 || lastId > 300000) lastId = 250000; break; }
-                case ArticleThreadLevelType.Level300:
-                    { lastId = lastArcticleId.LastArticleId300; if (lastId < 300000 || lastId > 350000) lastId = 300000; break; }
-                case ArticleThreadLevelType.Level350:
-                    { lastId = lastArcticleId.LastArticleId350; if (lastId < 350000 || lastId > 400000) lastId = 350000; break; }
-                case ArticleThreadLevelType.Level400:
-                    { lastId = lastArcticleId.LastArticleId400; if (lastId < 400000 || lastId > 450000) lastId = 400000; break; }
-                case ArticleThreadLevelType.Level450:
-                    { lastId = lastArcticleId.LastArticleId450; if (lastId < 450000 || lastId > 500000) lastId = 450000; break; }
-                case ArticleThreadLevelType.Level500:
-                    { lastId = lastArcticleId.LastArticleId500; if (lastId < 500000 || lastId > 550000) lastId = 500000; break; }
-                case ArticleThreadLevelType.Level550:
-                    { lastId = lastArcticleId.LastArticleId550; if (lastId < 550000 || lastId > 600000) lastId = 550000; break; }
-                case ArticleThreadLevelType.Level600:
-                    { lastId = lastArcticleId.LastArticleId600; if (lastId < 600000 || lastId > 650000) lastId = 600000; break; }
-                case ArticleThreadLevelType.Level650:
-                    { lastId = lastArcticleId.LastArticleId650; if (lastId < 650000 || lastId > 700000) lastId = 650000; break; }
-                case ArticleThreadLevelType.Level700:
-                    { lastId = lastArcticleId.LastArticleId700; if (lastId < 700000 || lastId > 715000) lastId = 700000; break; }
-                default:
-                    { lastId = lastArcticleId.LastArticleId; if (lastId < 1) lastId = 1; break; }
-            }*/
             return Task.FromResult(lastId);
         }
 
@@ -158,85 +148,49 @@ namespace HabrParser.Database.Repositories
                 return existAuthor;
             }
         }
+        private Tag AddTag(Tag tag)
+        {
+            Tag? existTag = _dbContext.Tags.FirstOrDefault(t => t.TagName == tag.TagName);
+            if (existTag == null)
+            {
+
+                _dbContext.Tags.Add(tag);
+                return tag;
+            }
+            else
+            {
+                return existTag;
+            }
+        }
+        private Hub AddHub(Hub hub)
+        {
+            Hub? existHub = _dbContext.Hubs.FirstOrDefault(h => h.Title == hub.Title);
+            if (existHub == null)
+            {
+                _dbContext.Hubs.Add(hub);
+                return hub;
+            }
+            else
+            {
+                return existHub;
+            }
+        }
+        private Contact AddContact(Contact contact)
+        {
+            Contact? existContact = _dbContext.Contacts.FirstOrDefault(c => c.Equals(contact));
+            if (existContact == null)
+            {
+                _dbContext.Contacts.Add(contact);
+                return contact;
+            }
+            else
+            {
+                return existContact;
+            }
+        }
 
         private void UdpateLastId(int id)
-        {
-            /*ParserResult lastArcticleId = GetParsedResultMatchToLevelType(_levelType);            
-            ParserResult res;
-            if (lastArcticleId != null)
-            {
-                res = lastArcticleId;
-            }
-            else
-            {
-                res = new ParserResult();
-            }
-            switch (_levelType)
-            {
-                case ArticleThreadLevelType.None:
-                    res.LastArticleId = id;
-                    break;
-                case ArticleThreadLevelType.Level1:
-                    res.LastArticleId1 = id;
-                    break;
-                case ArticleThreadLevelType.Level50:
-                    res.LastArticleId50 = id;
-                    break;
-                case ArticleThreadLevelType.Level100:
-                    res.LastArticleId100 = id;
-                    break;
-                case ArticleThreadLevelType.Level150:
-                    res.LastArticleId150 = id;
-                    break;
-                case ArticleThreadLevelType.Level200:
-                    res.LastArticleId200 = id;
-                    break;
-                case ArticleThreadLevelType.Level250:
-                    res.LastArticleId250 = id;
-                    break;
-                case ArticleThreadLevelType.Level300:
-                    res.LastArticleId300 = id;
-                    break;
-                case ArticleThreadLevelType.Level350:
-                    res.LastArticleId350 = id;
-                    break;
-                case ArticleThreadLevelType.Level400:
-                    res.LastArticleId400 = id;
-                    break;
-                case ArticleThreadLevelType.Level450:
-                    res.LastArticleId450 = id;
-                    break;
-                case ArticleThreadLevelType.Level500:
-                    res.LastArticleId500 = id;
-                    break;
-                case ArticleThreadLevelType.Level550:
-                    res.LastArticleId550 = id;
-                    break;
-                case ArticleThreadLevelType.Level600:
-                    res.LastArticleId600 = id;
-                    break;
-                case ArticleThreadLevelType.Level650:
-                    res.LastArticleId650 = id;
-                    break;
-                case ArticleThreadLevelType.Level700:
-                    res.LastArticleId700 = id;
-                    break;
-                default:
-                    res.LastArticleId = id;
-                    break;
-            }
-            if(lastArcticleId == null)
-            {
-                //res.ParserResultId = 1;
-                _dbContext.ParserResult.Add(res);
-            }
-            else
-            {
-                //res.ParserResultId = lastArcticleId.ParserResultId;
-                _dbContext.ParserResult.Update(res);
-            }*/
-            //_dbContext.ParserResult.Add(res);
-            //_dbContext.SaveChangesAsync().Wait();
+        {            
             try
             {
                 using (var fs = new FileStream($"{AppContext.BaseDirectory}\\{_levelType.ToString()}.parser", FileMode.Create))

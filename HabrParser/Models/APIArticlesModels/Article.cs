@@ -29,7 +29,12 @@ namespace HabrParser.Models.APIArticles
         public Statistics Statistics { get; set; }
         public List<Tag> Tags { get; set; } = new List<Tag>();
         public List<Hub> Hubs { get; set; } = new List<Hub>();
-        
+        public bool IsPublished { get; set; } = true;
+        /// <summary>
+        /// последняя версия - в базе храним только ник автора, а самого автора в другом сервисе
+        /// </summary>
+        public string AuthorNickName { get; set; }
+
     }
 
     public enum ArticleLanguage
