@@ -21,7 +21,7 @@ namespace HabrParser.Models.APIArticles
         public Guid MetaDataId { get; set; }
         [ForeignKey("MetaDataId")]
         public Metadata MetaData { get; set; } = new Metadata();
-        public int AuthorId { get; set; }
+        public Guid AuthorId { get; set; }
         [ForeignKey("AuthorId")]
         public Author Author { get; set; } = new Author();
         public Guid StatisticsId { get; set; }
@@ -29,7 +29,12 @@ namespace HabrParser.Models.APIArticles
         public Statistics Statistics { get; set; }
         public List<Tag> Tags { get; set; } = new List<Tag>();
         public List<Hub> Hubs { get; set; } = new List<Hub>();
-        
+        public bool IsPublished { get; set; } = true;
+        /// <summary>
+        /// последняя версия - в базе храним только ник автора, а самого автора в другом сервисе
+        /// </summary>
+        public string AuthorNickName { get; set; }
+
     }
 
     public enum ArticleLanguage
