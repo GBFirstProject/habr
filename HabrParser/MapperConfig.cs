@@ -21,7 +21,7 @@ namespace HabrParser
                 .ForMember(m => m.Title, opt => opt.MapFrom(a => a.titleHtml))
                 .ForMember(m => m.Id, opt => opt.Ignore())
                 .ForMember(m => m.Language, opt => opt.MapFrom(a => LocalConverters.StrToLanguage(a.lang)))
-                .ForMember(m => m.AuthorNickName, opt => opt.MapFrom(a => a.author.alias));
+                .ForMember(m => m.AuthorNickName, opt => opt.MapFrom(a => a.author.alias != null ? a.author.alias : "UNKNOWN"));
             config.CreateMap<Models.Contact, Contact>()
                 .ForMember(x => x.Id, opt => opt.Ignore());
             config.CreateMap<Models.Author, Author>()
