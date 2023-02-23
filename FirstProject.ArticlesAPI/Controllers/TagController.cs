@@ -15,6 +15,12 @@ namespace FirstProject.ArticlesAPI.Controllers
             _tagService = tagService;
         }
 
+        /// <summary>
+        /// Выбирает ТОП тэги за последний месяц. По умолчанию 10 штук.
+        /// </summary>
+        /// <param name="cancellation"></param>
+        /// <param name="count">Необязательный параметр. Указать количество при необходимости</param>
+        /// <returns></returns>
         [HttpGet("top")]
         public async Task<IActionResult> GetTopTagsForLastMonthAsync(CancellationToken cancellation, int count = 10)
         {

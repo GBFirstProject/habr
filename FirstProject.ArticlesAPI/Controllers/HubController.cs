@@ -16,6 +16,12 @@ namespace FirstProject.ArticlesAPI.Controllers
             _hubService = hubService;
         }
 
+        /// <summary>
+        /// Выбирает ТОП хабы за последний месяц. По умолчанию 10 штук.
+        /// </summary>
+        /// <param name="cancellation"></param>
+        /// <param name="count">Необязательный параметр. Указать количество при необходимости</param>
+        /// <returns></returns>
         [HttpGet("top")]
         public async Task<IActionResult> GetTopHubsLastMonth(CancellationToken cancellation, int count = 10)
         {
