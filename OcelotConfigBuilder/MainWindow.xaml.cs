@@ -63,7 +63,12 @@ namespace OcelotConfigBuilder
 
         private void SaveRoutes(object sender, RoutedEventArgs e)
         {
-            File.WriteAllText(filepath, JsonConvert.SerializeObject(Root,Formatting.Indented), Encoding.UTF8);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            File.WriteAllText(filepath, JsonConvert.SerializeObject(Root, Formatting.Indented, settings), Encoding.UTF8);
         }
     }
 }
