@@ -1,25 +1,49 @@
 ﻿"use strict";
 //variables
 let userClaims = null;
-const page_size = 10;
+const page_number_deafult = 1,
+    page_size_default = 10;
+let page_number = null,
+    page_size = null;
+let account_name = 'гость',
+    account_role = 'guest';
 //arrays
-let articles = [];
-//
-document.getElementById("login").addEventListener("click", login, false);
-document.getElementById("remote").addEventListener("click", localApi, false);
-//document.getElementById("remote-admin").addEventListener("click", remoteApi, false);
-document.getElementById("logout").addEventListener("click", logout, false);
-document.getElementById("testocelot").addEventListener("click", testocelot, false);
+let articles = [],
+    articles_all = [],
+    last_article = [];
 //
 document.addEventListener("DOMContentLoaded", load);
 
-//скрыть блок авторизации
-const container = document.querySelector('.container');
-if (container != null) {
-    if (!container.classList.contains('hidden'))
-        container.classList.add('hidden');
+window.onclick = function (e) {
+    if (!e.target.matches('.dropbtn')) {
+        var myDropdown = document.getElementById("myDropdown");
+        if (!myDropdown.classList.contains('hidden'))
+            myDropdown.classList.add('hidden');
+    }
 }
 
+//получить параметры
+try {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    page_number = urlParams.get('PageNumber');
+    page_size = urlParams.get('PageSize');
+    //
+    if (page_number == null || page_size == null) {
+        page_number = page_number_deafult;
+        page_size = page_size_default;
+    } else {
+        page_number = parseInt(page_number);
+        page_size = parseInt(page_size);
+        //
+        if (page_number < 1 || page_size < 1)
+            throw new Error('указаны некорректные параметры');
+    }
+} catch (e) {
+    page_number = page_number_deafult;
+    page_size = page_size_default;
+}
+//
 (async function () {
     var req = new Request("/bff/user", {
         headers: new Headers({
@@ -31,14 +55,51 @@ if (container != null) {
         var resp = await fetch(req);
         if (resp.ok) {
             userClaims = await resp.json();
-            log("user logged in", userClaims);
         } else if (resp.status === 401) {
-            log("user not logged in");
         }
     } catch (e) {
-        log("error checking user status");
     }
 })();
+
+/*function account() {
+    window.location = "/account.html";
+}
+
+function account_click() {
+    let dropdown_content = document.querySelector('.dropdown-content');
+    if (dropdown_content != null) {
+        //скрыть выпадающее меню
+        if (!dropdown_content.classList.contains('hidden')) {
+            dropdown_content.classList.add('hidden');
+            return;
+        }            
+    }
+    //
+    const dropbtn = document.querySelector('.dropbtn');
+    if (dropbtn == null)
+        return;
+
+    //показать элемент
+    const header_flex = document.querySelector('.header_flex');
+    const header = document.querySelector('header');
+    //
+    if (header_flex == null || header == null)
+        return;
+
+    const dropbtn_computed = getComputedStyle(dropbtn);
+    const header_flex_computed = getComputedStyle(header_flex);
+    const header_computed = getComputedStyle(header);
+
+    //right
+    let header_computed_width = header_computed.width;
+    let header_flex_computed_width = header_flex_computed.width;
+    let right = (parseFloat(header_computed_width) - parseFloat(header_flex_computed_width)) / 2;
+    dropdown_content.style.right = `${right}px`;
+
+    //top
+    dropdown_content.style.top = dropbtn_computed.height;
+    dropdown_content.classList.toggle('hidden');
+}*/
 
 async function button_article_click(e) {
     if (e.currentTarget == null || typeof e.currentTarget === 'undefined')
@@ -53,17 +114,35 @@ async function button_article_click(e) {
         if (String(article.hubrId).trim() == hubr_id.trim()) {
             article_id = article.id;
             break;
-        }
+        }            
     }
     //
     if (article_id.trim() == '')
         return;
     //запрос
-    window.location = `/page_item.html?articleId=${article_id}`;
+    window.location = `/article.html?id=${article_id}`;
 }
 
-async function get_articles() {
-    const request = await fetch(`/articles?${new URLSearchParams({ PageNumber: 2, PageSize: page_size })}`, {
+async function button_last_article_click(e) {
+    if (e.currentTarget == null || typeof e.currentTarget === 'undefined')
+        return;
+    //
+    const hubr_id = e.currentTarget.id.substring('15');
+    if (hubr_id.trim() == '')
+        return;
+    //
+    let article_id = '';    
+    if (String(last_article[0].hubrId).trim() == hubr_id.trim())
+        article_id = last_article[0].id; 
+    //
+    if (article_id.trim() == '')
+        return;
+    //запрос
+    window.location = `/article.html?id=${article_id}`;
+}
+
+async function get_articles(current_page_number, current_page_size) {
+    const request = await fetch(`/articles?${new URLSearchParams({ PageNumber: current_page_number, PageSize: current_page_size })}`, {
         method: 'GET',
         headers: new Headers({ "X-CSRF": "1" })
     })
@@ -92,57 +171,134 @@ async function get_articles_count() {
     return request.result;
 }
 
+function get_datetime_string(value) {
+    //datetime
+    const date = new Date(Date.parse(value));
+    //день
+    let day = date.getDate();
+    if (day < 10)
+        day = '0' + day;
+    //месяц
+    const formatter = new Intl.DateTimeFormat('ru', { month: 'short' });
+    const month = formatter.format(date);
+    //год
+    const year = date.getFullYear();
+    //время
+    const time = date.toLocaleTimeString('ru-RU');
+    return `${day} ${month} ${year}, ${time} МСК`;
+}
+
+/*async function get_footer() {
+    const response = await fetch(`/footer.html`, {
+        method: 'GET',
+        headers: new Headers({ "X-CSRF": "1" })
+    })
+        .then(response => response.text())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return null;
+    return response;
+}
+
+async function get_header() {
+    const response = await fetch(`/header.html`, {
+        method: 'GET',
+        headers: new Headers({ "X-CSRF": "1" })
+    })
+        .then(response => response.text())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return null;
+    return response;
+}*/
+
 async function load() {
     //получить статьи
-    articles = await get_articles();
+    articles = await get_articles(page_number, page_size);
     if (articles.length == 0)
         return;
+    //получить последнюю статью
+    last_article = await get_articles(1, 1);
+    if (last_article.length == 0)
+        return;
+
+    //main
+    if (!render_main())
+        return;
+
+    //вывод последней статьи
+    if (!render_last_article(last_article))
+        return;
+    //вывод статей
+    if (!render_articles(articles))
+        return;
+
+    //header
+    const header_html = await get_header();
+    if (header_html == null || typeof header_html === 'undefined')
+        return;
+    //
+    const header = document.getElementById('header');
+    if (header == null)
+        return;
+    //
+    header.innerHTML = '';
+    header.insertAdjacentHTML('afterbegin', header_html);
+
+    //footer
+    const footer_html = await get_footer();
+    if (footer_html == null || typeof footer_html === 'undefined')
+        return;
+    //
+    const footer = document.getElementById('footer');
+    if (footer == null)
+        return;
+    //
+    footer.innerHTML = '';
+    footer.insertAdjacentHTML('afterbegin', footer_html);
+
+    //данные пользователя
+    if (userClaims != null) {
+        for (const claim of userClaims) {
+            if (claim.hasOwnProperty('type')) {
+                if (claim.type == 'name') {
+                    account_name = claim.value;
+                    break;
+                }
+            }
+        }
+    }
+
+    //вывод информации о пользователе
+    const account_login = document.getElementById('account_login');
+    if (account_login != null)
+        account_login.innerText = account_name;
+
+    //пункты меню для пользователя
+    const myDropdown = document.getElementById('myDropdown');
+    if (myDropdown == null)
+        return;
+    //
+    if (userClaims != null) {
+        for (const claim of userClaims) {
+            if (claim.hasOwnProperty('type')) {
+                if (claim.type == 'role') {
+                    account_role = claim.value.trim().toLowerCase();
+                    break;
+                }
+            }
+        }
+    }
+    render_account(account_role);
 
     //пагинация
     if (!await render_pagination())
         return;
-
-    //вывод статей
-    if (!render_articles(articles))
-        return;
 }
 
-async function localApi() {
-    var req = new Request("/api/q", {
-        headers: new Headers({
-            "X-CSRF": "1",
-        }),
-    });
-
-    try {
-        var resp = await fetch(req);
-
-        let data;
-        if (resp.ok) {
-            data = await resp.json();
-        }
-        log("Local API Result: " + resp.status, data);
-    } catch (e) {
-        log("error calling local API");
-    }
-}
-
-function log() {
-    document.getElementById("results").innerText = "";
-
-    Array.prototype.forEach.call(arguments, function (msg) {
-        if (typeof msg !== "undefined") {
-            if (msg instanceof Error) {
-                msg = "Error: " + msg.message;
-            } else if (typeof msg !== "string") {
-                msg = JSON.stringify(msg, null, 2);
-            }
-            document.getElementById("results").innerText += msg + "\r\n";
-        }
-    });
-}
-
-function login() {
+/*function login() {
     window.location = "/bff/login";
 }
 
@@ -157,25 +313,59 @@ function logout() {
     }
 }
 
-async function remoteApi() {
-    var req = new Request("api", {
-        headers: new Headers({
-            "X-CSRF": "1",
-        }),
-    });
+function render_account(role) {
+    const personal = document.getElementById('account');
+    const sign_in = document.getElementById('sign_in');
+    const sign_up = document.getElementById('sign_up');
+    const sign_out = document.getElementById('sign_out');
+    //
+    if (personal == null ||
+        sign_in == null ||
+        sign_up == null ||
+        sign_out == null)
+        return false;
 
-    try {
-        var resp = await fetch(req);
+    //пункты меню
+    if (role == 'user' || role == 'moderator' || role == 'admin') {
+        //показать
+        if (personal.classList.contains('hidden'))
+            personal.classList.remove('hidden');
+        if (sign_out.classList.contains('hidden'))
+            sign_out.classList.remove('hidden');
 
-        let data;
-        if (resp.ok) {
-            data = await resp.json();
-        }
-        log("Remote API Result: " + resp.status, data);
-    } catch (e) {
-        log("error calling remote API");
+        //события
+        personal.addEventListener('click', account);
+        sign_out.addEventListener('click', logout);
+
+        //скрыть
+        if (!sign_in.classList.contains('hidden'))
+            sign_in.classList.add('hidden');
+        if (!sign_up.classList.contains('hidden'))
+            sign_up.classList.add('hidden');
+        return true;
     }
-}
+
+    if (role == 'guest') {
+        //показать
+        if (sign_in.classList.contains('hidden'))
+            sign_in.classList.remove('hidden');
+
+        if (sign_up.classList.contains('hidden'))
+            sign_up.classList.remove('hidden');
+
+        //события
+        sign_in.addEventListener('click', login);
+        sign_up.addEventListener('click', login);
+
+        //скрыть
+        if (!personal.classList.contains('hidden'))
+            personal.classList.add('hidden');
+        if (!sign_out.classList.contains('hidden'))
+            sign_out.classList.add('hidden');
+        return true;
+    }
+    return false;
+}*/
 
 function render_articles(articles) {
     //вывод статей
@@ -194,13 +384,14 @@ function render_articles(articles) {
             <div class="all_posts_item">
                 <div class="all_posts_item_flex">
                     <div class="all_posts_item_pic">
-                        <img class="section_new_post_img" src="${article['imageURL']}" width="480" height="320" alt="image_${article['hubrId']}">
+                        <img class="section_new_post_img" src="${article['imageURL']}" alt="image_${article['hubrId']}">
                     </div>
                     <div class="all_posts_item_texts">
                         <h3 class="all_posts_item_h3">${hubs}</h3>
                         <a class="site_links" href="#">
                             <h2 class="all_posts_item_h2">${article['title']}</h2>
                         </a>
+                        <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
                         <p class="all_posts_item_text">${text_without_img}</p>
                         <button id="button_article_${article['hubrId']}" type="button">Читать дальше</button>
                     </div>
@@ -222,6 +413,76 @@ function render_articles(articles) {
     return true;
 }
 
+function render_main() {
+    const textHTML = `
+        <section class="section_new_post">
+            <div class="container"></div>
+        </section>
+        <section class="section_all_posts">
+            <div class="container">
+                <h1 class="site_h1">Все публикации</h1>
+                <hr>
+                <div class="section_all_posts_block"></div>
+            </div>
+            <div class="all_posts_pagination">
+                <a class="all_posts_pag" href="#prev">Назад</a>
+                <a class="all_posts_pag" href="#next">Вперед</a>
+            </div>
+        </section>
+        <section class="section_reg_welcome">
+            <div class="container">
+                <h3 class="reg_welcome_h3">Зарегистрируйтесь, <br> чтобы оставлять комментарии</h3>
+                <button class="btn_welcome_reg">Регистрация</button>
+            </div>
+        </section>`;
+    //
+    const main = document.getElementsByTagName('main');
+    if (main.length == 0)
+        return false;
+    //
+    main[0].insertAdjacentHTML('afterbegin', textHTML);
+    return true;
+}
+
+async function render_last_article(last_article) {
+    //hubs
+    let hubs = '';
+    last_article[0]['hubs'].forEach(hub => hubs += `${hub}, `);
+    hubs = hubs.substring(0, hubs.length - 2);
+    //
+    const textHTML = `
+        <div class="container">
+            <div class="section_new_post_flex">
+                <div class="section_new_post_text">
+                    <h3 class="section_h3">Новый пост</h3>
+                    <a class="site_links" href="#">
+                        <h2 class="section_h2">${last_article[0]['title']}</h2>
+                    </a>
+                    <p class="section_p_attr">${last_article[0]['authorNickName']} | ${get_datetime_string(last_article[0]['timePublished'])}</p>
+                    <p class="section_p_legend">${last_article[0]['text']}</p>
+                    <button id="button_article_${last_article[0]['hubrId']}" type="submit">Читать</button>                
+                </div>
+                <div class="section_new_post_pic">
+                    <img class="section_new_post_img" src="${last_article[0]['imageURL']}" alt="image_${last_article[0]['hubrId']}">
+                </div>           
+            </div>
+        </div>`;
+
+    //добавить на страницу
+    let section_new_post = document.querySelector('.section_new_post');
+    if (section_new_post == null)
+        return false;
+    //
+    section_new_post.innerHTML = '';
+    section_new_post.insertAdjacentHTML('afterbegin', textHTML);
+
+    //события
+    const button_article = document.getElementById(`button_article_${last_article[0]['hubrId']}`);
+    if (button_article != null)
+        button_article.addEventListener('click', button_last_article_click);
+    return true;
+}
+
 async function render_pagination() {
     //пагинация
     let textHTML = '';
@@ -240,15 +501,55 @@ async function render_pagination() {
         //несколько страниц
         const penultimate_page = pages_count - 1;
         const last_page = pages_count;
-        //
-        textHTML = `<a class="all_posts_pag " href="#prev">Назад</a>
-                    <div class="pagination">1</div>
-                    <div class="pagination">2</div>
-                    <div class="pagination">3</div>
-                    <div class="pagination">...</div>
-                    <div class="pagination">${penultimate_page}</div>
-                    <div class="pagination">${last_page}</div>
-                    <a class="all_posts_pag" href="#next">Вперед</a>`;
+
+        //назад
+        textHTML = page_number > 1
+            ? `<a class="all_posts_pag" href="${window.location.origin}?PageNumber=${page_number - 1}&PageSize=${page_size}">Назад</a>`
+            : `<a class="all_posts_pag">Назад`;
+
+        //1 и 2 страницы обязательно
+        textHTML += `<a href="${window.location.origin}?PageNumber=1&PageSize=${page_size}"><div class="pagination">1</div></a>
+            <a href="${window.location.origin}?PageNumber=2&PageSize=${page_size}"><div class="pagination">2</div></a>`;
+
+        //предыдущие страницы (если есть)      
+        if (page_number > 2) {
+            const prev_count = page_number - 2;
+            //
+            if (prev_count <= 4) {
+                for (let i = 3, j = 0; j < prev_count - 1; i++, j++)
+                    textHTML += `<a href="${window.location.origin}?PageNumber=${i}&PageSize=${page_size}"><div class="pagination">${i}</div></a>`;
+            } else {
+                textHTML += `<div class="pagination">...</div>`;
+                for (let i = page_number - 2; i < page_number; i++)
+                    textHTML += `<a href="${window.location.origin}?PageNumber=${i}&PageSize=${page_size}"><div class="pagination">${i}</div></a>`;
+            }
+        }
+
+        //текущая страница
+        if (page_number > 2)
+            textHTML += `<a href="${window.location.origin}?PageNumber=${page_number}&PageSize=${page_size}"><div class="pagination">${page_number}</div></a>`;
+
+        //последующие следующие (если есть)
+        const next_count = last_page - page_number;
+        if (next_count > 5) {
+            //page_number, page_number + 1, page_number + 2 ... penultimate_page, last_page            
+            for (let i = 1; i < 3; i++) {
+                if (page_number + i > 2)
+                //if (page_number + i < page_size)
+                    textHTML += `<a href="${window.location.origin}?PageNumber=${page_number + i}&PageSize=${page_size}"><div class="pagination">${page_number + i}</div></a>`;
+            }
+            textHTML += `<div class="pagination">...</div>
+                <a href="${window.location.origin}?PageNumber=${penultimate_page}&PageSize=${page_size}"><div class="pagination">${penultimate_page}</div></a>
+                <a href="${window.location.origin}?PageNumber=${last_page}&PageSize=${page_size}"><div class="pagination">${last_page}</div></a>`;
+        } else {
+            for (let i = page_number + 1; i <= last_page; i++)
+                textHTML += `<a href="${window.location.origin}?PageNumber=${i}&PageSize=${page_size}"><div class="pagination">${i}</div></a>`;
+        }
+
+        //вперед
+        textHTML += page_number < last_page
+            ? `<a class="all_posts_pag" href="${window.location.origin}?PageNumber=${page_number + 1}&PageSize=${page_size}">Вперед</a>`
+            : `<a class="all_posts_pag">Вперед`;
     }
     //
     const all_posts_pagination = document.querySelector('.all_posts_pagination');
@@ -259,8 +560,4 @@ async function render_pagination() {
 
     //события пагинации
     return true;
-}
-
-function testocelot() {
-    document.location = "/testocelot.html"
 }
