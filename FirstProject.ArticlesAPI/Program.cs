@@ -47,6 +47,7 @@ internal class Program
         //builder.Services.AddTransient<ServiceClass<IWebHostEnvironment>>();
 
         builder.Services.AddControllers();
+        builder.Services.AddRazorPages();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
@@ -99,6 +100,7 @@ internal class Program
         app.UseAuthorization();
 
         app.MapControllers();
+        app.MapRazorPages();
 
         app.Run();
     }
