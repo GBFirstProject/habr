@@ -106,20 +106,26 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// выборка статей из базы по тэгам
         /// </summary>
         /// <param name="paging"></param>
-        /// <param name="tags"></param>
+        /// <param name="tag"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpGet("get-by-tags")]
-        public async Task<IActionResult> GetArticlesPreviewByTag([FromQuery] PagingParameters paging, string[] tags, CancellationToken token)
+        [HttpGet("get-by-tag")]
+        public async Task<IActionResult> GetArticlesPreviewByTag([FromQuery] PagingParameters paging, string tag, CancellationToken token)
         {
             try
             {
                 var articles = await _articlesService.GetPreviewArticles(paging, token);
+                int articlesCount = _articlesService.GetArticlesCount(token);
+                SearchPreviewResultDTO searchPreviewResult = new SearchPreviewResultDTO()
+                {
+                    ResultData = articles,
+                    Count = articlesCount
+                };
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
-                    Result = articles
+                    Result = searchPreviewResult
                 });
             }
             catch (Exception ex)
@@ -132,20 +138,26 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// выборка статей из базы по хабам
         /// </summary>
         /// <param name="paging"></param>
-        /// <param name="hubs"></param>
+        /// <param name="hub"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpGet("get-by-hubs")]
-        public async Task<IActionResult> GetArticlesPreviewByHub([FromQuery] PagingParameters paging, string[] hubs, CancellationToken token)
+        [HttpGet("get-by-hub")]
+        public async Task<IActionResult> GetArticlesPreviewByHub([FromQuery] PagingParameters paging, string hub, CancellationToken token)
         {
             try
             {
                 var articles = await _articlesService.GetPreviewArticles(paging, token);
+                int articlesCount = _articlesService.GetArticlesCount(token);
+                SearchPreviewResultDTO searchPreviewResult = new SearchPreviewResultDTO()
+                {
+                    ResultData = articles,
+                    Count = articlesCount
+                };
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
-                    Result = articles
+                    Result = searchPreviewResult
                 });
             }
             catch (Exception ex)
