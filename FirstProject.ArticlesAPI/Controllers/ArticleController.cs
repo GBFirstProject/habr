@@ -115,17 +115,11 @@ namespace FirstProject.ArticlesAPI.Controllers
         {
             try
             {
-                var articles = await _articlesService.GetPreviewArticles(paging, token);
-                int articlesCount = _articlesService.GetArticlesCount(token);
-                SearchPreviewResultDTO searchPreviewResult = new SearchPreviewResultDTO()
-                {
-                    ResultData = articles,
-                    Count = articlesCount
-                };
+                var searchArticlesResult = await _articlesService.GetPreviewArticleByTagLastMonthAsync(tag, paging, token);                
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
-                    Result = searchPreviewResult
+                    Result = searchArticlesResult
                 });
             }
             catch (Exception ex)
@@ -147,17 +141,11 @@ namespace FirstProject.ArticlesAPI.Controllers
         {
             try
             {
-                var articles = await _articlesService.GetPreviewArticles(paging, token);
-                int articlesCount = _articlesService.GetArticlesCount(token);
-                SearchPreviewResultDTO searchPreviewResult = new SearchPreviewResultDTO()
-                {
-                    ResultData = articles,
-                    Count = articlesCount
-                };
+                var searchArticlesResult = await _articlesService.GetPreviewArticleByHubLastMonthAsync(hub, paging, token);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
-                    Result = searchPreviewResult
+                    Result = searchArticlesResult
                 });
             }
             catch (Exception ex)

@@ -15,5 +15,7 @@ namespace FirstProject.ArticlesAPI.Services.Interfaces
         public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleDTO updateArticleDataDto, CancellationToken cancellationToken);        
         public Task<bool> DeleteArticleAsync(Guid id, CancellationToken cancellationToken);        
         public int GetArticlesCount(CancellationToken cancellationToken);
+        public Task<SearchPreviewResultDTO> GetPreviewArticleByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken);
+        public Task<SearchPreviewResultDTO> GetPreviewArticleByTagLastMonthAsync(string tag, PagingParameters paging, CancellationToken cancellationToken);
     }
 }
