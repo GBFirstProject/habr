@@ -38,6 +38,8 @@ namespace OcelotConfigBuilder
                 "DELETE" => 3,
                 _ => -1,
             };
+            radio_yes.IsChecked = route.AuthenticationOptions != null;
+            radio_no.IsChecked = route.AuthenticationOptions == null;
 
             _isUpdating = true;
             temp = route;
