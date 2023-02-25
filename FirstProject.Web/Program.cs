@@ -54,6 +54,7 @@ builder.Services
     });
 
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
 
 
 builder.Configuration.AddJsonFile("ocelot.json");
@@ -83,7 +84,7 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapControllers()
          .AsBffApiEndpoint();
-  
+    endpoints.MapRazorPages().AsBffApiEndpoint();
 
 });
 

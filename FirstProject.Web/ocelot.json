@@ -175,15 +175,15 @@
       ]
     },
     {
-      "DownstreamPathTemplate": "/api/articles/get-preview-by-id?articleId=articleId",
+      "DownstreamPathTemplate": "/CreateArticle",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
-      "UpstreamPathTemplate": "/articles/get-preview-by-id?articleId=articleId",
+      "UpstreamPathTemplate": "/CreateArticle",
       "UpstreamHttpMethod": [
         "GET"
       ]
