@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FirstProject.ArticlesAPI.Data;
 using FirstProject.ArticlesAPI.Data.Interfaces;
 using FirstProject.ArticlesAPI.Exceptions;
 using FirstProject.ArticlesAPI.Models;
@@ -108,12 +109,12 @@ namespace FirstProject.ArticlesAPI.Services
             return true;
         }
 
-        public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleDTO updateArticleDataDto, CancellationToken cancellationToken)
+        public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleRequest updateArticleDataDto, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<PreviewArticleDTO>> GetPreviewArticles(PagingParameters paging, CancellationToken cancellationToken)
+        public async Task<List<PreviewArticleDTO>> GetPreviewArticles(PagingParameters paging, CancellationToken cancellationToken)
         {
             Task<List<Article>> articles = _articleRepository.Query()
                 .AsNoTracking()
@@ -138,7 +139,7 @@ namespace FirstProject.ArticlesAPI.Services
             }*/
             var articlePreviews = _mapper
                 .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
-            return articlePreviews;
+            return articlePreviews.ToList();
         }
         public async Task<SearchPreviewResultDTO> GetPreviewArticleByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken)
         {
@@ -233,6 +234,19 @@ namespace FirstProject.ArticlesAPI.Services
                 .ToListAsync(cancellationToken);
             if (articles == null) return 0;
             else return articles.Result.Count;
+        }
+        public async Task<List<ArticlesByAuthorDTO>> GetArticlesTitlesByAuthorId(Guid authorId, CancellationToken cancellationToken)
+        {
+            Task<List<Article>> articles = _articleRepository.Query()
+               .AsNoTracking()
+               .AsSplitQuery()
+               .Where(a => a.AuthorId == authorId)
+               .OrderBy(on => on.TimePublished)
+               .ToListAsync(cancellationToken);
+
+            var articlesByAuthor = _mapper
+                .Map<List<ArticlesByAuthorDTO>>(articles.Result);
+            return articlesByAuthor;
         }
 
         private async Task<Tag> AddTag(Tag tag, CancellationToken cancellation)
