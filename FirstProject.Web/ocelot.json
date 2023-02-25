@@ -187,6 +187,34 @@
       "UpstreamHttpMethod": [
         "GET"
       ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/hub/top?count={count}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/hub/top?count={count}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/tag/top?count={count}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/tag/top?count={count}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
     }
   ]
 }
