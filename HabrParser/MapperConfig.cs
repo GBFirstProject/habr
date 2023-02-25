@@ -16,16 +16,16 @@ namespace HabrParser
 
             config.CreateMap<string, Guid>().ConvertUsing(s => LocalConverters.Str2Guid(s));
 
-            config.CreateMap<HabrParser.Models.Article, Article>()
+            config.CreateMap<Models.Article, Article>()
                 .ForMember(m => m.hubrId, opt => opt.MapFrom(a => a.id))
                 .ForMember(m => m.Title, opt => opt.MapFrom(a => a.titleHtml))
                 .ForMember(m => m.Id, opt => opt.Ignore())
                 .ForMember(m => m.Language, opt => opt.MapFrom(a => LocalConverters.StrToLanguage(a.lang)))
-                .ForMember(m => m.AuthorNickName, opt => opt.MapFrom(a => a.author.alias != null ? a.author.alias : "UNKNOWN"));
+                .ForMember(m => m.AuthorNickName, opt => opt.MapFrom(a => a.author != null ? a.author.alias : "UNKNOWN"));
             config.CreateMap<Models.Contact, Contact>()
                 .ForMember(x => x.Id, opt => opt.Ignore());
             config.CreateMap<Models.Author, Author>()
-                .ForMember(a => a.NickName, opt => opt.MapFrom(a => a.alias))
+                .ForMember(a => a.NickName, opt => opt.MapFrom(a => a.alias != null ? a.alias : "UNKNOWN"))
                 .ForMember(a => a.FirstName, opt => opt.MapFrom(a => LocalConverters.FirstNameFromStr(a.fullname)))
                 .ForMember(a => a.LastName, opt => opt.MapFrom(a => LocalConverters.LastNameFromStr(a.fullname)))
                 .ForMember(a => a.hubrId, opt => opt.MapFrom(a => a.id))
