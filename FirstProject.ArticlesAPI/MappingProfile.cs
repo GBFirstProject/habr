@@ -29,7 +29,11 @@ namespace FirstProject.ArticlesAPI
             CreateMap<CreateArticleRequest, Article>()
                 .ForMember(dest => dest.LeadData, opt => opt.MapFrom(src => new LeadData { ImageUrl = src.ImageUrl }))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(tag => new Tag { TagName = tag })))
-                .ForMember(dest => dest.Hubs, opt => opt.MapFrom(src => src.Hubs.Select(hub => new Hub { Title = hub })));                
+                .ForMember(dest => dest.Hubs, opt => opt.MapFrom(src => src.Hubs.Select(hub => new Hub { Title = hub })));
+
+            CreateMap<Article, ArticlesByAuthorDTO>()
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.ArticleID, opt => opt.MapFrom(src => src.Id));
         }
     }
 }
