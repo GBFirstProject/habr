@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Linq;
 using FirstProject.AuthAPI.Repository;
+using FirstProject.AuthAPI.Articles.Data;
 
 namespace FirstProject.AuthAPI
 {
@@ -33,6 +34,9 @@ namespace FirstProject.AuthAPI
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ArticlesDBContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("Articles")));
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
