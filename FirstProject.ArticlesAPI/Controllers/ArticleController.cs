@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FirstProject.ArticlesAPI.Models.DTO;
 using FirstProject.ArticlesAPI.Models.Requests;
+using FirstProject.ArticlesAPI.Services;
 using FirstProject.ArticlesAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -106,20 +108,20 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// выборка статей из базы по тэгам
         /// </summary>
         /// <param name="paging"></param>
-        /// <param name="tags"></param>
+        /// <param name="tag"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpGet("get-by-tags")]
-        public async Task<IActionResult> GetArticlesPreviewByTag([FromQuery] PagingParameters paging, string[] tags, CancellationToken token)
+        [HttpGet("get-by-tag")]
+        public async Task<IActionResult> GetArticlesPreviewByTag([FromQuery] PagingParameters paging, string tag, CancellationToken token)
         {
             try
             {
-                var articles = await _articlesService.GetPreviewArticles(paging, token);
+                var searchArticlesResult = await _articlesService.GetPreviewArticleByTagLastMonthAsync(tag, paging, token);                
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
-                    Result = articles
+                    Result = searchArticlesResult
                 });
             }
             catch (Exception ex)
@@ -132,20 +134,20 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// выборка статей из базы по хабам
         /// </summary>
         /// <param name="paging"></param>
-        /// <param name="hubs"></param>
+        /// <param name="hub"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpGet("get-by-hubs")]
-        public async Task<IActionResult> GetArticlesPreviewByHub([FromQuery] PagingParameters paging, string[] hubs, CancellationToken token)
+        [HttpGet("get-by-hub")]
+        public async Task<IActionResult> GetArticlesPreviewByHub([FromQuery] PagingParameters paging, string hub, CancellationToken token)
         {
             try
             {
-                var articles = await _articlesService.GetPreviewArticles(paging, token);
+                var searchArticlesResult = await _articlesService.GetPreviewArticleByHubLastMonthAsync(hub, paging, token);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
-                    Result = articles
+                    Result = searchArticlesResult
                 });
             }
             catch (Exception ex)
@@ -201,6 +203,70 @@ namespace FirstProject.ArticlesAPI.Controllers
             {
                 return Error(ex);
             }
-        }                
+        }
+
+        /// <summary>
+        /// Обновляет статью (пока не реализовано)
+        /// </summary>
+        /// <param name="id">id обновляемой статьи</param>
+        /// <param name="updateRequest">тело обновленной статьи</param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        [HttpPut("update-article")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateArticle(Guid id, [FromBody] UpdateArticleRequest updateRequest, CancellationToken cancellation)
+        {
+            try
+            {
+                await _articlesService.UpdateArticleDataAsync(updateRequest, cancellation);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Удаляет статью (пока не реализовано)
+        /// </summary>
+        /// <param name="id">id статьи на удаление</param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        [HttpDelete("delete-article")]
+        [AllowAnonymous]
+        public async Task<IActionResult> DeleteArticle(Guid id, CancellationToken cancellation)
+        {
+            try
+            {
+                await _articlesService.DeleteArticleAsync(id, cancellation);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("titlesByAuthorId")]
+        public async Task<IActionResult> GetArticlesTitlesByAuthorId([FromQuery] Guid authorId, CancellationToken cancellation)
+        {
+            try
+            {
+                var articlesByAuthor = await _articlesService.GetArticlesTitlesByAuthorId(authorId, cancellation);
+
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = articlesByAuthor
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
     }
 }

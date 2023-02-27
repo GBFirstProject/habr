@@ -365,3 +365,16 @@ main {
 .title_row {
 	margin-left: 10%;
 }
+
+.section_new_post_data {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+
+.advanced_data {
+	margin-top: 0em;
+	margin-bottom: 0.5em;
+	margin-right: 0.5em;
+}

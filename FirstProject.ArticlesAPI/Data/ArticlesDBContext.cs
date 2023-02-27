@@ -19,6 +19,10 @@ namespace FirstProject.ArticlesAPI.Data
         public ArticlesDBContext(DbContextOptions options) : base(options)
         {            
             Database.EnsureCreated();
+            /*if (Database.GetPendingMigrations().Any())
+            {
+                Database.Migrate();
+            }*/
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

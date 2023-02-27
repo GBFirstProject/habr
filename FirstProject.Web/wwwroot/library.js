@@ -40,7 +40,7 @@ function account_click() {
     dropdown_content.classList.toggle('hidden');
 }
 
-function add_header_links() {
+async function add_header_links() {
     //ссылки в header
     //все хабы (all_hubs)
     const all_hubs_item = document.getElementById('all_hubs');
@@ -52,7 +52,16 @@ function add_header_links() {
     const all_tags_item = document.getElementById('all_tags');
     if (all_tags_item == null)
         return false;
-    add_link(all_tags_item, `${window.location.origin}/tags.html`);    
+    add_link(all_tags_item, `${window.location.origin}/tags.html`);
+    
+    //добавить 4 популярных хаба
+    const hubs = await get_top_hubs(4);
+    let textHTML = '';
+    hubs.forEach(hub => textHTML += `<li class="header_nav_item"><a href="${window.location.origin}/hubs.html?hub=${hub.title.trim().toLowerCase()}">${hub.title}</a></li>`);
+
+    const header_nav_list = document.querySelector('.header_nav_list');
+    if (header_nav_list != null)
+        header_nav_list.insertAdjacentHTML('beforeend', textHTML);
     return true;
 }
 
@@ -102,6 +111,55 @@ function get_account_data() {
     return account_data;
 }
 
+async function get_comments(id, page_number, page_size) {
+    //comments
+    const response = await fetch(`/comments?articleId=${id}&index=${(page_number - 1) * page_size}&count=${page_size}`, {
+        method: 'GET',
+        headers: new Headers({ "X-CSRF": "1" })
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return -1;
+    if (!response.hasOwnProperty('result'))
+        return 0;
+    return response.result;
+}
+
+async function get_comments_count(id) {
+    //comments
+    const response = await fetch(`/comments/getCount?articleId=${id}`, {
+        method: 'GET',
+        headers: new Headers({ "X-CSRF": "1" })
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return -1;
+    if (!response.hasOwnProperty('result'))
+        return 0;
+    return response.result;
+}
+
+function get_datetime_string(value) {
+    //datetime
+    const date = new Date(Date.parse(value));
+    //день
+    let day = date.getDate();
+    if (day < 10)
+        day = '0' + day;
+    //месяц
+    const formatter = new Intl.DateTimeFormat('ru', { month: 'short' });
+    const month = formatter.format(date);
+    //год
+    const year = date.getFullYear();
+    //время
+    const time = date.toLocaleTimeString('ru-RU');
+    return `${day} ${month} ${year}, ${time} МСК`;
+}
+
 async function get_header() {
     const response = await fetch(`/header.html`, {
         method: 'GET',
@@ -130,6 +188,21 @@ async function get_footer() {
 
 function get_roles() {
     return roles;
+}
+
+async function get_top_hubs(hubs_count) {
+    const response = await fetch(`/hub/top?count=${hubs_count}`, {
+        method: 'GET',
+        headers: new Headers({ "X-CSRF": "1" })
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return [];
+    if (!response.hasOwnProperty('result'))
+        return [];
+    return response.result;
 }
 
 function login() {
@@ -219,6 +292,98 @@ function render_account() {
     return false;
 }
 
+async function render_preview_article(article) {
+    //вывод статьи
+    //hubs
+    let hubs = '';
+    for(let i = 0; i < article['hubs'].length; i++) {
+        hubs += i == article['hubs'].length - 1
+            ? `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]} </a></p>`
+            : `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]}, </a></p>`;
+    }
+
+    //tags
+    let tags = '';
+    for(let i = 0; i < article['tags'].length; i++) {
+        tags += i == article['tags'].length - 1
+            ? `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]} </a></p>`
+            : `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]}, </a></p>`;
+    }
+
+    //comments
+    const comment_count = await get_comments_count(article['id']);
+    return `
+        <div class="all_posts_item">
+            <div class="all_posts_item_flex">
+                <div class="all_posts_item_pic">
+                    <img class="section_new_post_img" src="${article['imageURL']}" alt="image_${article['hubrId']}">
+                </div>
+                <div class="all_posts_item_texts">
+                    <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
+                    <h2 class="all_posts_item_h2">
+                        <a class="site_links" href="${window.location}article.html?id=${article['id']}">
+                            ${article['title']}
+                        </a>
+                    </h2>
+                    <div class="section_new_post_data">
+                        <p class="advanced_data">Комментарии: ${comment_count}</p>
+                        <p class="advanced_data">Просмотров: ${article['readingCount']}</p>
+                    </div>
+                    <div class="section_new_post_data"><p class="advanced_data">Хабы: ${hubs}</p></div>
+                    <div class="section_new_post_data"><p class="advanced_data">Тэги: ${tags}</p></div>
+                    <p class="all_posts_item_text">${article['text']}</p>                       
+                    <p id="button_article_${article['hubrId']}"><a href="${window.location.origin}/article.html?id=${article['id']}">Читать дальше</a></p>
+                </div>
+            </div>
+        </div>`;
+}
+
+async function render_preview_last_article(last_article) {
+    //hubs
+    let hubs = '';
+    for(let i = 0; i < last_article[0]['hubs'].length; i++) {
+        hubs += i == last_article[0]['hubs'].length - 1
+            ? `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]} </a></p>`
+            : `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]}, </a></p>`;
+    }
+
+    //tags
+    let tags = '';
+    for(let i = 0; i < last_article[0]['tags'].length; i++) {
+        tags += i == last_article[0]['tags'].length - 1
+            ? `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]} </a></p>`
+            : `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]}, </a></p>`;
+    }
+
+    //comments
+    const comment_count = await get_comments_count(last_article[0]['id']);
+    return `
+        <div class="container">
+            <div class="section_new_post_flex">
+                <div class="section_new_post_text">
+                    <h3 class="section_h3">Новый пост</h3>
+                    <p class="section_p_attr">${last_article[0]['authorNickName']} | ${get_datetime_string(last_article[0]['timePublished'])}</p>
+                    <h2 class="section_h2">
+                        <a class="site_links" href="${window.location}article.html?id=${last_article[0]['id']}">
+                            ${last_article[0]['title']}
+                        </a>
+                    </h2>
+                    <div class="section_new_post_data">
+                        <p class="advanced_data">Комментарии: ${comment_count}</p>
+                        <p class="advanced_data">Просмотров: ${last_article[0]['readingCount']}</p>
+                    </div>
+                    <div class="section_new_post_data"><p class="advanced_data">Хабы: ${hubs}</p></div>
+                    <div class="section_new_post_data"><p class="advanced_data">Тэги: ${tags}</p></div>
+                    <p class="section_p_legend">${last_article[0]['text']}</p>                    
+                    <p id="button_article_${last_article[0]['hubrId']}"><a href="${window.location.origin}/article.html?id=${last_article[0]['id']}">Читать дальше</a></p>
+                </div>
+                <div class="section_new_post_pic">
+                    <img class="section_new_post_img" src="${last_article[0]['imageURL']}" alt="image_${last_article[0]['hubrId']}">
+                </div>                    
+            </div>               
+        </div>`;
+}
+
 async function render_page() {
     //1 header
     const header_html = await get_header();
@@ -232,9 +397,16 @@ async function render_page() {
     header.innerHTML = '';
     header.insertAdjacentHTML('afterbegin', header_html);
     //
-    add_header_links();//ссылки в header
+    await add_header_links();//ссылки в header
 
-    //2 footer
+    //2 main
+    if (!await render_main())
+        return;
+
+    //account
+    render_account();
+
+    //3 footer
     const footer_html = await get_footer();
     if (footer_html == null || typeof footer_html === 'undefined')
         return;
@@ -244,12 +416,5 @@ async function render_page() {
         return;
     //
     footer.innerHTML = '';
-    footer.insertAdjacentHTML('afterbegin', footer_html);
-
-    //3 main
-    if (!render_main())
-        return;
-
-    //account
-    render_account();
+    footer.insertAdjacentHTML('afterbegin', footer_html);   
 }

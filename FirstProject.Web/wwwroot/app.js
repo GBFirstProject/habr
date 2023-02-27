@@ -152,37 +152,11 @@ async function load() {
     await render_page();
 }
 
-function render_articles(articles) {
+async function render_articles(articles) {
     //вывод статей
     let textHTML = '';
-    articles.forEach(article => {
-        //hubs
-        let hubs = '';
-        article['hubs'].forEach(hub => hubs += `${hub}, `);
-        hubs = hubs.substring(0, hubs.length - 2);
-
-        //text
-        const text = article['text'];
-        const text_without_img = text.replace(/<img[^>]*>/g, "");
-        //
-        textHTML += `
-            <div class="all_posts_item">
-                <div class="all_posts_item_flex">
-                    <div class="all_posts_item_pic">
-                        <img class="section_new_post_img" src="${article['imageURL']}" alt="image_${article['hubrId']}">
-                    </div>
-                    <div class="all_posts_item_texts">
-                        <h3 class="all_posts_item_h3">${hubs}</h3>
-                        <a class="site_links" href="${window.location}article.html?id=${article['id']}">
-                            <h2 class="all_posts_item_h2">${article['title']}</h2>
-                        </a>
-                        <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
-                        <p class="all_posts_item_text">${text_without_img}</p>
-                        <button id="button_article_${article['hubrId']}" type="button">Читать дальше</button>
-                    </div>
-                </div>
-            </div>`;
-    });
+    for(const article of articles)
+        textHTML += await render_preview_article(article);
 
     //добавить на страницу
     let section_all_posts = document.querySelector('.section_all_posts_block');
@@ -191,10 +165,6 @@ function render_articles(articles) {
     //
     section_all_posts.innerHTML = '';
     section_all_posts.insertAdjacentHTML('afterbegin', textHTML);
-
-    //события
-    const button_article_array = document.querySelectorAll(`[id^="button_article_"]`);
-    button_article_array.forEach(button_article => button_article.addEventListener('click', button_article_click));
     return true;
 }
 
@@ -230,8 +200,7 @@ function render_data() {
     return true;
 }
 
-async function render_main() {
-    render_data();
+async function render_main() {    
     //получить статьи
     articles = await get_articles(page_number, page_size);
     if (articles.length == 0)
@@ -241,11 +210,12 @@ async function render_main() {
     if (last_article.length == 0)
         return false;
 
+    render_data();  
     //вывод последней статьи
-    if (!render_last_article(last_article))
+    if (!await render_last_article(last_article))
         return false;
     //вывод статей
-    if (!render_articles(articles))
+    if (!await render_articles(articles))
         return false;
 
     //пагинация
@@ -255,29 +225,7 @@ async function render_main() {
 }
 
 async function render_last_article(last_article) {
-    //hubs
-    let hubs = '';
-    last_article[0]['hubs'].forEach(hub => hubs += `${hub}, `);
-    hubs = hubs.substring(0, hubs.length - 2);
-    //
-    const textHTML = `
-        <div class="container">
-            <div class="section_new_post_flex">
-                <div class="section_new_post_text">
-                    <h3 class="section_h3">Новый пост</h3>
-                    <a class="site_links" href="${window.location}article.html?id=${last_article[0]['id']}">
-                        <h2 class="section_h2">${last_article[0]['title']}</h2>
-                    </a>
-                    <p class="section_p_attr">${last_article[0]['authorNickName']} | ${get_datetime_string(last_article[0]['timePublished'])}</p>
-                    <p class="section_p_legend">${last_article[0]['text']}</p>
-                    <button id="button_article_${last_article[0]['hubrId']}" type="submit">Читать</button>                
-                </div>
-                <div class="section_new_post_pic">
-                    <img class="section_new_post_img" src="${last_article[0]['imageURL']}" alt="image_${last_article[0]['hubrId']}">
-                </div>           
-            </div>
-        </div>`;
-
+    const textHTML = await render_preview_last_article(last_article);
     //добавить на страницу
     let section_new_post = document.querySelector('.section_new_post');
     if (section_new_post == null)
@@ -285,11 +233,6 @@ async function render_last_article(last_article) {
     //
     section_new_post.innerHTML = '';
     section_new_post.insertAdjacentHTML('afterbegin', textHTML);
-
-    //события
-    const button_article = document.getElementById(`button_article_${last_article[0]['hubrId']}`);
-    if (button_article != null)
-        button_article.addEventListener('click', button_last_article_click);
     return true;
 }
 
