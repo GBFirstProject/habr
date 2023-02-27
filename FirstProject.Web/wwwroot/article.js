@@ -1,15 +1,44 @@
 ﻿"use strict";
 let userClaims = null;
-let account_name = 'гость',
-    account_role = 'guest';
+let article = null;
+let id = null;
+const page_number_deafult = 1,
+    page_size_default = 10;
+let page_number = null,
+    page_size = null;
 //arrays
-//
-document.addEventListener("DOMContentLoaded", load11);
+window.onclick = function (e) {
+    if (!e.target.matches('.dropbtn')) {
+        let authorize_dropdown = document.getElementById("authorize_dropdown");
+        if (!authorize_dropdown.classList.contains('hidden'))
+            authorize_dropdown.classList.add('hidden');
+    }
+};
 
-function load11() {
-    console.log(account_role);
+//получить параметры
+try {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    //
+    id = urlParams.get('id').trim().toLowerCase();
+    page_number = urlParams.get('PageNumber');
+    page_size = urlParams.get('PageSize');
+    //
+    if (page_number == null || page_size == null) {
+        page_number = page_number_deafult;
+        page_size = page_size_default;
+    } else {
+        page_number = parseInt(page_number);
+        page_size = parseInt(page_size);
+        //
+        if (page_number < 1 || page_size < 1)
+            throw new Error('указаны некорректные параметры');
+    }
+} catch (e) {   
+    page_number = page_number_deafult;
+    page_size = page_size_default; 
 }
-
+//
 (async function () {
     var req = new Request("/bff/user", {
         headers: new Headers({
@@ -21,7 +50,7 @@ function load11() {
     try {
         var resp = await fetch(req);
         if (resp.ok) {
-            userClaims = await resp.json();         
+            userClaims = await resp.json();
         } else if (resp.status === 401) {
         }
     } catch (e) {
@@ -29,52 +58,9 @@ function load11() {
     load();
 })();
 
-/*function account() {
-    window.location = "/account.html";
-}
-
-function account_click() {
-    let dropdown_content = document.querySelector('.dropdown-content');
-    if (dropdown_content != null) {
-        //скрыть выпадающее меню
-        if (!dropdown_content.classList.contains('hidden')) {
-            dropdown_content.classList.add('hidden');
-            return;
-        }
-    }
-    //
-    const dropbtn = document.querySelector('.dropbtn');
-    if (dropbtn == null)
-        return;
-
-    //показать элемент
-    const header_flex = document.querySelector('.header_flex');
-    const header = document.querySelector('header');
-    //
-    if (header_flex == null || header == null)
-        return;
-
-    const dropbtn_computed = getComputedStyle(dropbtn);
-    const header_flex_computed = getComputedStyle(header_flex);
-    const header_computed = getComputedStyle(header);
-
-    //right
-    let header_computed_width = header_computed.width;
-    let header_flex_computed_width = header_flex_computed.width;
-    let right = (parseFloat(header_computed_width) - parseFloat(header_flex_computed_width)) / 2;
-    dropdown_content.style.right = `${right}px`;
-
-    //top
-    dropdown_content.style.top = dropbtn_computed.height;
-    dropdown_content.classList.toggle('hidden');
-}*/
-
 async function get_article() {
     //получить id
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const article_id = urlParams.get('id');
-    //
+    const article_id = id;//get_id();
     const request = await fetch(`/articles/get-by-id?${new URLSearchParams({ articleId: article_id })}`, {
         method: 'GET',
         headers: new Headers({ "X-CSRF": "1" })
@@ -89,186 +75,45 @@ async function get_article() {
     return request.result;
 }
 
-/*async function get_header() {
-    const response = await fetch(`/header.html`, {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.text())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return null;
-    return response;
-}
-
-async function get_footer() {
-    const response = await fetch(`/footer.html`, {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.text())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return null;
-    return response;
+/*function get_id() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    return urlParams.get('id');
 }*/
 
 async function load() {
-    //header
-    const header_html = await get_header();
-    if (header_html == null || typeof header_html === 'undefined')
-        return;
-    //
-    const header = document.getElementById('header');
-    if (header == null)
-        return;
-    //
-    header.innerHTML = '';
-    header.insertAdjacentHTML('afterbegin', header_html);
-
-    //footer
-    const footer_html = await get_footer();
-    if (footer_html == null || typeof footer_html === 'undefined')
-        return;
-    //
-    const footer = document.getElementById('footer');
-    if (footer == null)
-        return;
-    //
-    footer.innerHTML = '';
-    footer.insertAdjacentHTML('afterbegin', footer_html);
-
-    //данные пользователя
-    if (userClaims != null) {
-        for (const claim of userClaims) {
-            if (claim.hasOwnProperty('type')) {
-                if (claim.type == 'name') {
-                    account_name = claim.value;
-                    break;
-                }
-            }
-        }
-    }
-
-    //вывод информации о пользователе
-    const account_login = document.getElementById('account_login');
-    if (account_login != null)
-        account_login.innerText = account_name;
-
-    //пункты меню для пользователя
-    const myDropdown = document.getElementById('myDropdown');
-    if (myDropdown == null)
-        return;
-    //
-    if (userClaims != null) {
-        for (const claim of userClaims) {
-            if (claim.hasOwnProperty('type')) {
-                if (claim.type == 'role') {
-                    account_role = claim.value.trim().toLowerCase();
-                    break;
-                }
-            }
-        }
-    }
-    render_account(account_role);
-
-    //статья
-    const article = await get_article();
-    if (article == null)
-        return;
-    render_page(article);
+    await render_page();
 }
 
-/*function login() {
-    window.location = "/bff/login";
-}
-
-function logout() {
-    if (userClaims) {
-        var logoutUrl = userClaims.find(
-            (claim) => claim.type === "bff:logout_url"
-        ).value;
-        window.location = logoutUrl;
-    } else {
-        window.location = "/bff/logout";
-    }
-}
-
-function render_account(role) {
-    const account = document.getElementById('account');
-    const sign_in = document.getElementById('sign_in');
-    const sign_up = document.getElementById('sign_up');
-    const sign_out = document.getElementById('sign_out');
-    //
-    if (account == null ||
-        sign_in == null ||
-        sign_up == null ||
-        sign_out == null)
-        return false;
-
-    //пункты меню
-    if (role == 'user' || role == 'moderator' || role == 'admin') {
-        //показать
-        if (account.classList.contains('hidden'))
-            account.classList.remove('hidden');
-        if (sign_out.classList.contains('hidden'))
-            sign_out.classList.remove('hidden');
-
-        //события
-        account.addEventListener('click', account);
-        sign_out.addEventListener('click', logout);
-
-        //скрыть
-        if (!sign_in.classList.contains('hidden'))
-            sign_in.classList.add('hidden');
-        if (!sign_up.classList.contains('hidden'))
-            sign_up.classList.add('hidden');
-        return true;
-    }
-
-    if (role == 'guest') {
-        //показать
-        if (sign_in.classList.contains('hidden'))
-            sign_in.classList.remove('hidden');
-
-        if (sign_up.classList.contains('hidden'))
-            sign_up.classList.remove('hidden');
-
-        //события
-        sign_in.addEventListener('click', login);
-        sign_up.addEventListener('click', login);
-
-        //скрыть
-        if (!account.classList.contains('hidden'))
-            account.classList.add('hidden');
-        if (!sign_out.classList.contains('hidden'))
-            sign_out.classList.add('hidden');
-        return true;
-    }
-    return false;
-}*/
-
-function render_page(article) {
+async function render_article(article) {
     const prev_link = window.location.origin;
     //hubs
     let hubs = '';
-    article['hubs'].forEach(hub => hubs += `${hub}, `);
-    hubs = hubs.substring(0, hubs.length - 2);
-    //
-    const textHTML = `
-        <div class="section_new_post_text">
-            <h3 class="all_posts_item_h3">${hubs}</h3>
-            <a class="site_links" href="#">
-                <h2 class="section_h2">${article['title']}</h2>
-            </a>
-            <p class="section_p_attr">${article['authorNickName']} | ${article['timePublished']}</p>
+    for(let i = 0; i < article['hubs'].length; i++) {
+        hubs += i == article['hubs'].length - 1
+            ? `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]} </a></p>`
+            : `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]}, </a></p>`;
+    }
+
+    //количество комментариев
+    const comment_count = await get_comments_count(id);//get_id()
+    let textHTML = `
+        <div class="section_new_post_text">            
+            <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
+            <h2 class="section_h2"><a class="site_links" href="#">${article['title']}</a></h2>            
+            <div class="section_new_post_data">
+                <p class="advanced_data">Комментарии: ${comment_count}</p>
+                <p class="advanced_data">Просмотров: ${article['readingCount']}</p>
+            </div>
+            <div class="section_new_post_data">
+                ${hubs}
+            </div>            
         </div>
         <p class="article_text">${article['fullTextHtml']}</p>
         <div class="all_posts_pagination">
-            <button class="all_posts_pag"}">Назад</button>
-        </div>`;
+            <p id="button_back"><u>Назад</u></p>
+        </div>
+        <div class="comments"></div>`;
     //
     const article_div = document.getElementById('article_div');
     if (article_div == null)
@@ -277,9 +122,8 @@ function render_page(article) {
     article_div.insertAdjacentHTML('afterbegin', textHTML);
 
     //события
-    const all_posts_pag = document.querySelector('.all_posts_pag');
-    if (all_posts_pag != null)
-        all_posts_pag.addEventListener('click', () => window.history.back());
+    const button_back = document.getElementById('button_back');
+    button_back.addEventListener('click', () => window.history.back());
     //
     const img_array = document.getElementsByTagName('img');
     for (let img of img_array) {
@@ -293,5 +137,137 @@ function render_page(article) {
         img.removeAttribute('height');
         img.classList.add('section_new_post_img_full');
     }
+
+    //добавить комментарии
+    textHTML = '';
+    const comments = await get_comments(id, page_number, page_size);//get_id()
+    comments.forEach(comment => {
+        textHTML += `
+            <div>
+                <p class="section_p_attr">пользователь | ${get_datetime_string(comment['createdAt'])}</p>
+                <p class="article_text">${comment['content']}</p>
+                <div class="section_new_post_data">
+                    <p class="advanced_data">Лайки: ${comment['likes'].length}</p>
+                    <p class="advanced_data">Дизлайки: ${comment['dislikes'].length}</p>
+                </div>
+            </div>`;        
+    });
+    textHTML += '<div class="all_posts_pagination">';
+    textHTML += render_comments_pagination(comment_count);
+    textHTML += '</div>';
+
+    //добавить на страницу
+    const comments_div = document.querySelector('.comments');
+    if (comments_div == null)
+        return;
+    comments_div.insertAdjacentHTML('afterbegin', textHTML);
+
+    //события
+    /*const comments_element = document.getElementById(`comments_${page_number_comment}`);
+    if (comments_element != null)
+        comments_element.addEventListener('click', render_comments(get_id(), page_number_comment + 1, page_size_comment));*/
     return true;
+}
+
+/*async function render_comments(id, page_number, page_size) {
+    //добавить комментарии
+    let textHTML = '';
+    const comments = await get_comments(get_id(), page_number, page_size);
+    comments.forEach(comment => {
+        textHTML += `
+            <div id="comments_${page_number}">
+                <p class="section_p_attr">пользователь | ${get_datetime_string(comment['createdAt'])}</p>
+                <p class="article_text">${comment['content']}</p>
+                <div class="section_new_post_data">
+                    <p class="advanced_data">Лайки: ${comment['likes'].length}</p>
+                    <p class="advanced_data">Дизлайки: ${comment['dislikes'].length}</p>
+                </div>
+            </div>`;        
+    });
+    textHTML += `<p class="section_p_attr"><u>загрузить следующие ${page_size} комментариев</u></p>`;
+    return textHTML;
+}*/
+
+async function render_main() {
+    //статья
+    article = await get_article();
+    if (article == null)
+        return;
+    return await render_article(article);
+}
+
+function render_comments_pagination(comment_count) {
+    //пагинация
+    let textHTML = '';
+    const pages_count = Math.ceil(comment_count / page_size);
+    //
+    if (comment_count >= 0 && comment_count < pages_count) {
+        //единственная страница
+        textHTML += `<a class="all_posts_pag " href="#prev">Назад</a>
+                <div class="pagination">1</div>
+                <a class="all_posts_pag" href="#next">Вперед</a>`;
+    } else if (comment_count > pages_count) {
+        //несколько страниц
+        const penultimate_page = pages_count - 1;
+        const last_page = pages_count;
+
+        //назад
+        textHTML += page_number > 1
+            ? `<a class="all_posts_pag" href="${window.location.origin}/article.html?id=${id}&PageNumber=${page_number - 1}&PageSize=${page_size}">Назад</a>`
+            : `<a class="all_posts_pag">Назад`;
+
+        //1 и 2 страницы обязательно
+        textHTML += `<a href="${window.location.origin}/article.html?id=${id}&PageNumber=1&PageSize=${page_size}"><div class="pagination">1</div></a>
+            <a href="${window.location.origin}/article.html?id=${id}&PageNumber=2&PageSize=${page_size}"><div class="pagination">2</div></a>`;
+
+        //предыдущие страницы (если есть)      
+        if (page_number > 2) {
+            const prev_count = page_number - 2;
+            //
+            if (prev_count <= 4) {
+                for (let i = 3, j = 0; j < prev_count - 1; i++, j++)
+                    textHTML += `<a href="${window.location.origin}/article.html?id=${id}&PageNumber=${i}&PageSize=${page_size}"><div class="pagination">${i}</div></a>`;
+            } else {
+                textHTML += `<div class="pagination">...</div>`;
+                for (let i = page_number - 2; i < page_number; i++)
+                    textHTML += `<a href="${window.location.origin}/article.html?id=${id}&PageNumber=${i}&PageSize=${page_size}"><div class="pagination">${i}</div></a>`;
+            }
+        }
+
+        //текущая страница
+        if (page_number > 2)
+            textHTML += `<a href="${window.location.origin}/article.html?id=${id}&PageNumber=${page_number}&PageSize=${page_size}"><div class="pagination">${page_number}</div></a>`;
+
+        //последующие следующие (если есть)
+        const next_count = last_page - page_number;
+        if (next_count > 5) {
+            //page_number, page_number + 1, page_number + 2 ... penultimate_page, last_page            
+            for (let i = 1; i < 3; i++) {
+                if (page_number + i > 2)
+                //if (page_number + i < page_size)
+                    textHTML += `<a href="${window.location.origin}/article.html?id=${id}&PageNumber=${page_number + i}&PageSize=${page_size}"><div class="pagination">${page_number + i}</div></a>`;
+            }
+            textHTML += `<div class="pagination">...</div>
+                <a href="${window.location.origin}/article.html?id=${id}&PageNumber=${penultimate_page}&PageSize=${page_size}"><div class="pagination">${penultimate_page}</div></a>
+                <a href="${window.location.origin}/article.html?id=${id}&PageNumber=${last_page}&PageSize=${page_size}"><div class="pagination">${last_page}</div></a>`;
+        } else {
+            for (let i = page_number + 1; i <= last_page; i++)
+                textHTML += `<a href="${window.location.origin}/article.html?id=${id}&PageNumber=${i}&PageSize=${page_size}"><div class="pagination">${i}</div></a>`;
+        }
+
+        //вперед
+        textHTML += page_number < last_page
+            ? `<a class="all_posts_pag" href="${window.location.origin}/article.html?id=${id}&PageNumber=${page_number + 1}&PageSize=${page_size}">Вперед</a>`
+            : `<a class="all_posts_pag">Вперед`;
+    }
+    return textHTML;
+    //
+    /*const all_posts_pagination = document.querySelector('.all_posts_pagination');
+    if (all_posts_pagination == null)
+        return false;
+    all_posts_pagination.innerHTML = '';
+    all_posts_pagination.insertAdjacentHTML('afterbegin', textHTML);
+
+    //события пагинации
+    return true;*/
 }

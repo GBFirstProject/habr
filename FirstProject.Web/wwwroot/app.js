@@ -16,11 +16,11 @@ document.addEventListener("DOMContentLoaded", load);
 
 window.onclick = function (e) {
     if (!e.target.matches('.dropbtn')) {
-        var myDropdown = document.getElementById("myDropdown");
-        if (!myDropdown.classList.contains('hidden'))
-            myDropdown.classList.add('hidden');
+        let authorize_dropdown = document.getElementById("authorize_dropdown");
+        if (!authorize_dropdown.classList.contains('hidden'))
+            authorize_dropdown.classList.add('hidden');
     }
-}
+};
 
 //получить параметры
 try {
@@ -60,46 +60,6 @@ try {
     } catch (e) {
     }
 })();
-
-/*function account() {
-    window.location = "/account.html";
-}
-
-function account_click() {
-    let dropdown_content = document.querySelector('.dropdown-content');
-    if (dropdown_content != null) {
-        //скрыть выпадающее меню
-        if (!dropdown_content.classList.contains('hidden')) {
-            dropdown_content.classList.add('hidden');
-            return;
-        }            
-    }
-    //
-    const dropbtn = document.querySelector('.dropbtn');
-    if (dropbtn == null)
-        return;
-
-    //показать элемент
-    const header_flex = document.querySelector('.header_flex');
-    const header = document.querySelector('header');
-    //
-    if (header_flex == null || header == null)
-        return;
-
-    const dropbtn_computed = getComputedStyle(dropbtn);
-    const header_flex_computed = getComputedStyle(header_flex);
-    const header_computed = getComputedStyle(header);
-
-    //right
-    let header_computed_width = header_computed.width;
-    let header_flex_computed_width = header_flex_computed.width;
-    let right = (parseFloat(header_computed_width) - parseFloat(header_flex_computed_width)) / 2;
-    dropdown_content.style.right = `${right}px`;
-
-    //top
-    dropdown_content.style.top = dropbtn_computed.height;
-    dropdown_content.classList.toggle('hidden');
-}*/
 
 async function button_article_click(e) {
     if (e.currentTarget == null || typeof e.currentTarget === 'undefined')
@@ -188,216 +148,15 @@ function get_datetime_string(value) {
     return `${day} ${month} ${year}, ${time} МСК`;
 }
 
-/*async function get_footer() {
-    const response = await fetch(`/footer.html`, {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.text())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return null;
-    return response;
-}
-
-async function get_header() {
-    const response = await fetch(`/header.html`, {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.text())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return null;
-    return response;
-}*/
-
 async function load() {
-    //получить статьи
-    articles = await get_articles(page_number, page_size);
-    if (articles.length == 0)
-        return;
-    //получить последнюю статью
-    last_article = await get_articles(1, 1);
-    if (last_article.length == 0)
-        return;
-
-    //main
-    if (!render_main())
-        return;
-
-    //вывод последней статьи
-    if (!render_last_article(last_article))
-        return;
-    //вывод статей
-    if (!render_articles(articles))
-        return;
-
-    //header
-    const header_html = await get_header();
-    if (header_html == null || typeof header_html === 'undefined')
-        return;
-    //
-    const header = document.getElementById('header');
-    if (header == null)
-        return;
-    //
-    header.innerHTML = '';
-    header.insertAdjacentHTML('afterbegin', header_html);
-
-    //footer
-    const footer_html = await get_footer();
-    if (footer_html == null || typeof footer_html === 'undefined')
-        return;
-    //
-    const footer = document.getElementById('footer');
-    if (footer == null)
-        return;
-    //
-    footer.innerHTML = '';
-    footer.insertAdjacentHTML('afterbegin', footer_html);
-
-    //данные пользователя
-    if (userClaims != null) {
-        for (const claim of userClaims) {
-            if (claim.hasOwnProperty('type')) {
-                if (claim.type == 'name') {
-                    account_name = claim.value;
-                    break;
-                }
-            }
-        }
-    }
-
-    //вывод информации о пользователе
-    const account_login = document.getElementById('account_login');
-    if (account_login != null)
-        account_login.innerText = account_name;
-
-    //пункты меню для пользователя
-    const myDropdown = document.getElementById('myDropdown');
-    if (myDropdown == null)
-        return;
-    //
-    if (userClaims != null) {
-        for (const claim of userClaims) {
-            if (claim.hasOwnProperty('type')) {
-                if (claim.type == 'role') {
-                    account_role = claim.value.trim().toLowerCase();
-                    break;
-                }
-            }
-        }
-    }
-    render_account(account_role);
-
-    //пагинация
-    if (!await render_pagination())
-        return;
+    await render_page();
 }
 
-/*function login() {
-    window.location = "/bff/login";
-}
-
-function logout() {
-    if (userClaims) {
-        var logoutUrl = userClaims.find(
-            (claim) => claim.type === "bff:logout_url"
-        ).value;
-        window.location = logoutUrl;
-    } else {
-        window.location = "/bff/logout";
-    }
-}
-
-function render_account(role) {
-    const personal = document.getElementById('account');
-    const sign_in = document.getElementById('sign_in');
-    const sign_up = document.getElementById('sign_up');
-    const sign_out = document.getElementById('sign_out');
-    //
-    if (personal == null ||
-        sign_in == null ||
-        sign_up == null ||
-        sign_out == null)
-        return false;
-
-    //пункты меню
-    if (role == 'user' || role == 'moderator' || role == 'admin') {
-        //показать
-        if (personal.classList.contains('hidden'))
-            personal.classList.remove('hidden');
-        if (sign_out.classList.contains('hidden'))
-            sign_out.classList.remove('hidden');
-
-        //события
-        personal.addEventListener('click', account);
-        sign_out.addEventListener('click', logout);
-
-        //скрыть
-        if (!sign_in.classList.contains('hidden'))
-            sign_in.classList.add('hidden');
-        if (!sign_up.classList.contains('hidden'))
-            sign_up.classList.add('hidden');
-        return true;
-    }
-
-    if (role == 'guest') {
-        //показать
-        if (sign_in.classList.contains('hidden'))
-            sign_in.classList.remove('hidden');
-
-        if (sign_up.classList.contains('hidden'))
-            sign_up.classList.remove('hidden');
-
-        //события
-        sign_in.addEventListener('click', login);
-        sign_up.addEventListener('click', login);
-
-        //скрыть
-        if (!personal.classList.contains('hidden'))
-            personal.classList.add('hidden');
-        if (!sign_out.classList.contains('hidden'))
-            sign_out.classList.add('hidden');
-        return true;
-    }
-    return false;
-}*/
-
-function render_articles(articles) {
+async function render_articles(articles) {
     //вывод статей
     let textHTML = '';
-    articles.forEach(article => {
-        //hubs
-        let hubs = '';
-        article['hubs'].forEach(hub => hubs += `${hub}, `);
-        hubs = hubs.substring(0, hubs.length - 2);
-
-        //text
-        const text = article['text'];
-        const text_without_img = text.replace(/<img[^>]*>/g, "");
-        //
-        textHTML += `
-            <div class="all_posts_item">
-                <div class="all_posts_item_flex">
-                    <div class="all_posts_item_pic">
-                        <img class="section_new_post_img" src="${article['imageURL']}" alt="image_${article['hubrId']}">
-                    </div>
-                    <div class="all_posts_item_texts">
-                        <h3 class="all_posts_item_h3">${hubs}</h3>
-                        <a class="site_links" href="#">
-                            <h2 class="all_posts_item_h2">${article['title']}</h2>
-                        </a>
-                        <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
-                        <p class="all_posts_item_text">${text_without_img}</p>
-                        <button id="button_article_${article['hubrId']}" type="button">Читать дальше</button>
-                    </div>
-                </div>
-            </div>`;
-    });
+    for(const article of articles)
+        textHTML += await render_preview_article(article);
 
     //добавить на страницу
     let section_all_posts = document.querySelector('.section_all_posts_block');
@@ -406,14 +165,11 @@ function render_articles(articles) {
     //
     section_all_posts.innerHTML = '';
     section_all_posts.insertAdjacentHTML('afterbegin', textHTML);
-
-    //события
-    const button_article_array = document.querySelectorAll(`[id^="button_article_"]`);
-    button_article_array.forEach(button_article => button_article.addEventListener('click', button_article_click));
     return true;
 }
 
-function render_main() {
+function render_data() {
+    //main
     const textHTML = `
         <section class="section_new_post">
             <div class="container"></div>
@@ -444,30 +200,32 @@ function render_main() {
     return true;
 }
 
-async function render_last_article(last_article) {
-    //hubs
-    let hubs = '';
-    last_article[0]['hubs'].forEach(hub => hubs += `${hub}, `);
-    hubs = hubs.substring(0, hubs.length - 2);
-    //
-    const textHTML = `
-        <div class="container">
-            <div class="section_new_post_flex">
-                <div class="section_new_post_text">
-                    <h3 class="section_h3">Новый пост</h3>
-                    <a class="site_links" href="#">
-                        <h2 class="section_h2">${last_article[0]['title']}</h2>
-                    </a>
-                    <p class="section_p_attr">${last_article[0]['authorNickName']} | ${get_datetime_string(last_article[0]['timePublished'])}</p>
-                    <p class="section_p_legend">${last_article[0]['text']}</p>
-                    <button id="button_article_${last_article[0]['hubrId']}" type="submit">Читать</button>                
-                </div>
-                <div class="section_new_post_pic">
-                    <img class="section_new_post_img" src="${last_article[0]['imageURL']}" alt="image_${last_article[0]['hubrId']}">
-                </div>           
-            </div>
-        </div>`;
+async function render_main() {    
+    //получить статьи
+    articles = await get_articles(page_number, page_size);
+    if (articles.length == 0)
+        return false;
+    //получить последнюю статью
+    last_article = await get_articles(1, 1);
+    if (last_article.length == 0)
+        return false;
 
+    render_data();  
+    //вывод последней статьи
+    if (!await render_last_article(last_article))
+        return false;
+    //вывод статей
+    if (!await render_articles(articles))
+        return false;
+
+    //пагинация
+    if (!await render_pagination())
+        return false;
+    return true;    
+}
+
+async function render_last_article(last_article) {
+    const textHTML = await render_preview_last_article(last_article);
     //добавить на страницу
     let section_new_post = document.querySelector('.section_new_post');
     if (section_new_post == null)
@@ -475,11 +233,6 @@ async function render_last_article(last_article) {
     //
     section_new_post.innerHTML = '';
     section_new_post.insertAdjacentHTML('afterbegin', textHTML);
-
-    //события
-    const button_article = document.getElementById(`button_article_${last_article[0]['hubrId']}`);
-    if (button_article != null)
-        button_article.addEventListener('click', button_last_article_click);
     return true;
 }
 
