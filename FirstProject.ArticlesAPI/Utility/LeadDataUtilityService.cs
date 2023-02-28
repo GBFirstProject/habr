@@ -1,9 +1,9 @@
 ﻿using HtmlAgilityPack;
 using System.Xml;
 
-namespace FirstProject.ArticlesAPI.Services
+namespace FirstProject.ArticlesAPI.Utility
 {
-    public class LeadDataService
+    public class LeadDataUtilityService
     {
         public static string GetLeadDataDescription(string textHtml)
         {
