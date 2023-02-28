@@ -1,4 +1,4 @@
-﻿namespace FirstProject.CommentsAPI.Models.DTO
+﻿namespace FirstProject.CommentsAPI.Data.Models.DTO
 {
     public class CommentDTO
     {
@@ -9,6 +9,7 @@
         public DateTime CreatedAt { get; set; }
         public int Likes { get; set; } = new();
         public int Dislikes { get; set; } = new();
+        public Guid ReplyTo { get; set; }
 
         public override bool Equals(object? obj)
         {

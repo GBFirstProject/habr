@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
+using FirstProject.CommentsAPI.Data.Models;
+using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
-using FirstProject.CommentsAPI.Models;
-using FirstProject.CommentsAPI.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
-namespace FirstProject.CommentsAPI.Repositories
+namespace FirstProject.CommentsAPI.Data.Repositories
 {
     public class CommentsRepository : ICommentsRepository
     {
@@ -232,7 +232,7 @@ namespace FirstProject.CommentsAPI.Repositories
             }
         }
 
-        public async Task<bool> DeleteComment(Guid commentId, CancellationToken cts)
+        public async Task<Guid> DeleteComment(Guid commentId, CancellationToken cts)
         {
             try
             {
@@ -244,14 +244,14 @@ namespace FirstProject.CommentsAPI.Repositories
                 var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == commentId, cts);
                 if (entry == null)
                 {
-                    return false;
+                    return Guid.Empty;
                 }
 
                 _context.Comments.Remove(entry);
 
                 await _context.SaveChangesAsync(cts);
 
-                return true;
+                return entry.ArticleId;
             }
             catch
             {

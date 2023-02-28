@@ -1,4 +1,6 @@
-﻿using HabrParser.Models.APIComments;
+﻿using AutoMapper;
+using HabrParser.Interfaces;
+using HabrParser.Models.APIComments;
 using Microsoft.EntityFrameworkCore;
 
 namespace HabrParser.Database.Repositories

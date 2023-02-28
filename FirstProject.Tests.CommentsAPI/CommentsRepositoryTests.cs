@@ -1,9 +1,10 @@
 using AutoMapper;
 using EntityFrameworkCore.Testing.Moq;
 using FirstProject.CommentsAPI;
+using FirstProject.CommentsAPI.Data;
+using FirstProject.CommentsAPI.Data.Models;
+using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
-using FirstProject.CommentsAPI.Models;
-using FirstProject.CommentsAPI.Models.DTO;
 using FirstProject.CommentsAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +38,7 @@ namespace FirstProject.Tests.CommentsAPI
         {
             CommentDTO input = new()
             {
-                UserId = Guid.NewGuid(),
+                Username = Guid.NewGuid(),
                 ArticleId = Guid.NewGuid(),
                 Content = "testcontent"
             };
@@ -46,7 +47,7 @@ namespace FirstProject.Tests.CommentsAPI
 
             Assert.Multiple(() =>
             {
-                Assert.That(result.UserId, Is.EqualTo(input.UserId));
+                Assert.That(result.Username, Is.EqualTo(input.Username));
                 Assert.That(result.ArticleId, Is.EqualTo(input.ArticleId));
                 Assert.That(result.Content, Is.EqualTo(input.Content));
             });
@@ -71,7 +72,7 @@ namespace FirstProject.Tests.CommentsAPI
             CommentDTO input = new()
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.Empty,
+                Username = Guid.Empty,
                 ArticleId = Guid.NewGuid(),
                 Content = "testcontent",
                 CreatedAt = DateTime.UtcNow
@@ -91,7 +92,7 @@ namespace FirstProject.Tests.CommentsAPI
             CommentDTO input = new()
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
+                Username = Guid.NewGuid(),
                 ArticleId = Guid.Empty,
                 Content = "testcontent",
                 CreatedAt = DateTime.UtcNow
@@ -111,7 +112,7 @@ namespace FirstProject.Tests.CommentsAPI
             CommentDTO input = new()
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
+                Username = Guid.NewGuid(),
                 ArticleId = Guid.NewGuid(),
                 Content = string.Empty,
                 CreatedAt = DateTime.UtcNow
@@ -364,7 +365,7 @@ namespace FirstProject.Tests.CommentsAPI
             CommentDTO expected = new()
             {
                 Id = input.Id,
-                UserId = input.UserId,
+                Username = input.UserId,
                 ArticleId = input.ArticleId,
                 Content = input.Content,
                 CreatedAt = input.CreatedAt,
@@ -376,7 +377,7 @@ namespace FirstProject.Tests.CommentsAPI
             Assert.Multiple(() =>
             {
                 Assert.That(result.Id, Is.EqualTo(expected.Id));
-                Assert.That(result.UserId, Is.EqualTo(expected.UserId));
+                Assert.That(result.Username, Is.EqualTo(expected.Username));
                 Assert.That(result.ArticleId, Is.EqualTo(expected.ArticleId));
                 Assert.That(result.Content, Is.EqualTo(expected.Content));
                 Assert.That(result.CreatedAt, Is.EqualTo(expected.CreatedAt));
@@ -453,7 +454,7 @@ namespace FirstProject.Tests.CommentsAPI
             CommentDTO expected = new()
             {
                 Id = input.Id,
-                UserId = input.UserId,
+                Username = input.UserId,
                 ArticleId = input.ArticleId,
                 Content = input.Content,
                 CreatedAt = input.CreatedAt,
@@ -492,7 +493,7 @@ namespace FirstProject.Tests.CommentsAPI
             CommentDTO expected = new()
             {
                 Id = input.Id,
-                UserId = input.UserId,
+                Username = input.UserId,
                 ArticleId = input.ArticleId,
                 Content = input.Content,
                 CreatedAt = input.CreatedAt,
@@ -504,7 +505,7 @@ namespace FirstProject.Tests.CommentsAPI
             Assert.Multiple(() =>
             {
                 Assert.That(result.Id, Is.EqualTo(expected.Id));
-                Assert.That(result.UserId, Is.EqualTo(expected.UserId));
+                Assert.That(result.Username, Is.EqualTo(expected.Username));
                 Assert.That(result.ArticleId, Is.EqualTo(expected.ArticleId));
                 Assert.That(result.Content, Is.EqualTo(expected.Content));
                 Assert.That(result.CreatedAt, Is.EqualTo(expected.CreatedAt));
@@ -581,7 +582,7 @@ namespace FirstProject.Tests.CommentsAPI
             CommentDTO expected = new()
             {
                 Id = input.Id,
-                UserId = input.UserId,
+                Username = input.UserId,
                 ArticleId = input.ArticleId,
                 Content = input.Content,
                 CreatedAt = input.CreatedAt,
@@ -620,7 +621,7 @@ namespace FirstProject.Tests.CommentsAPI
             CommentDTO expected = new()
             {
                 Id = input.Id,
-                UserId = input.UserId,
+                Username = input.UserId,
                 ArticleId = input.ArticleId,
                 Content = changedcontent,
                 CreatedAt = input.CreatedAt
@@ -631,7 +632,7 @@ namespace FirstProject.Tests.CommentsAPI
             Assert.Multiple(() =>
             {
                 Assert.That(result.Id, Is.EqualTo(expected.Id));
-                Assert.That(result.UserId, Is.EqualTo(expected.UserId));
+                Assert.That(result.Username, Is.EqualTo(expected.Username));
                 Assert.That(result.ArticleId, Is.EqualTo(expected.ArticleId));
                 Assert.That(result.Content, Is.EqualTo(expected.Content));
                 Assert.That(result.CreatedAt, Is.EqualTo(expected.CreatedAt));
@@ -702,7 +703,7 @@ namespace FirstProject.Tests.CommentsAPI
             _context.Comments.Add(input);
             _context.SaveChanges();
 
-            var result = await _repository.GetUserIdByCommentId(commentId, default);
+            var result = await _repository.GetUsernameByCommentId(commentId, default);
 
             Assert.That(result, Is.EqualTo(userId));
         }
@@ -715,7 +716,7 @@ namespace FirstProject.Tests.CommentsAPI
 
             async Task Check()
             {
-                await _repository.GetUserIdByCommentId(commentId, default);
+                await _repository.GetUsernameByCommentId(commentId, default);
             }
 
             Assert.CatchAsync(Check);

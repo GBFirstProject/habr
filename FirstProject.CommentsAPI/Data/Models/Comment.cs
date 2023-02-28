@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FirstProject.CommentsAPI.Models
+namespace FirstProject.CommentsAPI.Data.Models
 {
     [Table("comments")]
     public class Comment

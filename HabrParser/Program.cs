@@ -1,6 +1,7 @@
 ﻿using HabrParser;
 using HabrParser.Database;
 using HabrParser.Database.Repositories;
+using HabrParser.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ try
 
             services.AddTransient<IArticlesRepository, ArticlesRepository>();
             services.AddTransient<ICommentsRepository, CommentsRepository>();
+            services.AddTransient<ICommentsCountRepository, CommentsCountRepository>();
 
             services.AddHostedService<Worker>();
         }).Build();

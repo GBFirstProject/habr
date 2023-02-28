@@ -144,11 +144,11 @@ async function render_article(article) {
     comments.forEach(comment => {
         textHTML += `
             <div>
-                <p class="section_p_attr">пользователь | ${get_datetime_string(comment['createdAt'])}</p>
+                <p class="section_p_attr">${comment.username} | ${get_datetime_string(comment['createdAt'])}</p>
                 <p class="article_text">${comment['content']}</p>
                 <div class="section_new_post_data">
-                    <p class="advanced_data">Лайки: ${comment['likes'].length}</p>
-                    <p class="advanced_data">Дизлайки: ${comment['dislikes'].length}</p>
+                    <p class="advanced_data">Лайки: ${comment['likes']}</p>
+                    <p class="advanced_data">Дизлайки: ${comment['dislikes']}</p>
                 </div>
             </div>`;        
     });

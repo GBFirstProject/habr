@@ -6,6 +6,7 @@ namespace HabrParser.Database
     public class CommentsDbContext : DbContext
     {
         public virtual DbSet<Comment> Comments { get; set; } = null!;
+        public virtual DbSet<CommentsCount> CommentsCount { get; set; } = null!;
 
         public CommentsDbContext(DbContextOptions<CommentsDbContext> options) : base(options)
         {

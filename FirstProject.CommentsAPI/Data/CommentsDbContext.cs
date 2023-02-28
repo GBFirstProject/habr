@@ -1,11 +1,12 @@
-﻿using FirstProject.CommentsAPI.Models;
+﻿using FirstProject.CommentsAPI.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FirstProject.CommentsAPI
+namespace FirstProject.CommentsAPI.Data
 {
     public class CommentsDbContext : DbContext
     {
         public virtual DbSet<Comment> Comments { get; set; } = null!;
+        public virtual DbSet<CommentsCount> CommentsCount { get; set; } = null!;
 
         public CommentsDbContext(DbContextOptions<CommentsDbContext> options) : base(options)
         {
