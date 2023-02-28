@@ -1,10 +1,11 @@
-﻿using FirstProject.CommentsAPI.Data.Models.DTO;
+﻿using FirstProject.CommentsAPI.Data.Models;
+using FirstProject.CommentsAPI.Data.Models.DTO;
 
 namespace FirstProject.CommentsAPI.Interfaces
 {
     public interface ICommentsService
     {
-        Task<IEnumerable<CommentDTO>> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts);
+        Task<IEnumerable<CommentJsonDTO>> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts);
         Task<int> GetCommentsCountByArticleId(Guid articleId, CancellationToken cts);
         Task<CommentDTO> CreateComment(Guid articleId, string username, string content, Guid replyTo, CancellationToken cts);
         Task<CommentDTO> LikeComment(Guid commentId, string username, CancellationToken cts);

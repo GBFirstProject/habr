@@ -15,7 +15,7 @@ namespace FirstProject.CommentsAPI
                 .ForMember(dto => dto.Likes, exp => exp.MapFrom(model => model.Likes.Count))
                 .ForMember(dto => dto.Dislikes, exp => exp.MapFrom(model => model.Dislikes.Count));
 
-            config.CreateMap<CreateRequest, CommentDTO>();
+            config.CreateMap<CommentDTO, CommentJsonDTO>();
         }
     }
 }

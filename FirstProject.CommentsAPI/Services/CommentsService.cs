@@ -1,4 +1,5 @@
-﻿using FirstProject.CommentsAPI.Data.Models;
+﻿using AutoMapper;
+using FirstProject.CommentsAPI.Data.Models;
 using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
 
@@ -8,20 +9,24 @@ namespace FirstProject.CommentsAPI.Services
     {
         private readonly ICommentsRepository _comments;
         private readonly ICommentsCountRepository _commentsCount;
+        private readonly IMapper _mapper;
 
-        public CommentsService(ICommentsRepository comments, ICommentsCountRepository commentsCount)
+        public CommentsService(ICommentsRepository comments, ICommentsCountRepository commentsCount, IMapper mapper)
         {
             _comments = comments;
             _commentsCount = commentsCount;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CommentDTO>> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts)
+        public async Task<IEnumerable<CommentJsonDTO>> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts)
         {
             try
             {
                 var result = await _comments.GetCommentsByArticleId(articleId, index, count, cts);
 
-                return result;
+                List<CommentJsonDTO> comments = await GenerateCommentJson(result, Guid.Empty, cts);
+
+                return comments;
             }
             catch
             {
@@ -139,6 +144,19 @@ namespace FirstProject.CommentsAPI.Services
             {
                 throw;
             }
+        }
+
+        private async Task<List<CommentJsonDTO>> GenerateCommentJson(IEnumerable<CommentDTO> result, Guid currentEntry, CancellationToken cts)
+        {
+            List<CommentJsonDTO> comments = new();
+            foreach (var entry in result.Where(s => s.ReplyTo == currentEntry))
+            {
+                var comment = _mapper.Map<CommentJsonDTO>(entry);
+                comment.Replies.AddRange(await GenerateCommentJson(result.Where(s => s.ReplyTo == entry.Id), entry.Id, cts));
+
+                comments.Add(comment);
+            }
+            return comments;
         }
     }
 }

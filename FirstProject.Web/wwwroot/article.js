@@ -142,15 +142,7 @@ async function render_article(article) {
     textHTML = '';
     const comments = await get_comments(id, page_number, page_size);//get_id()
     comments.forEach(comment => {
-        textHTML += `
-            <div>
-                <p class="section_p_attr">${comment.username} | ${get_datetime_string(comment['createdAt'])}</p>
-                <p class="article_text">${comment['content']}</p>
-                <div class="section_new_post_data">
-                    <p class="advanced_data">Лайки: ${comment['likes']}</p>
-                    <p class="advanced_data">Дизлайки: ${comment['dislikes']}</p>
-                </div>
-            </div>`;        
+        textHTML += child_comment(comment, 0);        
     });
     textHTML += '<div class="all_posts_pagination">';
     textHTML += render_comments_pagination(comment_count);
@@ -167,6 +159,25 @@ async function render_article(article) {
     if (comments_element != null)
         comments_element.addEventListener('click', render_comments(get_id(), page_number_comment + 1, page_size_comment));*/
     return true;
+}
+
+function child_comment(comment, margin) {
+    let children = '';
+    comment['replies'].forEach(entry => children += child_comment(entry, margin + 50));
+
+    let html = `
+            <div id="${comment.id}" style="margin-left: ${margin}px">
+                <hr/>
+                <p class="section_p_attr">${comment.username} | ${get_datetime_string(comment['createdAt'])}</p>
+                <p class="article_text">${comment['content']}</p>
+                <div class="section_new_post_data">
+                    <p class="advanced_data">Лайки: ${comment['likes']}</p>
+                    <p class="advanced_data">Дизлайки: ${comment['dislikes']}</p>
+                </div>
+                <hr/>
+                ${comment['replies'].length == 0 ? '' : `<div class="comment_children">${children}</div>` }                
+            </div>`
+    return html;
 }
 
 /*async function render_comments(id, page_number, page_size) {
