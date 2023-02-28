@@ -149,7 +149,7 @@ namespace HabrParser
 
         private async Task ParseComment(HtmlNode comment, Guid replyId, Guid articleId, CancellationToken cancellationToken)
         {
-            
+
             try
             {
                 var temp1 = comment.Element("article").Element("div").Elements("div");
@@ -160,7 +160,7 @@ namespace HabrParser
                 var content = temp1.First().Element("div").InnerHtml;
                 var rating = temp1.Last().FirstChild.FirstChild?.FirstChild.InnerText.Split(':').Last().TrimStart().TrimEnd();
 
-                //var likes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[0].Remove(0, 1));
+
                 int likes = 0;
                 if (!string.IsNullOrEmpty(rating))
                 {
@@ -175,7 +175,7 @@ namespace HabrParser
                         }
                     }
                 }
-                //var dislikes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[1].Remove(0, 1));
+
                 int dislikes = 0;
                 if (!string.IsNullOrEmpty(rating))
                 {
@@ -199,18 +199,18 @@ namespace HabrParser
                 Comment entry = new()
                 {
                     ArticleId = articleId,
-                    UserId = author_result.Id,
+                    Username = author_result.NickName,
                     Content = content,
                     CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date.Split('\n')[0]),
                     ReplyTo = replyId
                 };
                 for (int i = 0; i < likes; i++)
                 {
-                    entry.Likes.Add(Guid.NewGuid());
+                    entry.Likes.Add(Guid.NewGuid().ToString());
                 }
                 for (int i = 0; i < dislikes; i++)
                 {
-                    entry.Dislikes.Add(Guid.NewGuid());
+                    entry.Dislikes.Add(Guid.NewGuid().ToString());
                 }
                 await _commentsRepository.CreateComment(entry, cancellationToken);
 
@@ -226,7 +226,7 @@ namespace HabrParser
                     await ParseComment(replyComment, entry.Id, articleId, cancellationToken);
                 }
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }

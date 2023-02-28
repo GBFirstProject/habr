@@ -92,9 +92,9 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
                 var dto = _mapper.Map<CommentDTO>(request);
-                dto.UserId = userId;
+                dto.Username = username;
 
                 var result = await _repository.CreateComment(dto, cts);
 
@@ -121,8 +121,8 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var result = await _repository.LikeComment(request.CommentId, userId, cts);
+                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
+                var result = await _repository.LikeComment(request.CommentId, username, cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -146,8 +146,8 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var result = await _repository.DislikeComment(request.CommentId, userId, cts);
+                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
+                var result = await _repository.DislikeComment(request.CommentId, username, cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -235,12 +235,12 @@ namespace FirstProject.CommentsAPI.Controllers
         private async Task<bool> IsHasRights(Guid commentId, CancellationToken cts)
         {
             var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
-            var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+            var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
 
             if (role != "Admin" && role != "Moderator")
             {
-                var ownerId = await _repository.GetUserIdByCommentId(commentId, cts);
-                if (userId != ownerId)
+                var owner_username = await _repository.GetUsernameByCommentId(commentId, cts);
+                if (username != owner_username)
                 {
                     return false;
                 }

@@ -9,7 +9,12 @@ namespace FirstProject.CommentsAPI
     {
         public static void RegisterMaps(this IMapperConfigurationExpression config)
         {
-            config.CreateMap<CommentDTO, Comment>().ReverseMap();
+            config.CreateMap<CommentDTO, Comment>();
+
+            config.CreateMap<Comment, CommentDTO>()
+                .ForMember(dto => dto.Likes, exp => exp.MapFrom(model => model.Likes.Count))
+                .ForMember(dto => dto.Dislikes, exp => exp.MapFrom(model => model.Dislikes.Count));
+
             config.CreateMap<CreateRequest, CommentDTO>();
         }
     }

@@ -6,14 +6,15 @@ namespace FirstProject.CommentsAPI.Models
     [Table("comments")]
     public class Comment
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid Id { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
+        public Guid ArticleId { get; set; }
 
         [Required]
-        public Guid ArticleId { get; set; }
+        public string Username { get; set; } = string.Empty;
 
         [Required]
         public string Content { get; set; } = string.Empty;
@@ -22,9 +23,11 @@ namespace FirstProject.CommentsAPI.Models
         public DateTime CreatedAt { get; set; }
 
         [Required]
-        public List<Guid> Likes { get; set; } = new();
+        public List<string> Likes { get; set; } = new();
 
         [Required]
-        public List<Guid> Dislikes { get; set; } = new();
+        public List<string> Dislikes { get; set; } = new();
+
+        public Guid ReplyTo { get; set; }
     }
 }
