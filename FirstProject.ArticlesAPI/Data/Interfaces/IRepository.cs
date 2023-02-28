@@ -6,6 +6,7 @@ namespace FirstProject.ArticlesAPI.Data.Interfaces
     where TEntity : class
     {
         IQueryable<TEntity> Query(params Expression<Func<TEntity, object>>[] includes);
+        public Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);       
 
         Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken);
 

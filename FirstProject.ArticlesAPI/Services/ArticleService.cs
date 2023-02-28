@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FirstProject.ArticlesAPI.Data;
 using FirstProject.ArticlesAPI.Data.Interfaces;
 using FirstProject.ArticlesAPI.Exceptions;
 using FirstProject.ArticlesAPI.Models;
@@ -8,6 +9,7 @@ using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services.Interfaces;
 using FirstProject.ArticlesAPI.Utility;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace FirstProject.ArticlesAPI.Services
 {
@@ -107,12 +109,12 @@ namespace FirstProject.ArticlesAPI.Services
             return true;
         }
 
-        public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleDTO updateArticleDataDto, CancellationToken cancellationToken)
+        public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleRequest updateArticleDataDto, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<PreviewArticleDTO>> GetPreviewArticles(PagingParameters paging, CancellationToken cancellationToken)
+        public async Task<List<PreviewArticleDTO>> GetPreviewArticles(PagingParameters paging, CancellationToken cancellationToken)
         {
             Task<List<Article>> articles = _articleRepository.Query()
                 .AsNoTracking()
@@ -123,21 +125,103 @@ namespace FirstProject.ArticlesAPI.Services
                 .Include(a => a.Tags)
                 .Include(a => a.Hubs)
                 .Include(a => a.MetaData)
-                .Where(a => a.TimePublished > DateTime.Now.AddMonths(-1))
+                .Where(a => a.TimePublished > DateTime.UtcNow.AddMonths(-1) && a.IsPublished == true)
                 .OrderBy(on => on.TimePublished)
                 .Skip((paging.PageNumber - 1) * paging.PageSize)
                 .Take(paging.PageSize)
                 .ToListAsync(cancellationToken);
-            foreach(Article article in articles.Result)
+            /*foreach(Article article in articles.Result)
             {
                 if(article.LeadData.ImageUrl == null)
                 {
                     article.LeadData.ImageUrl = article.MetaData.ShareImageUrl;
                 }
-            }
+            }*/
             var articlePreviews = _mapper
                 .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
-            return articlePreviews;
+            return articlePreviews.ToList();
+        }
+        public async Task<SearchPreviewResultDTO> GetPreviewArticleByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken)
+        {
+            var hubEntity = await _hubsRepository
+                .Query()                
+                .AsNoTracking()
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(h => h.Title == hub, cancellationToken);
+            if (hubEntity == null)
+            {
+                var previews = new List<PreviewArticleDTO>();
+                return new SearchPreviewResultDTO()
+                {
+                    ResultData = previews,
+                    Count = 0
+                };
+            }
+            Task<List<Article>> articles = _articleRepository
+                .Query()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(a => a.Author)
+                .Include(a => a.LeadData)
+                .Include(a => a.Statistics)
+                .Include(a => a.Tags)
+                .Include(a => a.Hubs)
+                .Include(a => a.MetaData)
+                .Where(a => a.Hubs.Contains(hubEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished == true)
+                .OrderBy(on => on.TimePublished)                
+                .ToListAsync(cancellationToken);
+
+            var articlePreviews = _mapper
+                .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
+            return new SearchPreviewResultDTO()
+            {
+                ResultData = articlePreviews
+                    .Skip((paging.PageNumber - 1) * paging.PageSize)
+                    .Take(paging.PageSize)
+                    .ToList(),
+                Count = articlePreviews.Count()
+            };
+        }
+        public async Task<SearchPreviewResultDTO> GetPreviewArticleByTagLastMonthAsync(string tag, PagingParameters paging, CancellationToken cancellationToken)
+        {
+            var tagEntity = await _tagsRepository
+                .Query()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(t => t.TagName == tag, cancellationToken);
+            if (tagEntity == null)
+            {
+                var previews = new List<PreviewArticleDTO>();
+                return new SearchPreviewResultDTO()
+                {
+                    ResultData = previews,
+                    Count = 0
+                };                
+            }
+            Task<List<Article>> articles = _articleRepository
+                .Query()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(a => a.Author)
+                .Include(a => a.LeadData)
+                .Include(a => a.Statistics)
+                .Include(a => a.Tags)
+                .Include(a => a.Hubs)
+                .Include(a => a.MetaData)
+                .Where(a => a.Tags.Contains(tagEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished == true)
+                .OrderBy(on => on.TimePublished)
+                .ToListAsync(cancellationToken);
+
+            var articlePreviews = _mapper
+                .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
+            return new SearchPreviewResultDTO()
+            {
+                ResultData = articlePreviews
+                    .Skip((paging.PageNumber - 1) * paging.PageSize)
+                    .Take(paging.PageSize)
+                    .ToList(),
+                Count = articlePreviews.Count()
+            };
         }
 
         public int GetArticlesCount(CancellationToken cancellationToken)
@@ -150,6 +234,19 @@ namespace FirstProject.ArticlesAPI.Services
                 .ToListAsync(cancellationToken);
             if (articles == null) return 0;
             else return articles.Result.Count;
+        }
+        public async Task<List<ArticlesByAuthorDTO>> GetArticlesTitlesByAuthorId(Guid authorId, CancellationToken cancellationToken)
+        {
+            Task<List<Article>> articles = _articleRepository.Query()
+               .AsNoTracking()
+               .AsSplitQuery()
+               .Where(a => a.AuthorId == authorId)
+               .OrderBy(on => on.TimePublished)
+               .ToListAsync(cancellationToken);
+
+            var articlesByAuthor = _mapper
+                .Map<List<ArticlesByAuthorDTO>>(articles.Result);
+            return articlesByAuthor;
         }
 
         private async Task<Tag> AddTag(Tag tag, CancellationToken cancellation)

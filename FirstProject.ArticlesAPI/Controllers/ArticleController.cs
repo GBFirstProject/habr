@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FirstProject.ArticlesAPI.Models.DTO;
 using FirstProject.ArticlesAPI.Models.Requests;
+using FirstProject.ArticlesAPI.Services;
 using FirstProject.ArticlesAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,25 +13,20 @@ namespace FirstProject.ArticlesAPI.Controllers
     /// Сервис работы со статьями
     /// </summary>
     [Authorize]
-    [Route("api/articles")]
-    [ApiController]
-    public class ArticleController : ControllerBase
+    [Route("api/articles")]    
+    public class ArticleController : BaseController
     {
         private readonly IArticleService _articlesService;
-        private readonly ILogger<ArticleController> _logger;
-        private readonly IMapper _mapper;
-
+        
         /// <summary>
         /// Конструктор сервиса работы со статьями
         /// </summary>
         /// <param name="articlesService"></param>
         /// <param name="logger"></param>
         /// <param name="mapper"></param>
-        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper)
+        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper) : base(logger,mapper) 
         {
-            _articlesService = articlesService;
-            _logger = logger;
-            _mapper = mapper;
+            _articlesService = articlesService;            
         }
 
         /// <summary>
@@ -108,6 +105,58 @@ namespace FirstProject.ArticlesAPI.Controllers
         }
 
         /// <summary>
+        /// выборка статей из базы по тэгам
+        /// </summary>
+        /// <param name="paging"></param>
+        /// <param name="tag"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet("get-by-tag")]
+        public async Task<IActionResult> GetArticlesPreviewByTag([FromQuery] PagingParameters paging, string tag, CancellationToken token)
+        {
+            try
+            {
+                var searchArticlesResult = await _articlesService.GetPreviewArticleByTagLastMonthAsync(tag, paging, token);                
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = searchArticlesResult
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// выборка статей из базы по хабам
+        /// </summary>
+        /// <param name="paging"></param>
+        /// <param name="hub"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [HttpGet("get-by-hub")]
+        public async Task<IActionResult> GetArticlesPreviewByHub([FromQuery] PagingParameters paging, string hub, CancellationToken token)
+        {
+            try
+            {
+                var searchArticlesResult = await _articlesService.GetPreviewArticleByHubLastMonthAsync(hub, paging, token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = searchArticlesResult
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
         /// Получение количества статей созданных за последний месяц
         /// </summary>
         /// <returns></returns>
@@ -154,18 +203,70 @@ namespace FirstProject.ArticlesAPI.Controllers
             {
                 return Error(ex);
             }
-        }        
+        }
 
-        private IActionResult Error(Exception ex)
+        /// <summary>
+        /// Обновляет статью (пока не реализовано)
+        /// </summary>
+        /// <param name="id">id обновляемой статьи</param>
+        /// <param name="updateRequest">тело обновленной статьи</param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        [HttpPut("update-article")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateArticle(Guid id, [FromBody] UpdateArticleRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogError(ex, "Исключение");
-            var response = new ResponseDTO()
+            try
             {
-                IsSuccess = false,
-                DisplayMessage = "Создано исключение"
-            };
-            response.ErrorMessage = ex.Message;
-            return Ok(response);
+                await _articlesService.UpdateArticleDataAsync(updateRequest, cancellation);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Удаляет статью (пока не реализовано)
+        /// </summary>
+        /// <param name="id">id статьи на удаление</param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        [HttpDelete("delete-article")]
+        [AllowAnonymous]
+        public async Task<IActionResult> DeleteArticle(Guid id, CancellationToken cancellation)
+        {
+            try
+            {
+                await _articlesService.DeleteArticleAsync(id, cancellation);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("titlesByAuthorId")]
+        public async Task<IActionResult> GetArticlesTitlesByAuthorId([FromQuery] Guid authorId, CancellationToken cancellation)
+        {
+            try
+            {
+                var articlesByAuthor = await _articlesService.GetArticlesTitlesByAuthorId(authorId, cancellation);
+
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = articlesByAuthor
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
         }
     }
 }

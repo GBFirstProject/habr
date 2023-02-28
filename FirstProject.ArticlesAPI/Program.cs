@@ -43,6 +43,8 @@ internal class Program
         builder.Services.AddTransient<IRepository<Tag>, Repository<Tag>>();
         builder.Services.AddTransient<IRepository<LeadData>, Repository<LeadData>>();
         builder.Services.AddTransient<IArticleService, ArticleService>();
+        builder.Services.AddTransient<IHubService, HubService>();
+        builder.Services.AddTransient<ITagService, TagService>();
         builder.Services.AddScoped<IArticleImageService, ArticleImageService>();
         //builder.Services.AddTransient<ServiceClass<IWebHostEnvironment>>();
 
@@ -82,6 +84,7 @@ internal class Program
             });
 
         var app = builder.Build();
+
         app.UseCors();
 
         if (app.Environment.IsDevelopment())
