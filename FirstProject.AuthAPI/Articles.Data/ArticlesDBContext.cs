@@ -30,6 +30,15 @@ namespace FirstProject.AuthAPI.Articles.Data
                     }
                 }
             }
+
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.Author)
+                .WithMany(a => a.Articles)
+                .HasForeignKey(a => a.AuthorId);
+            modelBuilder.Entity<Author>()
+              .HasMany(a => a.Articles)
+              .WithOne(article => article.Author);
+
             modelBuilder.Entity<Article>()
                 .HasMany(t => t.Tags)
                 .WithMany(t => t.Articles);

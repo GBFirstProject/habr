@@ -27,14 +27,15 @@ namespace FirstProject.AuthAPI.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly ArticlesDBContext _articlesDbContext;
+
  
         public string ReturnUrl { get; set; }
         public IList<AuthenticationScheme> ExternalLogins { get; set; }               
-        public int UserCountInArticles { get; set; }
-        private CancellationTokenSource _cts;
+        public int UserCountInArticles { get; set; }        
         public bool IsParsing { get; set; }
         public int ProgressPercent { get; set; }
-        
+        public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
         public RapseArticleUsersModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
@@ -69,7 +70,7 @@ namespace FirstProject.AuthAPI.Areas.Identity.Pages.Account
 
                 var user = new ApplicationUser 
                 { 
-                    UserName = author.NickName, 
+                    UserName = $"{author.NickName}@gmail.com", 
                     Email = $"{author.NickName}@gmail.com",
                     FirstName = author.FirstName,
                     LastName = author.LastName
@@ -79,13 +80,13 @@ namespace FirstProject.AuthAPI.Areas.Identity.Pages.Account
                 {
                     //_logger.LogInformation("User created a new account with password.");
                     await _userManager.AddToRoleAsync(user, Config.User);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    /*var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
                         values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+                        protocol: Request.Scheme);*/
 
                     //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                     //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");

@@ -1,0 +1,26 @@
+﻿@page
+@model FirstProject.AuthAPI.Areas.Identity.Pages.Account.ParseUsersFromArticlesModel
+@using System.Threading.Tasks
+
+
+<h1>@ViewData["Title"]</h1>
+
+<div>
+    <form id="parseArticleUserForm" method="post">
+        <h5>Количество авторов в базе статей (ArticlesDB): @Model.UserCountInArticles</h5>
+            <button id="parseAuthorsSubmit" type="submit" class="btn btn-danger">Парсить</button>
+    </form>
+</div>
+
+<div>
+    <form id="parseArticleUserCancel" method="post">
+        <p>Progress: <span id="progress">@Model.Progress</span></p>
+        <button id="cancel-btn" type="reset" class="btn btn-danger" disabled asp-page-handler="Cancel">Cancel</button>
+    </form>
+</div>
+
+<div>
+    <p>@Model.MigrationResult</p>
+</div>
+
+

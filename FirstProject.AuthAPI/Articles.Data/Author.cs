@@ -21,6 +21,7 @@ namespace FirstProject.AuthAPI.Articles.Data
         public float Rating { get; set; } = 0;        
         public string? Logo { get; set; }
         public string? Title { get; set; }
-        public string? Link { get; set; }                
+        public string? Link { get; set; }
+        public List<Article> Articles { get; set; }
     }
 }

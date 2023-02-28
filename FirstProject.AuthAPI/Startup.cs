@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Linq;
 using FirstProject.AuthAPI.Repository;
 using FirstProject.AuthAPI.Articles.Data;
+using Syncfusion.Blazor;
 
 namespace FirstProject.AuthAPI
 {
@@ -37,6 +38,7 @@ namespace FirstProject.AuthAPI
             services.AddDbContext<ArticlesDBContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("Articles")));
+            services.AddSyncfusionBlazor();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -63,6 +65,7 @@ namespace FirstProject.AuthAPI
 
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IDbInitializer, DbInitializer>();
+            services.AddScoped<IMigrationService, MigrationService>();
 
             services.AddLogging(options =>
             {
