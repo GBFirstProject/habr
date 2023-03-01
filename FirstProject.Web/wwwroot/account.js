@@ -99,7 +99,7 @@ function render_data() {
                                     <li>Статья 3</li>                            
                                 </ul>
 
-                            <a href="">Добавить статью</a>
+                            <a href="${window.location.origin}/create_article.html">Добавить статью</a>
                             <a href="">Все статьи</a>
                         </div>
                         <div class="section_account_flex">
