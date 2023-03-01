@@ -84,6 +84,8 @@ namespace FirstProject.ArticlesAPI.Data
                 HasIndex(h => h.Title);
 
             modelBuilder.Entity<Author>()
+            .HasAlternateKey(a => a.NickName);
+            modelBuilder.Entity<Author>()
                .HasMany(a => a.Articles)
                .WithOne(article => article.Author);
             modelBuilder.Entity<Author>()
