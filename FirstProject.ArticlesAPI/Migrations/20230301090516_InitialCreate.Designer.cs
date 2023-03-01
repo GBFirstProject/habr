@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FirstProject.ArticlesAPI.Migrations
 {
     [DbContext(typeof(ArticlesDBContext))]
-    [Migration("20230222140119_AddIsPublished")]
-    partial class AddIsPublished
+    [Migration("20230301090516_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,11 +61,19 @@ namespace FirstProject.ArticlesAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AuthorNickName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("CommentsEnabled")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Dislikes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
@@ -76,6 +84,10 @@ namespace FirstProject.ArticlesAPI.Migrations
 
                     b.Property<Guid>("LeadDataId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Likes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("MetaDataId")
                         .HasColumnType("uniqueidentifier");
@@ -116,11 +128,9 @@ namespace FirstProject.ArticlesAPI.Migrations
 
             modelBuilder.Entity("FirstProject.ArticlesAPI.Models.Author", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("nvarchar(max)");
@@ -159,6 +169,8 @@ namespace FirstProject.ArticlesAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("NickName");
+
                     b.HasIndex("NickName");
 
                     b.ToTable("Authors");
@@ -172,8 +184,8 @@ namespace FirstProject.ArticlesAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Title")
                         .IsRequired()

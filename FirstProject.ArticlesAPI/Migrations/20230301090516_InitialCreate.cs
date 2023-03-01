@@ -15,8 +15,7 @@ namespace FirstProject.ArticlesAPI.Migrations
                 name: "Authors",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     hubrId = table.Column<int>(type: "int", nullable: false),
                     NickName = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -31,6 +30,7 @@ namespace FirstProject.ArticlesAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Authors", x => x.Id);
+                    table.UniqueConstraint("AK_Authors_NickName", x => x.NickName);
                 });
 
             migrationBuilder.CreateTable(
@@ -124,7 +124,7 @@ namespace FirstProject.ArticlesAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AuthorId = table.Column<int>(type: "int", nullable: false)
+                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -150,8 +150,12 @@ namespace FirstProject.ArticlesAPI.Migrations
                     CommentsEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LeadDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MetaDataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AuthorId = table.Column<int>(type: "int", nullable: false),
-                    StatisticsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StatisticsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsPublished = table.Column<bool>(type: "bit", nullable: false),
+                    AuthorNickName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Likes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Dislikes = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

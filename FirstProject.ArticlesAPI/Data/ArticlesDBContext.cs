@@ -42,6 +42,12 @@ namespace FirstProject.ArticlesAPI.Data
                             .Property(property.Name)
                             .HasConversion(new ValueConverter<List<string>, string>(v => JsonConvert.SerializeObject(v), v => JsonConvert.DeserializeObject<List<string>>(v)));
                     }
+                    if (property.PropertyType == typeof(List<Guid>))
+                    {
+                        modelBuilder.Entity(entity.Name)
+                            .Property(property.Name)
+                            .HasConversion(new ValueConverter<List<Guid>, string>(v => JsonConvert.SerializeObject(v), v => JsonConvert.DeserializeObject<List<Guid>>(v)));
+                    }
                 }
             }
 
@@ -84,7 +90,7 @@ namespace FirstProject.ArticlesAPI.Data
                 HasIndex(h => h.Title);
 
             modelBuilder.Entity<Author>()
-            .HasAlternateKey(a => a.NickName);
+                .HasAlternateKey(a => a.NickName);
             modelBuilder.Entity<Author>()
                .HasMany(a => a.Articles)
                .WithOne(article => article.Author);
