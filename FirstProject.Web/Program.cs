@@ -25,6 +25,7 @@ builder.Services
         options.DefaultScheme = "Cookies";
         options.DefaultChallengeScheme = "oidc";
         options.DefaultSignOutScheme = "oidc";
+
     })
     .AddCookie("Cookies")
     .AddOpenIdConnect("oidc", options =>
