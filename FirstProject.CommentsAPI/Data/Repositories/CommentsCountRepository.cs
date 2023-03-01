@@ -38,6 +38,34 @@ namespace FirstProject.CommentsAPI.Data.Repositories
             }
         }
 
+        public async Task<Dictionary<Guid, int>> GetCount(Guid[] articleIds, CancellationToken cts)
+        {
+            try
+            {
+
+                //if (articleIds == Guid.Empty)
+                //{
+                //    throw new ArgumentException("Article Id was empty");
+                //}
+
+                var result = await _context.CommentsCount
+                    .AsNoTracking()
+                    .Where(s => articleIds.Contains(s.ArticleId))
+                    .ToDictionaryAsync(s => s.ArticleId, a => a.Count, cts);
+
+                if (result == null)
+                {
+                    throw new Exception("Article Ids not found");
+                }
+
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public async Task<int> DecreaseCount(Guid articleId, CancellationToken cts)
         {
             try

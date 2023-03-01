@@ -38,7 +38,21 @@ namespace FirstProject.CommentsAPI.Services
         {
             try
             {
-                var result = await _comments.GetCommentsCountByArticleId(articleId, cts);
+                var result = await _commentsCount.GetCount(articleId, cts);
+
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<Dictionary<Guid,int>> GetCommentsCountByArticleId(Guid[] articleIds, CancellationToken cts)
+        {
+            try
+            {
+                var result = await _commentsCount.GetCount(articleIds, cts);
 
                 return result;
             }

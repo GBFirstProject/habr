@@ -82,6 +82,32 @@ namespace FirstProject.CommentsAPI.Controllers
         }
 
         /// <summary>
+        /// Получение количества комментариев по Guid статьи
+        /// </summary>
+        /// <param name="request">Guid статей</param>
+        /// <param name="cts"></param>
+        /// <returns>Количество комментариев</returns>
+        [AllowAnonymous]
+        [HttpPost("getcount")]
+        public async Task<IActionResult> GetCommentsCountByArticleId([FromBody]MultiplyCommentsCountRequest request, CancellationToken cts)
+        {
+            try
+            {
+                var result = await _service.GetCommentsCountByArticleId(request.ArticleIds, cts);
+
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
         /// Создание комментария
         /// </summary>
         /// <param name="request">Создаваемый комментарий</param>
