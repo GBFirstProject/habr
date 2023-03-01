@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using FirstProject.AuthAPI.Models;
 using HabrParser.Database;
 using HabrParser.Interfaces;
 using HabrParser.Models.APIArticles;
 using HabrParser.Models.APIComments;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
@@ -19,12 +22,23 @@ namespace HabrParser
         private readonly ICommentsCountRepository _countRepository;
         private readonly IMapper _mapper;
 
-        public Worker(IArticlesRepository articlesRepository, ICommentsRepository commentsRepository, IMapper mapper, ICommentsCountRepository countRepository)
+        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+
+        public Worker(
+            IArticlesRepository articlesRepository,
+            ICommentsRepository commentsRepository,
+            ICommentsCountRepository countRepository,
+            IMapper mapper,
+            IUserStore<ApplicationUser> userStore,
+            IPasswordHasher<ApplicationUser> passwordHasher)
         {
             _articlesRepository = articlesRepository;
             _commentsRepository = commentsRepository;
-            _mapper = mapper;
             _countRepository = countRepository;
+            _mapper = mapper;
+            _userStore = userStore;
+            _passwordHasher = passwordHasher;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -105,6 +119,9 @@ namespace HabrParser
                                     Console.WriteLine($"ст. № {articleId} - {data.articlesList.articlesList.article.titleHtml}");
                                     Article article = _mapper.Map<Models.Article, Article>(data.articlesList.articlesList.article);
 
+                                    var guid = await GetUserAndSaveToDb(article.Author, cancellationToken);
+                                    article.Author.Id = guid;
+                                    
                                     var result = await _articlesRepository.CreateHabrArticle(article, _levelType, cancellationToken);
                                     await GetCommentsAndSaveToDb(result, cancellationToken);
                                 }
@@ -235,6 +252,42 @@ namespace HabrParser
             {
                 Console.WriteLine(ex.ToString());
             }
+        }
+
+        private async Task<Guid> GetUserAndSaveToDb(Author author, CancellationToken cancellationToken)
+        {
+            return await CreateUser(author.NickName, author.FirstName, author.LastName, cancellationToken);
+        }
+
+        private async Task<Guid> CreateUser(string username,string firstname,string lastname,CancellationToken cancellationToken)
+        {
+            var entry = await _userStore.FindByNameAsync(username.Normalize(), cancellationToken);
+            if (entry != null)
+            {
+                return Guid.Parse(entry.Id);
+            }
+
+            var user = new ApplicationUser()
+            {
+                UserName = username,
+                NormalizedUserName = username.Normalize(),
+                FirstName = firstname,
+                LastName = lastname,
+                Email = username.ToLower() + "@gmail.com",
+                NormalizedEmail = (username.ToLower() + "@gmail.com").Normalize(),
+                EmailConfirmed = true,
+                LockoutEnabled = false,
+                IsBlocked = false,
+                PhoneNumber = "88005553535",
+                PhoneNumberConfirmed = true,
+                TwoFactorEnabled = false
+            };
+
+            await _userStore.CreateAsync(user, cancellationToken);
+            user.PasswordHash = _passwordHasher.HashPassword(user, "P@ssw0rd");
+            await _userStore.UpdateAsync(user, cancellationToken);
+
+            return Guid.Parse(user.Id);
         }
     }
 }

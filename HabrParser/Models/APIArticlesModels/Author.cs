@@ -1,12 +1,14 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HabrParser.Models.APIArticles
 {
     [Table("Authors")]
-    public class Author : BaseModel<Guid>
+    public class Author
     {
+        [Key]
+        public Guid Id { get; set; }
+
         public int hubrId { get; set; }        
         [Required]
         public string NickName { get; set; } = string.Empty;
