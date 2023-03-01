@@ -1,6 +1,7 @@
 ﻿using FirstProject.Messages;
 using FirstProject.NotificationAPI.Producers;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,22 +9,58 @@ namespace FirstProject.NotificationAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+   
     public class NotificationsController : ControllerBase
     {
-        private readonly ModeratorNotifier notifier;
+        private readonly Notifier notifier;
 
-        public NotificationsController(ModeratorNotifier notifier)
+        public NotificationsController(Notifier notifier)
         {
             this.notifier=notifier;
         }
 
          [HttpPost]
+         [Route("moderatorRequested")]
          
-         public Task<bool> NotifyModerator(Notification notification)
+         public Task<bool> ModeratorRequested(ModeratorRequested notification)
          {
-            var result = notifier.Notify(notification);
+            var result = notifier.PublishModeratorRequested(notification);
             return result;          
          }
+
+        [HttpPost]
+        [Route("liked")]
+
+        public Task<bool> ArticleLiked(ArticleLiked notification)
+        {
+            
+            var result = notifier.PublishArticleLiked(notification);
+            return result;
+        }
+
+        [HttpPost]
+        [Route("disliked")]
+
+        public Task<bool> ArticleDisliked(ArticleDisliked notification)
+        {
+            var result = notifier.PublishArticleDisliked(notification); 
+            return result;
+        }
+
+
+        [HttpPost]
+        [Route("commented")]
+
+        public Task<bool> ArticleCommented(ArticleCommented notification)
+        {
+            var result = notifier.PublishArticleCommented(notification);
+            return result;
+        }
+
+
+
+
 
 
 

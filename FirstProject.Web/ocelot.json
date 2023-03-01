@@ -1,4 +1,5 @@
 ﻿{
+
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/comments?articleId={articleId}&index={index}&count={count}",
@@ -6,7 +7,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments?articleId={articleId}&index={index}&count={count}",
@@ -20,7 +21,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments/getCount?articleId={articleId}",
@@ -34,9 +35,11 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
+
       ],
+
       "UpstreamPathTemplate": "/comments",
       "UpstreamHttpMethod": [
         "POST"
@@ -54,7 +57,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments/like",
@@ -74,7 +77,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments/dislike",
@@ -94,7 +97,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments/change",
@@ -114,7 +117,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments?id={id}",
@@ -134,7 +137,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/articles/get-by-id?articleId={articleId}",
@@ -148,7 +151,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/articles/get-preview-by-id?articleId={articleId}",
@@ -162,7 +165,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/articles?PageNumber={PageNumber}&PageSize={PageSize}",
@@ -176,7 +179,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/articles/get-by-tag?PageNumber={PageNumber}&PageSize={PageSize}&tag={tag}",
@@ -218,7 +221,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/articles/add-article",
@@ -238,7 +241,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/articles/update-article?id={id}",
@@ -278,7 +281,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/articles/titlesByAuthorId?authorId={authorId}",
@@ -312,7 +315,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/hub/top?count={count}",
@@ -321,14 +324,18 @@
       ]
     },
     {
+
       "DownstreamPathTemplate": "/api/Tag/top?count={count}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
+
+
+
       "UpstreamPathTemplate": "/tag/top?count={count}",
       "UpstreamHttpMethod": [
         "GET"

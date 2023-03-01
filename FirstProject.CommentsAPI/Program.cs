@@ -32,6 +32,7 @@ builder.Services.AddAutoMapper(config =>
 });
 
 builder.Services.AddTransient<ICommentsRepository, CommentsRepository>();
+builder.Services.AddHttpClient();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
