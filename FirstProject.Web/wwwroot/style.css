@@ -378,35 +378,3 @@ main {
 	margin-bottom: 0.5em;
 	margin-right: 0.5em;
 }
-
-.container_flex_row {
-	display: flex;
-	flex-direction: row;
-	min-height: 100vh;
-}
-
-.container_flex_column {
-	display: flex;
-	flex-direction: column;
-	min-height: 100vh;
-	margin-bottom: 1em;
-	padding-left: 10%;
-	/*padding-top: 1em;*/
-}
-
-.article_field {
-	margin-bottom: 1em;
-	width: 50%;
-}
-
-.article_text {
-	height: 5em;
-}
-
-.page_panel {
-	display: flex;
-	flex-direction: row;
-	/*margin-bottom: 0.1em;*/
-	padding-left: 10%;
-	padding-top: 1em;
-}
