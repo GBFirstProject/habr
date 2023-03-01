@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FirstProject.ArticlesAPI.Data;
 using FirstProject.ArticlesAPI.Data.Interfaces;
 using FirstProject.ArticlesAPI.Exceptions;
@@ -9,6 +10,7 @@ using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services.Interfaces;
 using FirstProject.ArticlesAPI.Utility;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using System.Linq;
 
 namespace FirstProject.ArticlesAPI.Services
@@ -101,22 +103,103 @@ namespace FirstProject.ArticlesAPI.Services
             return articleModel.Id;
         }       
 
-        public async Task<bool> DeleteArticleAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteArticleAsync(Guid id, Guid userId, CancellationToken cancellationToken)
         {
             var article = await _articleRepository.GetByIdAsync(cancellationToken, id);
+            // Check that the article exists and that the user is its author
+            if (article == null)
+            {
+                throw new ArgumentException($"Статья {article.Id} не найдена");
+            }
+            if (article.AuthorId != userId)
+            {
+                throw new UnauthorizedAccessException($"Пользователь {userId} не является автором статьи {article.Id}");
+            }
             _articleRepository.Delete(article);
             await _articleRepository.SaveChangesAsync(cancellationToken);
             return true;
         }
-
-        public Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleRequest updateArticleDataDto, CancellationToken cancellationToken)
+                
+        public async Task<FullArticleDTO> UpdateArticleDataAsync(UpdateArticleRequest updateArticleDataDto, Guid userId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            // Get the article by its ID
+            var article = await _articleRepository.Query()
+                .Include(a => a.Author)
+                .Include(a => a.Tags)
+                .Include(a => a.Hubs)
+                .Include(a => a.LeadData)
+                .FirstOrDefaultAsync(a => a.Id == updateArticleDataDto.ArticleId, cancellationToken);
+
+            // Check that the article exists and that the user is its author
+            if (article == null)
+            {
+                throw new ArgumentException($"Статья {updateArticleDataDto.ArticleId} не найдена");
+            }
+            if (article.AuthorId != userId)
+            {
+                throw new UnauthorizedAccessException($"Пользователь {userId} не является автором статьи {updateArticleDataDto.ArticleId}");
+            }
+
+            // Update the article properties based on the DTO
+            article.Title = updateArticleDataDto.Title;
+            article.TextHtml = updateArticleDataDto.TextHtml;
+            article.LeadData.TextHtml = LeadDataUtilityService.GetLeadDataDescription(updateArticleDataDto.TextHtml);
+            article.LeadData.ImageUrl = string.IsNullOrEmpty(updateArticleDataDto.ImageUrl)
+                ? GenerateAutomaticImageUrl()
+                : updateArticleDataDto.ImageUrl;
+            article.CommentsEnabled = updateArticleDataDto.CommentsEnabled;
+            article.IsPublished = updateArticleDataDto.IsPublished;
+
+            // Update the article's tags and hubs
+            article.Tags.Clear();
+            article.Tags.AddRange(await GetOrCreateTagsAsync(updateArticleDataDto.Tags, cancellationToken));
+            article.Hubs.Clear();
+            article.Hubs.AddRange(await GetOrCreateHubsAsync(updateArticleDataDto.Hubs, cancellationToken));
+
+            // Save the changes to the database
+            await _articleRepository.SaveChangesAsync(cancellationToken);
+
+            return _mapper.Map<FullArticleDTO>(article);            
         }
 
+        private async Task<List<Tag>> GetOrCreateTagsAsync(List<string> tagNames, CancellationToken cancellationToken)
+        {
+            var existingTags = await _tagsRepository.Query()
+                .Where(t => tagNames.Contains(t.TagName))
+                .ToListAsync(cancellationToken);
+
+            var newTagNames = tagNames.Except(existingTags.Select(t => t.TagName));
+            var newTags = newTagNames.Select(t => new Tag { TagName = t }).ToList();
+
+            await _tagsRepository.AddRangeAsync(newTags, cancellationToken);
+            await _tagsRepository.SaveChangesAsync(cancellationToken);
+
+            return existingTags.Concat(newTags).ToList();
+        }
+
+        private async Task<List<Hub>> GetOrCreateHubsAsync(List<string> hubNames, CancellationToken cancellationToken)
+        {
+            var existingHubs = await _hubsRepository.Query()
+                .Where(h => hubNames.Contains(h.Title))
+                .ToListAsync(cancellationToken);
+
+            var newHubNames = hubNames.Except(existingHubs.Select(h => h.Title));
+            var newHubs = newHubNames.Select(h => new Hub { Title = h }).ToList();
+
+            await _hubsRepository.AddRangeAsync(newHubs, cancellationToken);
+            await _hubsRepository.SaveChangesAsync(cancellationToken);
+
+            return existingHubs.Concat(newHubs).ToList();
+        }
+
+        private string GenerateAutomaticImageUrl()
+        {
+            // Generate a random URL for the image
+            return $"https://example.com/images/{Guid.NewGuid()}.jpg";
+        }
         public async Task<List<PreviewArticleDTO>> GetPreviewArticles(PagingParameters paging, CancellationToken cancellationToken)
         {
-            Task<List<Article>> articles = _articleRepository.Query()
+            var articles = await _articleRepository.Query()
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Include(a => a.Author)
@@ -129,11 +212,13 @@ namespace FirstProject.ArticlesAPI.Services
                 .OrderByDescending(on => on.TimePublished)
                 .Skip((paging.PageNumber - 1) * paging.PageSize)
                 .Take(paging.PageSize)                
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
             
             var articlePreviews = _mapper
-                .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
-            return articlePreviews.ToList();
+                .Map<List<PreviewArticleDTO>>(articles);
+            return articlePreviews;
         }
         public async Task<SearchPreviewResultDTO> GetPreviewArticleByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken)
         {
@@ -151,7 +236,7 @@ namespace FirstProject.ArticlesAPI.Services
                     Count = 0
                 };
             }
-            Task<List<Article>> articles = _articleRepository
+            /*Task<List<Article>> articles = _articleRepository
                 .Query()
                 .AsNoTracking()
                 .AsSplitQuery()
@@ -174,6 +259,42 @@ namespace FirstProject.ArticlesAPI.Services
                     .Take(paging.PageSize)
                     .ToList(),
                 Count = articlePreviews.Count()
+            };*/
+            var articles = await _articleRepository
+                .Query()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Where(a => a.Hubs.Contains(hubEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished)
+                .OrderByDescending(on => on.TimePublished)
+                .Skip((paging.PageNumber - 1) * paging.PageSize)
+                .Take(paging.PageSize)
+                .Select(a => new PreviewArticleDTO
+                {
+                    Id = a.Id,
+                    AuthorId = a.AuthorId,
+                    AuthorNickName = a.AuthorNickName,
+                    Title = a.Title,
+                    Text = a.LeadData.TextHtml,
+                    ImageURL = a.LeadData.ImageUrl,
+                    TimePublished = DateTime.Parse(a.TimePublished.ToString()),
+                    ReadingCount = a.Statistics.ReadingCount,
+                    Tags = a.Tags.Select(t => t.TagName).ToList(),
+                    Hubs = a.Hubs.Select(h => h.Title).ToList(),
+                    HubrId = a.hubrId
+                })
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            return new SearchPreviewResultDTO()
+            {
+                ResultData = articles,
+                Count = await _articleRepository
+                    .Query()
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .Where(a => a.Hubs.Contains(hubEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished)
+                    .CountAsync(cancellationToken)
+                    .ConfigureAwait(false)
             };
         }
         public async Task<SearchPreviewResultDTO> GetPreviewArticleByTagLastMonthAsync(string tag, PagingParameters paging, CancellationToken cancellationToken)
@@ -182,7 +303,8 @@ namespace FirstProject.ArticlesAPI.Services
                 .Query()
                 .AsNoTracking()
                 .AsSplitQuery()
-                .FirstOrDefaultAsync(t => t.TagName == tag, cancellationToken);
+                .FirstOrDefaultAsync(t => t.TagName == tag, cancellationToken)
+                .ConfigureAwait(false);
             if (tagEntity == null)
             {
                 var previews = new List<PreviewArticleDTO>();
@@ -192,7 +314,7 @@ namespace FirstProject.ArticlesAPI.Services
                     Count = 0
                 };                
             }
-            Task<List<Article>> articles = _articleRepository
+            /*List<Article> articles = await _articleRepository
                 .Query()
                 .AsNoTracking()
                 .AsSplitQuery()
@@ -204,10 +326,11 @@ namespace FirstProject.ArticlesAPI.Services
                 .Include(a => a.MetaData)
                 .Where(a => a.Tags.Contains(tagEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished == true)
                 .OrderByDescending(on => on.TimePublished)
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             var articlePreviews = _mapper
-                .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
+                .Map<IEnumerable<PreviewArticleDTO>>(articles);
             return new SearchPreviewResultDTO()
             {
                 ResultData = articlePreviews
@@ -215,18 +338,53 @@ namespace FirstProject.ArticlesAPI.Services
                     .Take(paging.PageSize)
                     .ToList(),
                 Count = articlePreviews.Count()
+            };*/
+            var articles = await _articleRepository
+                .Query()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Where(a => a.Tags.Contains(tagEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished)
+                .OrderByDescending(on => on.TimePublished)
+                .Skip((paging.PageNumber - 1) * paging.PageSize)
+                .Take(paging.PageSize)
+                .Select(a => new PreviewArticleDTO
+                {
+                    Id = a.Id,
+                    AuthorId= a.AuthorId,
+                    AuthorNickName = a.AuthorNickName,
+                    Title = a.Title,
+                    Text = a.LeadData.TextHtml,
+                    ImageURL = a.LeadData.ImageUrl,
+                    TimePublished = DateTime.Parse(a.TimePublished.ToString()),
+                    ReadingCount = a.Statistics.ReadingCount,
+                    Tags = a.Tags.Select(t => t.TagName).ToList(),
+                    Hubs = a.Hubs.Select(h => h.Title).ToList(),
+                    HubrId = a.hubrId
+                })
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            return new SearchPreviewResultDTO()
+            {
+                ResultData = articles,
+                Count = await _articleRepository
+                    .Query()
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .Where(a => a.Tags.Contains(tagEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished)
+                    .CountAsync(cancellationToken)
+                    .ConfigureAwait(false)
             };
         }
 
-        public int GetArticlesCount(CancellationToken cancellationToken)
+        public async Task<int> GetArticlesCount(CancellationToken cancellationToken)
         {
-            Task<List<Article>> articles = _articleRepository.Query()
+            List<Article> articles = await _articleRepository.Query()
                 .AsNoTracking()
                 .AsSplitQuery()
                 .Where(a => a.TimePublished > DateTime.Now.AddMonths(-1))                
                 .ToListAsync(cancellationToken);
-            if (articles == null) return 0;
-            else return articles.Result.Count;
+            return articles.Count;
         }
         public async Task<List<ArticlesByAuthorDTO>> GetArticlesTitlesByAuthorId(Guid authorId, CancellationToken cancellationToken)
         {
@@ -244,13 +402,13 @@ namespace FirstProject.ArticlesAPI.Services
 
         private async Task<Tag> AddTag(Tag tag, CancellationToken cancellation)
         {
-            Task<Tag> existTag = _tagsRepository.Query()
+            Task<Tag?> existTag = _tagsRepository.Query()
                 .FirstOrDefaultAsync(t => t.TagName == tag.TagName); 
             if (existTag.Result == null)
             {
 
-                _tagsRepository.AddAsync(tag, cancellation);
-                return tag;
+                var newTag = await _tagsRepository.AddAsync(tag, cancellation);
+                return newTag;
             }
             else
             {
@@ -259,16 +417,104 @@ namespace FirstProject.ArticlesAPI.Services
         }
         private async Task<Hub> AddHub(Hub hub, CancellationToken cancellation)
         {
-            Task<Hub> existHub = _hubsRepository.Query()
+            Task<Hub?> existHub = _hubsRepository.Query()
                 .FirstOrDefaultAsync(h => h.Title == hub.Title);
             if (existHub.Result == null)
             {
-                _hubsRepository.AddAsync(hub, cancellation);
-                return hub;
+                var newHub = await _hubsRepository.AddAsync(hub, cancellation);
+                return newHub;
             }
             else
             {
                 return existHub.Result;
+            }
+        }
+
+        public async Task<FullArticleDTO> LikeArticle(Guid articleId, Guid userId, CancellationToken cts)
+        {
+            try
+            {
+                if (articleId == Guid.Empty)
+                {
+                    throw new ArgumentException("Id статьи не указан");
+                }
+
+                if (userId == Guid.Empty)
+                {
+                    throw new ArgumentException("Id пользователя не указан");
+                }
+
+                var entry = await _articleRepository.Query().FirstOrDefaultAsync(a => a.Id == articleId, cts);
+                if (entry == null)
+                {
+                    throw new Exception("Статья не найдена");
+                }
+
+                if (entry.Dislikes.Contains(userId))
+                {
+                    entry.Dislikes.Remove(userId);
+                }
+
+                if (!entry.Likes.Contains(userId))
+                {
+                    entry.Likes.Add(userId);
+                }
+                else
+                {
+                    entry.Likes.Remove(userId);
+                }
+
+                await _articleRepository.SaveChangesAsync(cts);
+
+                return _mapper.Map<FullArticleDTO>(entry);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<FullArticleDTO> DislikeArticle(Guid articleId, Guid userId, CancellationToken cts)
+        {
+            try
+            {
+                if (articleId == Guid.Empty)
+                {
+                    throw new ArgumentException("Id статьи не указан");
+                }
+
+                if (userId == Guid.Empty)
+                {
+                    throw new ArgumentException("Id пользователя не указан");
+                }
+
+                var entry = await _articleRepository.Query().FirstOrDefaultAsync(a => a.Id == articleId, cts);
+                if (entry == null)
+                {
+                    throw new Exception("Статья не найдена");
+                }
+
+                if (entry.Likes.Contains(userId))
+                {
+                    entry.Likes.Remove(userId);
+                }
+
+                if (!entry.Dislikes.Contains(userId))
+                {
+                    entry.Dislikes.Add(userId);
+                }
+                else
+                {
+                    entry.Dislikes.Remove(userId);
+                }
+
+                await _articleRepository.SaveChangesAsync(cts);
+
+                return _mapper.Map<FullArticleDTO>(entry);
+            }
+            catch
+            {
+                throw;
             }
         }
     }

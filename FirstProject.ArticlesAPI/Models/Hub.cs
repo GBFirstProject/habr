@@ -6,8 +6,17 @@ namespace FirstProject.ArticlesAPI.Models
     public class Hub : BaseModel<int>
     {
         public int hubrId { get; set; }
+        /// <summary>
+        /// псевдоним, как он указан в базе habr.com
+        /// </summary>
         public string Alias { get; set; } = string.Empty;
+        /// <summary>
+        /// collective, corporative, etc.
+        /// </summary>
         public string Type { get; set; } = string.Empty;
+        /// <summary>
+        /// Текст хаба непосредственно
+        /// </summary>
         public string Title { get; set; } = string.Empty;
         public List<Article> Articles { get; set; } = new List<Article>();
 

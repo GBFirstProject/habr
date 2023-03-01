@@ -35,6 +35,11 @@ namespace FirstProject.ArticlesAPI.Models
         /// последняя версия - в базе храним только ник автора, а самого автора в другом сервисе
         /// </summary>
         public string AuthorNickName { get; set; }
+        [Required]
+        public List<Guid> Likes { get; set; } = new();
+
+        [Required]
+        public List<Guid> Dislikes { get; set; } = new();
 
     }
 }
