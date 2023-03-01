@@ -6,6 +6,7 @@ namespace HabrParser.Database
     public class CommentsDbContext : DbContext
     {
         public virtual DbSet<Comment> Comments { get; set; } = null!;
+        public virtual DbSet<CommentsCount> CommentsCount { get; set; } = null!;
 
         public CommentsDbContext(DbContextOptions<CommentsDbContext> options) : base(options)
         {
@@ -18,12 +19,12 @@ namespace HabrParser.Database
             {
                 x.Property(y => y.Likes)
                     .HasConversion(
-                        guid => string.Join(';', guid),
-                        str => str.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(s => Guid.Parse(s)).ToList());
+                        list => string.Join(';', list),
+                        str => str.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(s => s).ToList());
                 x.Property(y => y.Dislikes)
                     .HasConversion(
-                        guid => string.Join(';', guid),
-                        str => str.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(s => Guid.Parse(s)).ToList());
+                        list => string.Join(';', list),
+                        str => str.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(s => s).ToList());
             });
         }
     }
