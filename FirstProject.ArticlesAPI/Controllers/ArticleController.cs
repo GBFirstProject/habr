@@ -162,19 +162,22 @@ namespace FirstProject.ArticlesAPI.Controllers
 
         /// <summary>
         /// Получение количества статей созданных за последний месяц
+        /// ДЛЯ ОТЛАДКИ В ПОЛЕ DisplayMessage будет отображаться токен авторизации
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("get-articles-count")]
-        public IActionResult GetArticlesCount(CancellationToken token)
+        public async Task<IActionResult> GetArticlesCountAsync(CancellationToken token)
         {
             try
             {
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
                 int articlesCount = _articlesService.GetArticlesCount(token);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
-                    Result = articlesCount
+                    DisplayMessage = accessToken,
+                    Result = articlesCount                    
                 });
             }
             catch (Exception ex)
@@ -216,7 +219,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         }
 
         /// <summary>
-        /// Обновляет статью (пока не реализовано)
+        /// Обновляет статью 
         /// </summary>
         /// <param name="id">id обновляемой статьи</param>
         /// <param name="updateRequest">тело обновленной статьи</param>
