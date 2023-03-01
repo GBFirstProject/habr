@@ -1,4 +1,4 @@
-﻿using FirstProject.AuthAPI.Models;
+﻿using HabrParser.Models.APIAuth;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

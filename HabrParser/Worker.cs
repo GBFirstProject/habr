@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using FirstProject.AuthAPI.Models;
 using HabrParser.Database;
 using HabrParser.Interfaces;
 using HabrParser.Models.APIArticles;
+using HabrParser.Models.APIAuth;
 using HabrParser.Models.APIComments;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
@@ -22,23 +21,20 @@ namespace HabrParser
         private readonly ICommentsCountRepository _countRepository;
         private readonly IMapper _mapper;
 
-        private readonly IUserStore<ApplicationUser> _userStore;
-        private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public Worker(
             IArticlesRepository articlesRepository,
             ICommentsRepository commentsRepository,
             ICommentsCountRepository countRepository,
             IMapper mapper,
-            IUserStore<ApplicationUser> userStore,
-            IPasswordHasher<ApplicationUser> passwordHasher)
+            UserManager<ApplicationUser> userManager)
         {
             _articlesRepository = articlesRepository;
             _commentsRepository = commentsRepository;
             _countRepository = countRepository;
             _mapper = mapper;
-            _userStore = userStore;
-            _passwordHasher = passwordHasher;
+            _userManager = userManager;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -215,6 +211,9 @@ namespace HabrParser
                 {
                     NickName = string.IsNullOrEmpty(nickname) ? "UNKNOWN" : nickname,
                 };
+
+                var guid = await ParseUser(author.NickName, cancellationToken);
+                author.Id = guid;
                 var author_result = await _articlesRepository.CreateAuthor(author, cancellationToken);
 
                 Comment entry = new()
@@ -259,35 +258,42 @@ namespace HabrParser
             return await CreateUser(author.NickName, author.FirstName, author.LastName, cancellationToken);
         }
 
-        private async Task<Guid> CreateUser(string username,string firstname,string lastname,CancellationToken cancellationToken)
+        private async Task<Guid> ParseUser(string username, CancellationToken cancellationToken)
         {
-            var entry = await _userStore.FindByNameAsync(username.Normalize(), cancellationToken);
-            if (entry != null)
+            var web = new HtmlWeb();
+            var url = $"https://habr.com/ru/user/{username.ToLower()}";
+            HtmlDocument doc = web.Load(url);
+
+            return Guid.Empty;
+        }
+
+        private async Task<Guid> CreateUser(string username, string firstname, string lastname, CancellationToken cancellationToken)
+        {
+            try
             {
-                return Guid.Parse(entry.Id);
+                var entry = await _userManager.FindByNameAsync(username);
+                if (entry != null)
+                {
+                    return Guid.Parse(entry.Id);
+                }
+
+                var user = new ApplicationUser()
+                {
+                    UserName = username,
+                    FirstName = firstname,
+                    LastName = lastname,
+                    Email = username.ToLower() + "@gmail.com"
+                };
+
+                var result_create = await _userManager.CreateAsync(user, "P@ssw0rd");
+                var result_role = await _userManager.AddToRoleAsync(user, Config.User);
+
+                return Guid.Parse(user.Id);
             }
-
-            var user = new ApplicationUser()
+            catch
             {
-                UserName = username,
-                NormalizedUserName = username.Normalize(),
-                FirstName = firstname,
-                LastName = lastname,
-                Email = username.ToLower() + "@gmail.com",
-                NormalizedEmail = (username.ToLower() + "@gmail.com").Normalize(),
-                EmailConfirmed = true,
-                LockoutEnabled = false,
-                IsBlocked = false,
-                PhoneNumber = "88005553535",
-                PhoneNumberConfirmed = true,
-                TwoFactorEnabled = false
-            };
-
-            await _userStore.CreateAsync(user, cancellationToken);
-            user.PasswordHash = _passwordHasher.HashPassword(user, "P@ssw0rd");
-            await _userStore.UpdateAsync(user, cancellationToken);
-
-            return Guid.Parse(user.Id);
+                return Guid.Empty;
+            }
         }
     }
 }
