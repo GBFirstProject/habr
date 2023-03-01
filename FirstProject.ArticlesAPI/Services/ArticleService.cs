@@ -126,17 +126,11 @@ namespace FirstProject.ArticlesAPI.Services
                 .Include(a => a.Hubs)
                 .Include(a => a.MetaData)
                 .Where(a => a.TimePublished > DateTime.UtcNow.AddMonths(-1) && a.IsPublished == true)
-                .OrderBy(on => on.TimePublished)
+                .OrderByDescending(on => on.TimePublished)
                 .Skip((paging.PageNumber - 1) * paging.PageSize)
-                .Take(paging.PageSize)
+                .Take(paging.PageSize)                
                 .ToListAsync(cancellationToken);
-            /*foreach(Article article in articles.Result)
-            {
-                if(article.LeadData.ImageUrl == null)
-                {
-                    article.LeadData.ImageUrl = article.MetaData.ShareImageUrl;
-                }
-            }*/
+            
             var articlePreviews = _mapper
                 .Map<IEnumerable<PreviewArticleDTO>>(articles.Result);
             return articlePreviews.ToList();
@@ -168,7 +162,7 @@ namespace FirstProject.ArticlesAPI.Services
                 .Include(a => a.Hubs)
                 .Include(a => a.MetaData)
                 .Where(a => a.Hubs.Contains(hubEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished == true)
-                .OrderBy(on => on.TimePublished)                
+                .OrderByDescending(on => on.TimePublished)
                 .ToListAsync(cancellationToken);
 
             var articlePreviews = _mapper
@@ -209,7 +203,7 @@ namespace FirstProject.ArticlesAPI.Services
                 .Include(a => a.Hubs)
                 .Include(a => a.MetaData)
                 .Where(a => a.Tags.Contains(tagEntity) && a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished == true)
-                .OrderBy(on => on.TimePublished)
+                .OrderByDescending(on => on.TimePublished)
                 .ToListAsync(cancellationToken);
 
             var articlePreviews = _mapper
@@ -229,8 +223,7 @@ namespace FirstProject.ArticlesAPI.Services
             Task<List<Article>> articles = _articleRepository.Query()
                 .AsNoTracking()
                 .AsSplitQuery()
-                .Where(a => a.TimePublished > DateTime.Now.AddMonths(-1))
-                .OrderBy(on => on.TimePublished)
+                .Where(a => a.TimePublished > DateTime.Now.AddMonths(-1))                
                 .ToListAsync(cancellationToken);
             if (articles == null) return 0;
             else return articles.Result.Count;
@@ -241,7 +234,7 @@ namespace FirstProject.ArticlesAPI.Services
                .AsNoTracking()
                .AsSplitQuery()
                .Where(a => a.AuthorId == authorId)
-               .OrderBy(on => on.TimePublished)
+               .OrderByDescending(on => on.TimePublished)
                .ToListAsync(cancellationToken);
 
             var articlesByAuthor = _mapper

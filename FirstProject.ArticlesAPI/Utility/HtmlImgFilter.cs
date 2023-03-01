@@ -4,12 +4,12 @@ using System.Xml;
 
 namespace FirstProject.ArticlesAPI.Utility
 {    
-    public static class HtmlSanitizeExtension
+    public static class HtmlImgFilter
     {        
         /// <summary>
         /// Метод, который удаляет тэг img из входящего html
         /// </summary>
-        public static string FilterHtmlToWhitelist(string text)
+        public static string FilterHtmlToNoImg(string text)
         {            
             Regex regex = new Regex(@"\<img[^\>]+\>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             return regex.Replace(text, "");
