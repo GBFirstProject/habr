@@ -287,6 +287,46 @@
       ]
     },
     {
+      "DownstreamPathTemplate": "/api/articles/like?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/like?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/dislike?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/dislike?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
       "DownstreamPathTemplate": "/api/ArticleImage/get-article-image-by-id?id={id}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
