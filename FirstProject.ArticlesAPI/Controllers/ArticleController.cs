@@ -172,7 +172,7 @@ namespace FirstProject.ArticlesAPI.Controllers
             try
             {
                 var accessToken = await HttpContext.GetTokenAsync("access_token");
-                int articlesCount = _articlesService.GetArticlesCount(token);
+                int articlesCount = await _articlesService.GetArticlesCount(token);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
