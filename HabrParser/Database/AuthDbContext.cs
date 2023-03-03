@@ -4,12 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HabrParser.Database
 {
-    public class AuthDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public AuthDbContext(DbContextOptions<AuthDbContext> options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
         }
 
         public DbSet<ApplicationUser> Users { get; set; } = null!;

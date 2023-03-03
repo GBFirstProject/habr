@@ -289,7 +289,9 @@ namespace HabrParser
         {
             try
             {
-                var entry = await _userManager.FindByNameAsync(username);
+                var email = username.ToLower() + "@gmail.com";
+
+                var entry = await _userManager.FindByNameAsync(email);
                 if (entry != null)
                 {
                     return Guid.Parse(entry.Id);
@@ -297,10 +299,12 @@ namespace HabrParser
 
                 var user = new ApplicationUser()
                 {
-                    UserName = username,
+                    UserName = email,
                     FirstName = firstname,
                     LastName = lastname,
-                    Email = username.ToLower() + "@gmail.com"
+                    EmailConfirmed = true,
+                    PhoneNumber = "88005553535",
+                    Email = email
                 };
 
                 var result_create = await _userManager.CreateAsync(user, "P@ssw0rd");

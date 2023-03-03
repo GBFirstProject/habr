@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace HabrParser
 {
@@ -26,16 +27,18 @@ namespace HabrParser
 
             services.AddDbContext<ArticlesDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Articles")));
             services.AddDbContext<CommentsDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Comments")));
-            services.AddDbContext<AuthDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Auth")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Auth")));
 
             services.AddTransient<IArticlesRepository, ArticlesRepository>();
             services.AddTransient<ICommentsRepository, CommentsRepository>();
             services.AddTransient<ICommentsCountRepository, CommentsCountRepository>();
 
+            services.AddScoped<IDbInitializer, DbInitializer>();
+
             services.AddDefaultIdentity<ApplicationUser>(
                 options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<AuthDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer(options =>
             {
@@ -52,11 +55,20 @@ namespace HabrParser
 
             services.AddHostedService<Worker>();
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext context,
+            IDbInitializer dbInit)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseMigrationsEndPoint();
+            }
 
+            if (context.Database.GetPendingMigrations().Any())
+            {
+                context.Database.Migrate();
+            }
+
+            dbInit.Initialize();
         }
     }
 }
