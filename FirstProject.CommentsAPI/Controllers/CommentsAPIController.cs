@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using FirstProject.CommentsAPI.Data.Models.DTO;
+using FirstProject.CommentsAPI.Data.Models.Requests;
 using FirstProject.CommentsAPI.Interfaces;
-using FirstProject.CommentsAPI.Models.DTO;
-using FirstProject.CommentsAPI.Models.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,15 +15,15 @@ namespace FirstProject.CommentsAPI.Controllers
         private const string ID = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
         private const string ROLE = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
-        private readonly ICommentsRepository _repository;
+        private readonly ICommentsService _service;
         private readonly ILogger<CommentsAPIController> _logger;
-        private readonly IMapper _mapper;
 
-        public CommentsAPIController(ICommentsRepository repository, ILogger<CommentsAPIController> logger, IMapper mapper)
+        public CommentsAPIController(
+            ICommentsService service,
+            ILogger<CommentsAPIController> logger)
         {
-            _repository = repository;
+            _service = service;
             _logger = logger;
-            _mapper = mapper;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var entries = await _repository.GetCommentsByArticleId(articleId, index, count, cts);
+                var entries = await _service.GetCommentsByArticleId(articleId, index, 100000, cts);
 
                 return Ok(new ResponseDTO()
                 {
@@ -67,7 +67,33 @@ namespace FirstProject.CommentsAPI.Controllers
             try
             {
                 var guid = Guid.Parse(articleId);
-                var result = await _repository.GetCommentsCountByArticleId(guid, cts);
+                var result = await _service.GetCommentsCountByArticleId(guid, cts);
+
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Получение количества комментариев по Guid статьи
+        /// </summary>
+        /// <param name="request">Guid статей</param>
+        /// <param name="cts"></param>
+        /// <returns>Количество комментариев</returns>
+        [AllowAnonymous]
+        [HttpPost("getcount")]
+        public async Task<IActionResult> GetCommentsCountByArticleId([FromBody]MultiplyCommentsCountRequest request, CancellationToken cts)
+        {
+            try
+            {
+                var result = await _service.GetCommentsCountByArticleId(request.ArticleIds, cts);
 
                 return Ok(new ResponseDTO()
                 {
@@ -92,11 +118,9 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var dto = _mapper.Map<CommentDTO>(request);
-                dto.UserId = userId;
+                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
 
-                var result = await _repository.CreateComment(dto, cts);
+                var result = await _service.CreateComment(request.ArticleId, username, request.Content, request.ReplyTo, cts);
 
                 return Ok(new ResponseDTO()
                 {
@@ -115,14 +139,16 @@ namespace FirstProject.CommentsAPI.Controllers
         /// </summary>
         /// <param name="request">Id комментария</param>
         /// <param name="cts"></param>
-        /// <returns>Изменненый комментарий</returns>
+        /// <returns>Измененный комментарий</returns>
         [HttpPut("like")]
         public async Task<IActionResult> LikeComment([FromBody] GradeRequest request, CancellationToken cts)
         {
             try
             {
-                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var result = await _repository.LikeComment(request.CommentId, userId, cts);
+                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
+
+                var result = await _service.LikeComment(request.CommentId, username, cts);
+
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -146,8 +172,10 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var result = await _repository.DislikeComment(request.CommentId, userId, cts);
+                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
+
+                var result = await _service.DislikeComment(request.CommentId, username, cts);
+
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -176,7 +204,7 @@ namespace FirstProject.CommentsAPI.Controllers
                     return Unauthorized();
                 }
 
-                var result = await _repository.ChangeContentComment(request.CommentId, request.Content, cts);
+                var result = await _service.ChangeContentComment(request.CommentId, request.Content, cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -206,7 +234,7 @@ namespace FirstProject.CommentsAPI.Controllers
                     return Unauthorized();
                 }
 
-                var result = await _repository.DeleteComment(guid, cts);
+                var result = await _service.DeleteComment(guid, cts);
 
                 return Ok(new ResponseDTO()
                 {
@@ -235,12 +263,12 @@ namespace FirstProject.CommentsAPI.Controllers
         private async Task<bool> IsHasRights(Guid commentId, CancellationToken cts)
         {
             var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
-            var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+            var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
 
             if (role != "Admin" && role != "Moderator")
             {
-                var ownerId = await _repository.GetUserIdByCommentId(commentId, cts);
-                if (userId != ownerId)
+                var owner_username = await _service.GetUsernameByCommentId(commentId, cts);
+                if (username != owner_username)
                 {
                     return false;
                 }

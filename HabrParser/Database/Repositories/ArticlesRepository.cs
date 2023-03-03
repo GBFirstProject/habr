@@ -1,4 +1,5 @@
-﻿using HabrParser.Models.APIArticles;
+﻿using HabrParser.Interfaces;
+using HabrParser.Models.APIArticles;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 

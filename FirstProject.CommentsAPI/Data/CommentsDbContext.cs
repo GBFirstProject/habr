@@ -1,15 +1,16 @@
-﻿using FirstProject.CommentsAPI.Models;
+﻿using FirstProject.CommentsAPI.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FirstProject.CommentsAPI
+namespace FirstProject.CommentsAPI.Data
 {
     public class CommentsDbContext : DbContext
     {
         public virtual DbSet<Comment> Comments { get; set; } = null!;
+        public virtual DbSet<CommentsCount> CommentsCount { get; set; } = null!;
 
         public CommentsDbContext(DbContextOptions<CommentsDbContext> options) : base(options)
         {
-
+            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -18,12 +19,12 @@ namespace FirstProject.CommentsAPI
             {
                 x.Property(y => y.Likes)
                     .HasConversion(
-                        guid => string.Join(';', guid),
-                        str => str.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(s => Guid.Parse(s)).ToList());
+                        list => string.Join(';', list),
+                        str => str.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(s => s).ToList());
                 x.Property(y => y.Dislikes)
                     .HasConversion(
-                        guid => string.Join(';', guid),
-                        str => str.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(s => Guid.Parse(s)).ToList());
+                        list => string.Join(';', list),
+                        str => str.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(s => s).ToList());
             });
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace FirstProject.CommentsAPI.Models.Requests
+﻿namespace FirstProject.CommentsAPI.Data.Models.Requests
 {
     public class ChangeContentRequest
     {
