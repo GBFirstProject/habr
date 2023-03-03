@@ -270,8 +270,16 @@ namespace HabrParser
 
             if (data != null)
             {
-                firstName = data.InnerText.Split(' ')[0];
-                lastName = data.InnerText.Split(' ')[1];
+                var splitted = data.InnerText.Split(' ');
+                if (splitted.Length < 2)
+                {
+                    firstName = splitted[0];
+                }
+                else
+                {
+                    firstName = splitted[0];
+                    lastName = splitted[1];
+                }
             }
 
             return await CreateUser(username, firstName, lastName, cancellationToken);
