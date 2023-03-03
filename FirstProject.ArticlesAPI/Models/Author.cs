@@ -6,9 +6,9 @@ namespace FirstProject.ArticlesAPI.Models
     [Table("Authors")]
     public class Author : BaseModel<Guid>
     {
-        public int hubrId { get; set; }
-        [Required]
-        public string NickName { get; set; } = string.Empty;
+        public int hubrId { get; set; }        
+        [Required]        
+        public string NickName { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Patronymic { get; set; } = string.Empty;

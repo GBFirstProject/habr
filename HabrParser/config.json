@@ -4,5 +4,5 @@
     "Comments": "Server=.;Database=CommentsDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=123456;Encrypt=false"
   },
   //последняя добавленная статья на хабре (чтобы знать до куда парсить)
-  "LastIdInHabr" : "718670"
+  "LastIdInHabr" : "720000"
 }

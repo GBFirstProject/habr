@@ -5,9 +5,11 @@ const page_number_deafult = 1,
     page_size_default = 10;
 let page_number = null,
     page_size = null,
-    tag = null;
+    tag = null,
+    response_json = null;
 const tags_count = 10;
 //arrays
+window.addEventListener("load", load);//DOMContentLoaded
 window.onclick = function (e) {
     if (!e.target.matches('.dropbtn')) {
         let authorize_dropdown = document.getElementById("authorize_dropdown");
@@ -15,6 +17,7 @@ window.onclick = function (e) {
             authorize_dropdown.classList.add('hidden');
     }
 };
+add_progressbar();
 
 //получить параметры
 try {
@@ -55,10 +58,25 @@ try {
         }
     } catch (e) {
     }
-    load();
 })();
 
-async function get_by_tag(page_number, page_size, tag) {
+async function get_tags(page_number, page_size, tag, tags_count) {
+    let response = tag == null
+        ? await get_top_tags(tags_count)
+        : await get_tags_query(page_number, page_size, tag, tags_count);
+    //
+    if (response.title.trim() == '')
+        response.title = 'Популярные тэги';
+    return response;
+}
+
+function get_tags_html(tags, tag, tags_count) {
+    return tag == null
+        ? get_tags_top_html(tags)
+        : get_tags_query_html(tags);
+}
+
+async function get_tags_query(page_number, page_size, tag, tags_count) {
     const response = await fetch(`/articles/get-by-tag?PageNumber=${page_number}&PageSize=${page_size}&tag=${tag}`, {
         method: 'GET',
         headers: new Headers({ "X-CSRF": "1" })
@@ -70,25 +88,34 @@ async function get_by_tag(page_number, page_size, tag) {
         return [];
     if (!response.hasOwnProperty('result'))
         return [];
-    return {result: response.result, title: tag};
+
+    //комментарии
+    let article_comment_count = 0;
+    let article_comments = null;
+    //
+    let comments = [];
+    for (let article of response.result.resultData)
+        comments.push(await get_comments_count(article['id']));
+    return { result: response.result, title: tag, comments: comments };
 }
 
-function get_tag() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    return urlParams.get('tag');
-}
-
-function get_tags_top(tags) {
+function get_tags_top_html(value) {
     //добавить хабы
-    let textHTML = '<h4 class="title_row">Все тэги:</h4>';
+    const tags = value.result;
+    const title = value.title;
+
+    let textHTML = `<h4 class="title_row">${title}:</h4>`;
     tags.forEach(tag => {
         textHTML += `
             <div class="all_tags_new_item">
             <div class="all_tags_new_item_flex">                
                 <div class="all_tags_new_item_texts">
-                    <h4><a class="site_links" href="${window.location.origin}/tags.html?tag=${tag.tagName.trim().toLowerCase()}">${tag.tagName}</a></h4>
-                    <h4>${tag.articlesCount}</h4>
+                    <h4>Название:
+                        <a class="site_links" href="${window.location.origin}/tags.html?tag=${tag.tagName.trim().toLowerCase()}">
+                            ${tag.tagName}
+                        </a>
+                    </h4>
+                    <h4>Кол-во: ${tag.articlesCount}</h4>
                     <br>                  
                 </div>
             </div>
@@ -97,126 +124,97 @@ function get_tags_top(tags) {
     return textHTML;
 }
 
-async function get_tags_query(value) {
-    //добавить тэги
-    let textHTML = `<h4 class="title_row">${value.title}</h4>`;
-    for(let article of value.result.resultData)
-        textHTML += await render_preview_article(article);
-
-    //пагинация
-    const tags_count = value.result.count;
-    if (tags_count == -1)
-        return false;
-    textHTML += render_pagination(value);
-    return textHTML;
+function get_tags_query_html(value) {
+    //добавить хабы
+    const articles = get_articles_html(value.result.resultData, value.comments, value.result.count);//articles
+    return `
+        <h4 class="title_row">${value.title}:</h4>
+        ${articles.articles_html}
+        <div class="all_posts_pagination">${articles.articles_pagination_html}</div>`;
 }
 
-async function get_top_tags(tags_count) {
-    const response = await fetch(`/tag/top?count=${tags_count}`, {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return [];
-    if (!response.hasOwnProperty('result'))
-        return [];
-    return response.result;
+function get_main_html() {
+    return `<div id="tags_div"></div>`;
 }
 
 async function load() {
-    await render_page();
+    //загрузка данных
+    response_json = await load_data();
+    if (response_json == null)
+        return;
+
+    //рендер html
+    const header_hubs_html = get_header_links_html(response_json.header_hubs);
+    const main_html = get_main_html();
+    const tags_html = get_tags_html(response_json.tags, tag, response_json.tags_count);
+
+    //добавить на страницу
+    delete_progressbar();
+    render_page(
+        response_json,
+        {
+            header_hubs_html: header_hubs_html,
+            main_html: main_html,
+            tags_html: tags_html
+        }
+    );
 }
 
-async function render_main() {
-    const tag = get_tag();
-    if (!await render_tags(tag))
-        return false;
-    return true;
+async function load_data() {
+    let header_html = '',
+        footer_html = '',
+        header_hubs = '';
+    let tags = null,        
+        account_data = null;
+
+    //загрузка данных
+    try {
+        header_html = await get_header();
+        footer_html = await get_footer();
+        header_hubs = await get_top_hubs(4);//популярные хабы
+        //
+        tags = await get_tags(page_number, page_size, tag, tags_count);
+        account_data = get_account_data();
+    } catch (ex) {
+        throw new Error('ошибка загрузки данных');
+    }
+
+    //объект
+    return {
+        header_html: header_html,
+        footer_html: footer_html,
+        header_hubs: header_hubs,
+        account_data: account_data,
+        tags: tags,
+        tags_count: tags_count
+    };
 }
 
-async function render_tags(tag) {
-    let tags = null;
-    const textHTML = tag == null
-        ? get_tags_top(await get_top_tags(tags_count))
-        : await get_tags_query(await get_by_tag(page_number, page_size, tag));
-    
+function render_tags(tags_html) {
     //добавить на страницу
     let tags_div = document.getElementById('tags_div');
     if (tags_div == null)
         return false;
     //
     tags_div.innerHTML = '';
-    tags_div.insertAdjacentHTML('afterbegin', textHTML);    
+    tags_div.insertAdjacentHTML('afterbegin', tags_html);
     return true;
 }
 
-function render_pagination(value) {
-    //пагинация
-    const tags_count = value.result.count;
-    const pages_count = Math.ceil(tags_count / page_size);
+function render_page(response_json, html) {
+    if (response_json == null)
+        return false;
     //
-    let textHTML = '<div class="all_posts_pagination">';
-    if (tags_count >= 0 && tags_count < pages_count) {
-        //единственная страница            
-        textHTML += `<a class="all_posts_pag " href="#prev">Назад</a>
-                <div class="pagination">1</div>
-                <a class="all_posts_pag" href="#next">Вперед</a>`;
-    } else if (tags_count > pages_count) {
-        //несколько страниц
-        const penultimate_page = pages_count - 1;
-        const last_page = pages_count;
+    const header_html = response_json.header_html;
+    const header_hubs_html = html.header_hubs_html;
+    const main_html = html.main_html;
+    const tags_html = html.tags_html;
+    const account_data = response_json.account_data;
+    const footer_html = response_json.footer_html;
 
-        //назад
-        textHTML += page_number > 1
-            ? `<a class="all_posts_pag" href="${window.location.origin}/tags.html?PageNumber=${page_number - 1}&PageSize=${page_size}&tag=${value.title}">Назад</a>`
-            : `<a class="all_posts_pag">Назад`;
-
-        //1 и 2 страницы обязательно
-        textHTML += `<a href="${window.location.origin}/tags.html?PageNumber=1&PageSize=${page_size}&tag=${value.title}"><div class="pagination">1</div></a>
-            <a href="${window.location.origin}/tags.html?PageNumber=2&PageSize=${page_size}&tag=${value.title}"><div class="pagination">2</div></a>`;
-
-        //предыдущие страницы (если есть)      
-        if (page_number > 2) {
-            const prev_count = page_number - 2;
-            //
-            if (prev_count <= 4) {
-                for (let i = 3, j = 0; j < prev_count - 1; i++, j++)
-                    textHTML += `<a href="${window.location.origin}/tags.html?PageNumber=${i}&PageSize=${page_size}&tag=${value.title}"><div class="pagination">${i}</div></a>`;
-            } else {
-                textHTML += `<div class="pagination">...</div>`;
-                for (let i = page_number - 2; i < page_number; i++)
-                    textHTML += `<a href="${window.location.origin}/tags.html?PageNumber=${i}&PageSize=${page_size}&tag=${value.title}"><div class="pagination">${i}</div></a>`;
-            }
-        }
-
-        //текущая страница
-        if (page_number > 2)
-            textHTML += `<a href="${window.location.origin}/tags.html?PageNumber=${page_number}&PageSize=${page_size}&tag=${value.title}"><div class="pagination">${page_number}</div></a>`;
-
-        //последующие следующие (если есть)
-        const next_count = last_page - page_number;
-        if (next_count > 5) {
-            //page_number, page_number + 1, page_number + 2 ... penultimate_page, last_page            
-            for (let i = 1; i < 3; i++) {
-                if (page_number + i > 2)
-                    textHTML += `<a href="${window.location.origin}/tags.html?PageNumber=${page_number + i}&PageSize=${page_size}&tag=${value.title}"><div class="pagination">${page_number + i}</div></a>`;
-            }
-            textHTML += `<div class="pagination">...</div>
-                <a href="${window.location.origin}/tags.html?PageNumber=${penultimate_page}&PageSize=${page_size}&tag=${value.title}"><div class="pagination">${penultimate_page}</div></a>
-                <a href="${window.location.origin}/tags.html?PageNumber=${last_page}&PageSize=${page_size}&tag=${value.title}"><div class="pagination">${last_page}</div></a>`;
-        } else {
-            for (let i = page_number + 1; i <= last_page; i++)
-                textHTML += `<a href="${window.location.origin}/tags.html?PageNumber=${i}&PageSize=${page_size}&tag=${value.title}"><div class="pagination">${i}</div></a>`;
-        }
-
-        //вперед
-        textHTML += page_number < last_page
-            ? `<a class="all_posts_pag" href="${window.location.origin}/tags.html?PageNumber=${page_number + 1}&PageSize=${page_size}&tag=${value.title}">Вперед</a>`
-            : `<a class="all_posts_pag">Вперед`;
-    }
-    textHTML += '</div>';
-    return textHTML;
+    render_header({ header_html: header_html, header_hubs_html: header_hubs_html });
+    render_account(account_data);
+    render_main(main_html);
+    render_tags(tags_html);
+    render_footer(footer_html);
 }

@@ -5,9 +5,11 @@ const page_number_deafult = 1,
     page_size_default = 10;
 let page_number = null,
     page_size = null,
-    hub = null;
+    hub = null,
+    response_json = null;
 const hubs_count = 10;
 //arrays
+window.addEventListener("load", load);//DOMContentLoaded
 window.onclick = function (e) {
     if (!e.target.matches('.dropbtn')) {
         let authorize_dropdown = document.getElementById("authorize_dropdown");
@@ -15,6 +17,7 @@ window.onclick = function (e) {
             authorize_dropdown.classList.add('hidden');
     }
 };
+add_progressbar();
 
 //получить параметры
 try {
@@ -55,10 +58,25 @@ try {
         }
     } catch (e) {
     }
-    load();
 })();
 
-async function get_by_hub(page_number, page_size, hub) {
+async function get_hubs(page_number, page_size, hub, hubs_count) {
+    let response = hub == null
+        ? await get_top_hubs(hubs_count)
+        : await get_hubs_query(page_number, page_size, hub, hubs_count);
+    //
+    if (response.title.trim() == '')
+        response.title = 'Популярные хабы';
+    return response;
+}
+
+function get_hubs_html(hubs, hub, hubs_count) {
+    return hub == null
+        ? get_hubs_top_html(hubs)
+        : get_hubs_query_html(hubs);
+}
+
+async function get_hubs_query(page_number, page_size, hub, hubs_count) {
     const response = await fetch(`/articles/get-by-hub?PageNumber=${page_number}&PageSize=${page_size}&hub=${hub}`, {
         method: 'GET',
         headers: new Headers({ "X-CSRF": "1" })
@@ -70,25 +88,34 @@ async function get_by_hub(page_number, page_size, hub) {
         return [];
     if (!response.hasOwnProperty('result'))
         return [];
-    return {result: response.result, title: hub};
+
+    //комментарии
+    let article_comment_count = 0;
+    let article_comments = null;
+    //
+    let comments = [];
+    for (let article of response.result.resultData)
+        comments.push(await get_comments_count(article['id']));
+    return { result: response.result, title: hub, comments: comments };
 }
 
-function get_hub() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    return urlParams.get('hub');
-}
-
-function get_hubs_top(hubs) {
+function get_hubs_top_html(value) {
     //добавить хабы
-    let textHTML = '<h4 class="title_row">Все хабы:</h4>';
+    const hubs = value.result;
+    const title = value.title;
+
+    let textHTML = `<h4 class="title_row">${title}:</h4>`;
     hubs.forEach(hub => {
         textHTML += `
             <div class="all_hubs_new_item">
             <div class="all_hubs_new_item_flex">                
                 <div class="all_hubs_new_item_texts">
-                    <h4><a class="site_links" href="${window.location.origin}/hubs.html?hub=${hub.title.trim().toLowerCase()}">${hub.title}</a></h4>
-                    <h4>${hub.articlesCount}</h4>
+                    <h4>Название:
+                        <a class="site_links" href="${window.location.origin}/hubs.html?hub=${hub.title.trim().toLowerCase()}">
+                            ${hub.title}
+                        </a>
+                    </h4>
+                    <h4>Кол-во: ${hub.articlesCount}</h4>
                     <br>                  
                 </div>
             </div>
@@ -97,126 +124,97 @@ function get_hubs_top(hubs) {
     return textHTML;
 }
 
-async function get_hubs_query(value) {
+function get_hubs_query_html(value) {
     //добавить хабы
-    let textHTML = `<h4 class="title_row">${value.title}</h4>`;
-    for(let article of value.result.resultData)
-        textHTML += await render_preview_article(article);
-
-    //пагинация
-    const hubs_count = value.result.count;
-    if (hubs_count == -1)
-        return false;
-    textHTML += render_pagination(value);
-    return textHTML;
+    const articles = get_articles_html(value.result.resultData, value.comments, value.result.count);//articles
+    return `
+        <h4 class="title_row">${value.title}:</h4>
+        ${articles.articles_html}
+        <div class="all_posts_pagination">${articles.articles_pagination_html}</div>`;
 }
 
-/*async function get_top_hubs(hubs_count) {
-    const response = await fetch(`/hub/top?count=${hubs_count}`, {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return [];
-    if (!response.hasOwnProperty('result'))
-        return [];
-    return response.result;
-}*/
+function get_main_html() {
+    return `<div id="hubs_div"></div>`;
+}
 
 async function load() {
-    await render_page();
+    //загрузка данных
+    response_json = await load_data();
+    if (response_json == null)
+        return;
+
+    //рендер html
+    const header_hubs_html = get_header_links_html(response_json.header_hubs);
+    const main_html = get_main_html();
+    const hubs_html = get_hubs_html(response_json.hubs, hub, response_json.hubs_count);
+
+    //добавить на страницу
+    delete_progressbar();
+    render_page(
+        response_json,
+        {
+            header_hubs_html: header_hubs_html,
+            main_html: main_html,
+            hubs_html: hubs_html
+        }
+    );
 }
 
-async function render_hubs(hub) {
-    let hubs = null;
-    const textHTML = hub == null
-        ? get_hubs_top(await get_top_hubs(hubs_count))
-        : await get_hubs_query(await get_by_hub(page_number, page_size, hub));
-    
+async function load_data() {
+    let header_html = '',
+        footer_html = '',
+        header_hubs = '';
+    let hubs = null,        
+        account_data = null;
+
+    //загрузка данных
+    try {
+        header_html = await get_header();
+        footer_html = await get_footer();
+        header_hubs = await get_top_hubs(4);//популярные хабы
+        //
+        hubs = await get_hubs(page_number, page_size, hub, hubs_count);
+        account_data = get_account_data();
+    } catch (ex) {
+        throw new Error('ошибка загрузки данных');
+    }
+
+    //объект
+    return {
+        header_html: header_html,
+        footer_html: footer_html,
+        header_hubs: header_hubs,
+        account_data: account_data,
+        hubs: hubs,
+        hubs_count: hubs_count
+    };
+}
+
+function render_hubs(hubs_html) {
     //добавить на страницу
     let hubs_div = document.getElementById('hubs_div');
     if (hubs_div == null)
         return false;
     //
     hubs_div.innerHTML = '';
-    hubs_div.insertAdjacentHTML('afterbegin', textHTML);    
+    hubs_div.insertAdjacentHTML('afterbegin', hubs_html);
     return true;
 }
 
-async function render_main() {
-    const hub = get_hub();
-    if (!await render_hubs(hub))
+function render_page(response_json, html) {
+    if (response_json == null)
         return false;
-    return true;
-}
-
-function render_pagination(value) {
-    //пагинация
-    const hubs_count = value.result.count;
-    const pages_count = Math.ceil(hubs_count / page_size);
     //
-    let textHTML = '<div class="all_posts_pagination">';
-    if (hubs_count >= 0 && hubs_count < pages_count) {
-        //единственная страница            
-        textHTML += `<a class="all_posts_pag " href="#prev">Назад</a>
-                <div class="pagination">1</div>
-                <a class="all_posts_pag" href="#next">Вперед</a>`;
-    } else if (hubs_count > pages_count) {
-        //несколько страниц
-        const penultimate_page = pages_count - 1;
-        const last_page = pages_count;
+    const header_html = response_json.header_html;
+    const header_hubs_html = html.header_hubs_html;
+    const main_html = html.main_html;
+    const hubs_html = html.hubs_html;
+    const account_data = response_json.account_data;
+    const footer_html = response_json.footer_html;
 
-        //назад
-        textHTML += page_number > 1
-            ? `<a class="all_posts_pag" href="${window.location.origin}/hubs.html?PageNumber=${page_number - 1}&PageSize=${page_size}&hub=${value.title}">Назад</a>`
-            : `<a class="all_posts_pag">Назад`;
-
-        //1 и 2 страницы обязательно
-        textHTML += `<a href="${window.location.origin}/hubs.html?PageNumber=1&PageSize=${page_size}&hub=${value.title}"><div class="pagination">1</div></a>
-            <a href="${window.location.origin}/hubs.html?PageNumber=2&PageSize=${page_size}&hub=${value.title}"><div class="pagination">2</div></a>`;
-
-        //предыдущие страницы (если есть)      
-        if (page_number > 2) {
-            const prev_count = page_number - 2;
-            //
-            if (prev_count <= 4) {
-                for (let i = 3, j = 0; j < prev_count - 1; i++, j++)
-                    textHTML += `<a href="${window.location.origin}/hubs.html?PageNumber=${i}&PageSize=${page_size}&hub=${value.title}"><div class="pagination">${i}</div></a>`;
-            } else {
-                textHTML += `<div class="pagination">...</div>`;
-                for (let i = page_number - 2; i < page_number; i++)
-                    textHTML += `<a href="${window.location.origin}/hubs.html?PageNumber=${i}&PageSize=${page_size}&hub=${value.title}"><div class="pagination">${i}</div></a>`;
-            }
-        }
-
-        //текущая страница
-        if (page_number > 2)
-            textHTML += `<a href="${window.location.origin}/hubs.html?PageNumber=${page_number}&PageSize=${page_size}&hub=${value.title}"><div class="pagination">${page_number}</div></a>`;
-
-        //последующие следующие (если есть)
-        const next_count = last_page - page_number;
-        if (next_count > 5) {
-            //page_number, page_number + 1, page_number + 2 ... penultimate_page, last_page            
-            for (let i = 1; i < 3; i++) {
-                if (page_number + i > 2)
-                    textHTML += `<a href="${window.location.origin}/hubs.html?PageNumber=${page_number + i}&PageSize=${page_size}&hub=${value.title}"><div class="pagination">${page_number + i}</div></a>`;
-            }
-            textHTML += `<div class="pagination">...</div>
-                <a href="${window.location.origin}/hubs.html?PageNumber=${penultimate_page}&PageSize=${page_size}&hub=${value.title}"><div class="pagination">${penultimate_page}</div></a>
-                <a href="${window.location.origin}/hubs.html?PageNumber=${last_page}&PageSize=${page_size}&hub=${value.title}"><div class="pagination">${last_page}</div></a>`;
-        } else {
-            for (let i = page_number + 1; i <= last_page; i++)
-                textHTML += `<a href="${window.location.origin}/hubs.html?PageNumber=${i}&PageSize=${page_size}&hub=${value.title}"><div class="pagination">${i}</div></a>`;
-        }
-
-        //вперед
-        textHTML += page_number < last_page
-            ? `<a class="all_posts_pag" href="${window.location.origin}/hubs.html?PageNumber=${page_number + 1}&PageSize=${page_size}&hub=${value.title}">Вперед</a>`
-            : `<a class="all_posts_pag">Вперед`;
-    }
-    textHTML += '</div>';
-    return textHTML;
+    render_header({ header_html: header_html, header_hubs_html: header_hubs_html });
+    render_account(account_data);
+    render_main(main_html);
+    render_hubs(hubs_html);
+    render_footer(footer_html);
 }
