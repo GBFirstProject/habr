@@ -261,10 +261,20 @@ namespace HabrParser
         private async Task<Guid> ParseUser(string username, CancellationToken cancellationToken)
         {
             var web = new HtmlWeb();
-            var url = $"https://habr.com/ru/user/{username.ToLower()}";
+            var url = $"https://habr.com/ru/users/{username}";
             HtmlDocument doc = web.Load(url);
 
-            return Guid.Empty;
+            var data = doc.DocumentNode.Descendants(20).FirstOrDefault(n => n.HasClass("tm-user-card__name"));
+
+            string firstName = string.Empty, lastName = string.Empty;
+
+            if (data != null)
+            {
+                firstName = data.InnerText.Split(' ')[0];
+                lastName = data.InnerText.Split(' ')[1];
+            }
+
+            return await CreateUser(username, firstName, lastName, cancellationToken);
         }
 
         private async Task<Guid> CreateUser(string username, string firstname, string lastname, CancellationToken cancellationToken)
