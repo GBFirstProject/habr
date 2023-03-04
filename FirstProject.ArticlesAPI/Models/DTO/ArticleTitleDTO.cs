@@ -1,8 +1,8 @@
 ﻿namespace FirstProject.ArticlesAPI.Models.DTO
 {
-    public class ArticlesByAuthorDTO
+    public class ArticleTitleDTO
     {
-        public Guid ArticleID { get; set; }
+        public Guid ArticleId { get; set; }
         public string Title { get; set; }
     }
 }

@@ -31,9 +31,14 @@ namespace FirstProject.ArticlesAPI
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(tag => new Tag { TagName = tag })))
                 .ForMember(dest => dest.Hubs, opt => opt.MapFrom(src => src.Hubs.Select(hub => new Hub { Title = hub })));
 
-            CreateMap<Article, ArticlesByAuthorDTO>()
+            CreateMap<Article, ArticleTitleDTO>()
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.ArticleID, opt => opt.MapFrom(src => src.Id));
+                .ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<Article, ArticleTitleForModerationDTO>()
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId));
         }
     }
 }
