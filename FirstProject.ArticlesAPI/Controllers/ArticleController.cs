@@ -190,9 +190,10 @@ namespace FirstProject.ArticlesAPI.Controllers
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request, CancellationToken cancellation)
         {            
             try
-            {                
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
-                var userNickName = User.Claims.Where(s => s.Type == "name")?.FirstOrDefault()?.Value;         
+            {
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;
+                var userNickName = User.Claims.Where(s => s.Type == "UserName")?.FirstOrDefault()?.Value;         
                 if(request.AuthorId != Guid.Parse(userId))
                 {
                     throw new UnauthorizedAccessException("ID пользователя в DTO не сооветствует токену авторизации");
@@ -225,7 +226,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         {
             try
             {
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;                
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 await _articlesService.UpdateArticleDataAsync(updateRequest, Guid.Parse(userId), cancellation);
                 return NoContent();
             }
@@ -248,7 +249,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         {
             try
             {
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 await _articlesService.DeleteArticleAsync(id, Guid.Parse(userId), cancellation);
                 return NoContent();
             }
@@ -295,8 +296,8 @@ namespace FirstProject.ArticlesAPI.Controllers
         {
             try
             {
-                //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+                //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);                
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 var result = await _articlesService.LikeArticle(articleId, Guid.Parse(userId), cts);
                 return Ok(new ResponseDTO()
                 {
@@ -323,7 +324,7 @@ namespace FirstProject.ArticlesAPI.Controllers
             try
             {
                 //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 var result = await _articlesService.DislikeArticle(articleId, Guid.Parse(userId), cts);
                 return Ok(new ResponseDTO()
                 {
