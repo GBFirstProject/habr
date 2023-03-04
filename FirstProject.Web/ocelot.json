@@ -1,4 +1,5 @@
 ﻿{
+
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/comments?articleId={articleId}&index={index}&count={count}",
@@ -6,15 +7,13 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments?articleId={articleId}&index={index}&count={count}",
       "UpstreamHttpMethod": [
         "GET"
-      ],
-      "AuthenticationOptions": null,
-      "DelegatingHandlers": null
+      ]
     },
     {
       "DownstreamPathTemplate": "/api/comments/getCount?articleId={articleId}",
@@ -22,18 +21,16 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments/getCount?articleId={articleId}",
       "UpstreamHttpMethod": [
         "GET"
-      ],
-      "AuthenticationOptions": null,
-      "DelegatingHandlers": null
+      ]
     },
     {
-      "DownstreamPathTemplate": "/api/comments",
+      "DownstreamPathTemplate": "/api/comments/getCount",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -41,6 +38,22 @@
           "Port": "10009"
         }
       ],
+      "UpstreamPathTemplate": "/comments/getCount",
+      "UpstreamHttpMethod": [
+        "POST"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 10009
+        }
+
+      ],
+
       "UpstreamPathTemplate": "/comments",
       "UpstreamHttpMethod": [
         "POST"
@@ -58,7 +71,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments/like",
@@ -78,7 +91,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments/dislike",
@@ -98,7 +111,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments/change",
@@ -118,7 +131,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "10009"
+          "Port": 10009
         }
       ],
       "UpstreamPathTemplate": "/comments?id={id}",
@@ -133,40 +146,12 @@
       ]
     },
     {
-      "DownstreamPathTemplate": "/api/articles?PageNumber={PageNumber}&PageSize={PageSize}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": "5033"
-        }
-      ],
-      "UpstreamPathTemplate": "/articles?PageNumber={PageNumber}&PageSize={PageSize}",
-      "UpstreamHttpMethod": [
-        "GET"
-      ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/articles/get-articles-count?/api/articles/get-articles-count",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": "5033"
-        }
-      ],
-      "UpstreamPathTemplate": "/articles/get-articles-count?/api/articles/get-articles-count",
-      "UpstreamHttpMethod": [
-        "GET"
-      ]
-    },
-    {
       "DownstreamPathTemplate": "/api/articles/get-by-id?articleId={articleId}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": "5033"
+          "Port": 5033
         }
       ],
       "UpstreamPathTemplate": "/articles/get-by-id?articleId={articleId}",
@@ -175,7 +160,49 @@
       ]
     },
     {
-      "DownstreamPathTemplate": "/api/articles/get-preview-by-id?articleId=articleId",
+      "DownstreamPathTemplate": "/api/articles/get-preview-by-id?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/get-preview-by-id?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles?PageNumber={PageNumber}&PageSize={PageSize}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+      "UpstreamPathTemplate": "/articles?PageNumber={PageNumber}&PageSize={PageSize}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/get-by-tag?PageNumber={PageNumber}&PageSize={PageSize}&tag={tag}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/get-by-tag?PageNumber={PageNumber}&PageSize={PageSize}&tag={tag}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/get-by-hub?PageNumber={PageNumber}&PageSize={PageSize}&hub={hub}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -183,7 +210,187 @@
           "Port": "5033"
         }
       ],
-      "UpstreamPathTemplate": "/articles/get-preview-by-id?articleId=articleId",
+      "UpstreamPathTemplate": "/articles/get-by-hub?PageNumber={PageNumber}&PageSize={PageSize}&hub={hub}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/get-articles-count",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/get-articles-count",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/add-article",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/add-article",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/update-article?id={id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/update-article?id={id}",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/delete-article?id={id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/delete-article?id={id}",
+      "UpstreamHttpMethod": [
+        "DELETE"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/titlesByAuthorId?authorId={authorId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/titlesByAuthorId?authorId={authorId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/like?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/like?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/dislike?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/dislike?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "PUT"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/ArticleImage/get-article-image-by-id?id={id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/ArticleImage/get-article-image-by-id?id={id}",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "oidc"
+      },
+      "DelegatingHandlers": [
+        "HttpDelegatingHandler"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Hub/top?count={count}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+      "UpstreamPathTemplate": "/hub/top?count={count}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+
+      "DownstreamPathTemplate": "/api/Tag/top?count={count}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+
+
+
+      "UpstreamPathTemplate": "/tag/top?count={count}",
       "UpstreamHttpMethod": [
         "GET"
       ]

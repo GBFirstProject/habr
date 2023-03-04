@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using HabrParser.Database;
-using HabrParser.Database.Repositories;
+using HabrParser.Interfaces;
 using HabrParser.Models.APIArticles;
 using HabrParser.Models.APIComments;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using System.Threading;
-using System.Xml.Linq;
 
 namespace HabrParser
 {
@@ -18,13 +16,15 @@ namespace HabrParser
 
         private readonly IArticlesRepository _articlesRepository;
         private readonly ICommentsRepository _commentsRepository;
+        private readonly ICommentsCountRepository _countRepository;
         private readonly IMapper _mapper;
 
-        public Worker(IArticlesRepository articlesRepository, ICommentsRepository commentsRepository, IMapper mapper)
+        public Worker(IArticlesRepository articlesRepository, ICommentsRepository commentsRepository, IMapper mapper, ICommentsCountRepository countRepository)
         {
             _articlesRepository = articlesRepository;
             _commentsRepository = commentsRepository;
             _mapper = mapper;
+            _countRepository = countRepository;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -149,18 +149,21 @@ namespace HabrParser
 
         private async Task ParseComment(HtmlNode comment, Guid replyId, Guid articleId, CancellationToken cancellationToken)
         {
-            
             try
             {
                 var temp1 = comment.Element("article").Element("div").Elements("div");
                 var temp2 = temp1.First().Element("header")?.FirstChild.FirstChild.Element("span");
                 var nickname = temp2?.FirstChild.InnerText.TrimStart().TrimEnd();
-                var date = temp2?.LastChild.InnerText.TrimStart().TrimEnd().Replace(" в ", " ");
+                var date = temp2?.LastChild.InnerText.TrimStart().TrimEnd().Replace(" в ", " ")!;
+
+                if (!DateTime.TryParse(date, out var c) && date != null)
+                {
+                    date = date.Split('\n')[0];
+                }
 
                 var content = temp1.First().Element("div").InnerHtml;
                 var rating = temp1.Last().FirstChild.FirstChild?.FirstChild.InnerText.Split(':').Last().TrimStart().TrimEnd();
 
-                //var likes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[0].Remove(0, 1));
                 int likes = 0;
                 if (!string.IsNullOrEmpty(rating))
                 {
@@ -175,7 +178,7 @@ namespace HabrParser
                         }
                     }
                 }
-                //var dislikes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[1].Remove(0, 1));
+
                 int dislikes = 0;
                 if (!string.IsNullOrEmpty(rating))
                 {
@@ -196,25 +199,27 @@ namespace HabrParser
                     NickName = string.IsNullOrEmpty(nickname) ? "UNKNOWN" : nickname,
                 };
                 var author_result = await _articlesRepository.CreateAuthor(author, cancellationToken);
+
                 Comment entry = new()
                 {
                     ArticleId = articleId,
-                    UserId = author_result.Id,
+                    Username = author_result.NickName,
                     Content = content,
-                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date.Split('\n')[0]),
+                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date),
                     ReplyTo = replyId
                 };
                 for (int i = 0; i < likes; i++)
                 {
-                    entry.Likes.Add(Guid.NewGuid());
+                    entry.Likes.Add(Guid.NewGuid().ToString());
                 }
                 for (int i = 0; i < dislikes; i++)
                 {
-                    entry.Dislikes.Add(Guid.NewGuid());
+                    entry.Dislikes.Add(Guid.NewGuid().ToString());
                 }
-                await _commentsRepository.CreateComment(entry, cancellationToken);
 
-
+                entry.CreatedAt = DateTime.Parse(date);
+                var result = await _commentsRepository.CreateComment(entry, cancellationToken);
+                await _countRepository.IncreaseCount(articleId, cancellationToken);
 
                 var replyComments = comment.Element("div");
                 if (replyComments == null)
@@ -226,7 +231,7 @@ namespace HabrParser
                     await ParseComment(replyComment, entry.Id, articleId, cancellationToken);
                 }
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }

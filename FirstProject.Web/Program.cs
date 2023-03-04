@@ -12,6 +12,7 @@ builder.Logging.AddConsole();
 
 builder.Services.ConfigureAPIBase(builder.Configuration);
 
+
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 builder.Services
@@ -25,6 +26,7 @@ builder.Services
         options.DefaultScheme = "Cookies";
         options.DefaultChallengeScheme = "oidc";
         options.DefaultSignOutScheme = "oidc";
+
     })
     .AddCookie("Cookies")
     .AddOpenIdConnect("oidc", options =>
@@ -53,9 +55,11 @@ builder.Services
     });
 
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
+
 
 builder.Configuration.AddJsonFile("ocelot.json");
-builder.Services.AddOcelot().AddDelegatingHandler<HttpDelegatingHandler>();
+builder.Services.AddOcelot().AddDelegatingHandler<HttpDelegatingHandler>(true);
 
 var app = builder.Build();
 
@@ -81,7 +85,10 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapControllers()
          .AsBffApiEndpoint();
+    endpoints.MapRazorPages().AsBffApiEndpoint();
+
 });
+
 
 app.UseOcelot().Wait();
 

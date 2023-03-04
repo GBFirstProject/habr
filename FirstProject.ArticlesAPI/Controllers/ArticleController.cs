@@ -41,6 +41,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         [HttpGet("get-by-id")]
         public async Task<IActionResult> GetArticleById(Guid articleId, CancellationToken token)
         {
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
             try
             {
                 var entity = await _articlesService.GetArticleByIdAsync(articleId, token);

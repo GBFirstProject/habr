@@ -1,3 +1,4 @@
+
 using FirstProject.NotificationAPI.Producers;
 
 using MassTransit;
@@ -11,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<ModeratorNotifier>();
+builder.Services.AddScoped<Notifier>();
 
 builder.Host.UseMassTransit();
 
@@ -28,16 +29,10 @@ builder.Services.AddMassTransit(cfg =>
         cfgM.Host(RabbitMqHost, RabbitMqVHost, h => {
             h.Username(RabbitMqUser);
             h.Password(RabbitMqPassword);
-        });
-        cfgM.Durable = true;
-        cfgM.AutoDelete = false;
-        cfgM.ConfigureEndpoints(context);
+        }); 
     });
    
 });
-
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,7 +41,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 app.UseAuthorization();
 

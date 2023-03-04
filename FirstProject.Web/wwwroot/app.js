@@ -1,25 +1,50 @@
 ﻿"use strict";
 //variables
 let userClaims = null;
-const page_size = 10;
+const page_number_deafult = 1,
+    page_size_default = 10;
+let page_number = null,
+    page_size = null,
+    response_json = null;
+let account_name = 'гость',
+    account_role = 'guest';
 //arrays
-let articles = [];
+let articles = [],
+    articles_all = [],
+    last_article = [];
 //
-document.getElementById("login").addEventListener("click", login, false);
-document.getElementById("remote").addEventListener("click", localApi, false);
-//document.getElementById("remote-admin").addEventListener("click", remoteApi, false);
-document.getElementById("logout").addEventListener("click", logout, false);
-document.getElementById("testocelot").addEventListener("click", testocelot, false);
-//
-document.addEventListener("DOMContentLoaded", load);
+window.addEventListener("load", load);//DOMContentLoaded
+window.onclick = function (e) {
+    if (!e.target.matches('.dropbtn')) {
+        let authorize_dropdown = document.getElementById("authorize_dropdown");
+        if (!authorize_dropdown.classList.contains('hidden'))
+            authorize_dropdown.classList.add('hidden');
+    }
+};
+add_progressbar();
 
-//скрыть блок авторизации
-const container = document.querySelector('.container');
-if (container != null) {
-    if (!container.classList.contains('hidden'))
-        container.classList.add('hidden');
+//получить параметры
+try {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    page_number = urlParams.get('PageNumber');
+    page_size = urlParams.get('PageSize');
+    //
+    if (page_number == null || page_size == null) {
+        page_number = page_number_deafult;
+        page_size = page_size_default;
+    } else {
+        page_number = parseInt(page_number);
+        page_size = parseInt(page_size);
+        //
+        if (page_number < 1 || page_size < 1)
+            throw new Error('указаны некорректные параметры');
+    }
+} catch (e) {
+    page_number = page_number_deafult;
+    page_size = page_size_default;
 }
-
+//
 (async function () {
     var req = new Request("/bff/user", {
         headers: new Headers({
@@ -31,12 +56,9 @@ if (container != null) {
         var resp = await fetch(req);
         if (resp.ok) {
             userClaims = await resp.json();
-            log("user logged in", userClaims);
         } else if (resp.status === 401) {
-            log("user not logged in");
         }
     } catch (e) {
-        log("error checking user status");
     }
 })();
 
@@ -53,214 +75,160 @@ async function button_article_click(e) {
         if (String(article.hubrId).trim() == hubr_id.trim()) {
             article_id = article.id;
             break;
-        }
+        }            
     }
     //
     if (article_id.trim() == '')
         return;
     //запрос
-    window.location = `/page_item.html?articleId=${article_id}`;
+    window.location = `/article.html?id=${article_id}`;
 }
 
-async function get_articles() {
-    const request = await fetch(`/articles?${new URLSearchParams({ PageNumber: 2, PageSize: page_size })}`, {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
+async function button_last_article_click(e) {
+    if (e.currentTarget == null || typeof e.currentTarget === 'undefined')
+        return;
     //
-    if (request == null || typeof request === 'undefined')
-        return [];
-    if (!request.hasOwnProperty('result'))
-        return [];
-    return request.result;
+    const hubr_id = e.currentTarget.id.substring('15');
+    if (hubr_id.trim() == '')
+        return;
+    //
+    let article_id = '';    
+    if (String(last_article[0].hubrId).trim() == hubr_id.trim())
+        article_id = last_article[0].id; 
+    //
+    if (article_id.trim() == '')
+        return;
+    //запрос
+    window.location = `/article.html?id=${article_id}`;
 }
 
-async function get_articles_count() {
-    const request = await fetch("/articles/get-articles-count?/api/articles/get-articles-count", {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
-    //
-    if (request == null || typeof request === 'undefined')
-        return -1;
-    if (!request.hasOwnProperty('result'))
-        return 0;
-    return request.result;
+function get_datetime_string(value) {
+    //datetime
+    const date = new Date(Date.parse(value));
+    //день
+    let day = date.getDate();
+    if (day < 10)
+        day = '0' + day;
+    //месяц
+    const formatter = new Intl.DateTimeFormat('ru', { month: 'short' });
+    const month = formatter.format(date);
+    //год
+    const year = date.getFullYear();
+    //время
+    const time = date.toLocaleTimeString('ru-RU');
+    return `${day} ${month} ${year}, ${time} МСК`;
+}
+
+function get_main_html() {
+    return `
+        <section class="section_new_post">
+            <div class="container"></div>
+        </section>
+        <section class="section_all_posts">
+            <div class="container">
+                <h1 class="site_h1">Все публикации</h1>
+                <hr>
+                <div class="section_all_posts_block"></div>
+            </div>
+            <div class="all_posts_pagination">
+                <a class="all_posts_pag" href="#prev">Назад</a>
+                <a class="all_posts_pag" href="#next">Вперед</a>
+            </div>
+        </section>`
 }
 
 async function load() {
-    //получить статьи
-    articles = await get_articles();
-    if (articles.length == 0)
+    //загрузка данных
+    response_json = await load_data();
+    if (response_json == null)
         return;
 
-    //пагинация
-    if (!await render_pagination())
-        return;
-
-    //вывод статей
-    if (!render_articles(articles))
-        return;
-}
-
-async function localApi() {
-    var req = new Request("/api/q", {
-        headers: new Headers({
-            "X-CSRF": "1",
-        }),
-    });
-
-    try {
-        var resp = await fetch(req);
-
-        let data;
-        if (resp.ok) {
-            data = await resp.json();
-        }
-        log("Local API Result: " + resp.status, data);
-    } catch (e) {
-        log("error calling local API");
-    }
-}
-
-function log() {
-    document.getElementById("results").innerText = "";
-
-    Array.prototype.forEach.call(arguments, function (msg) {
-        if (typeof msg !== "undefined") {
-            if (msg instanceof Error) {
-                msg = "Error: " + msg.message;
-            } else if (typeof msg !== "string") {
-                msg = JSON.stringify(msg, null, 2);
-            }
-            document.getElementById("results").innerText += msg + "\r\n";
-        }
-    });
-}
-
-function login() {
-    window.location = "/bff/login";
-}
-
-function logout() {
-    if (userClaims) {
-        var logoutUrl = userClaims.find(
-            (claim) => claim.type === "bff:logout_url"
-        ).value;
-        window.location = logoutUrl;
-    } else {
-        window.location = "/bff/logout";
-    }
-}
-
-async function remoteApi() {
-    var req = new Request("api", {
-        headers: new Headers({
-            "X-CSRF": "1",
-        }),
-    });
-
-    try {
-        var resp = await fetch(req);
-
-        let data;
-        if (resp.ok) {
-            data = await resp.json();
-        }
-        log("Remote API Result: " + resp.status, data);
-    } catch (e) {
-        log("error calling remote API");
-    }
-}
-
-function render_articles(articles) {
-    //вывод статей
-    let textHTML = '';
-    articles.forEach(article => {
-        //hubs
-        let hubs = '';
-        article['hubs'].forEach(hub => hubs += `${hub}, `);
-        hubs = hubs.substring(0, hubs.length - 2);
-
-        //text
-        const text = article['text'];
-        const text_without_img = text.replace(/<img[^>]*>/g, "");
-        //
-        textHTML += `
-            <div class="all_posts_item">
-                <div class="all_posts_item_flex">
-                    <div class="all_posts_item_pic">
-                        <img class="section_new_post_img" src="${article['imageURL']}" width="480" height="320" alt="image_${article['hubrId']}">
-                    </div>
-                    <div class="all_posts_item_texts">
-                        <h3 class="all_posts_item_h3">${hubs}</h3>
-                        <a class="site_links" href="#">
-                            <h2 class="all_posts_item_h2">${article['title']}</h2>
-                        </a>
-                        <p class="all_posts_item_text">${text_without_img}</p>
-                        <button id="button_article_${article['hubrId']}" type="button">Читать дальше</button>
-                    </div>
-                </div>
-            </div>`;
-    });
+    //рендер html
+    const header_hubs_html = get_header_links_html(response_json.header_hubs);
+    const main_html = get_main_html();
+    const last_article_html = get_last_article_html(response_json.last_article, response_json.last_article_comment_count);//last_article
+    const articles = get_articles_html(response_json.articles, response_json.comment_count_array, response_json.articles_count);//articles
 
     //добавить на страницу
-    let section_all_posts = document.querySelector('.section_all_posts_block');
-    if (section_all_posts == null)
-        return false;
-    //
-    section_all_posts.innerHTML = '';
-    section_all_posts.insertAdjacentHTML('afterbegin', textHTML);
-
-    //события
-    const button_article_array = document.querySelectorAll(`[id^="button_article_"]`);
-    button_article_array.forEach(button_article => button_article.addEventListener('click', button_article_click));
-    return true;
+    delete_progressbar();
+    render_page(
+        response_json,
+        {
+            header_hubs_html: header_hubs_html, 
+            main_html: main_html,
+            last_article_html: last_article_html,
+            articles_html: articles.articles_html,
+            articles_pagination_html: articles.articles_pagination_html
+        }
+    );
 }
 
-async function render_pagination() {
-    //пагинация
-    let textHTML = '';
-    const articles_count = await get_articles_count();
-    //
-    if (articles_count == -1)
-        return false;
-    const pages_count = Math.ceil(articles_count / page_size);
-    //
-    if (articles_count >= 0 && articles_count < pages_count) {
-        //единственная страница
-        textHTML = `<a class="all_posts_pag " href="#prev">Назад</a>
-                <div class="pagination">1</div>
-                <a class="all_posts_pag" href="#next">Вперед</a>`;
-    } else if (articles_count > pages_count) {
-        //несколько страниц
-        const penultimate_page = pages_count - 1;
-        const last_page = pages_count;
+async function load_data() {
+    let header_html = '',
+        footer_html = '',
+        header_hubs = '';
+    let articles = null,
+        last_article = null,
+        account_data = null;
+    let last_article_comment_count = 0,
+        articles_count = 0;
+
+    //arrays
+    let comment_count_array = [];
+
+    //загрузка данных
+    try {
+        header_html = await get_header();
+        footer_html = await get_footer();
+        header_hubs = await get_top_hubs(4);//популярные хабы
         //
-        textHTML = `<a class="all_posts_pag " href="#prev">Назад</a>
-                    <div class="pagination">1</div>
-                    <div class="pagination">2</div>
-                    <div class="pagination">3</div>
-                    <div class="pagination">...</div>
-                    <div class="pagination">${penultimate_page}</div>
-                    <div class="pagination">${last_page}</div>
-                    <a class="all_posts_pag" href="#next">Вперед</a>`;
-    }
-    //
-    const all_posts_pagination = document.querySelector('.all_posts_pagination');
-    if (all_posts_pagination == null)
-        return false;
-    all_posts_pagination.innerHTML = '';
-    all_posts_pagination.insertAdjacentHTML('afterbegin', textHTML);
+        articles = await get_articles(page_number, page_size);
+        last_article = await get_articles(1, 1);
 
-    //события пагинации
-    return true;
+        //preview_last_article
+        last_article_comment_count = await get_comments_count(last_article[0]['id']);
+        //preview_articles
+        comment_count_array = [];
+        for (const article of articles)
+            comment_count_array.push(await get_comments_count(article['id']));
+        //
+        articles_count = await get_articles_count();
+        account_data = get_account_data();
+    } catch (ex) {
+        throw new Error('ошибка загрузки данных');
+    }
+
+    //объект
+    return {
+        header_html: header_html,
+        footer_html: footer_html,
+        header_hubs: header_hubs,
+        articles: articles,
+        last_article: last_article,
+        last_article_comment_count: last_article_comment_count,
+        comment_count_array: comment_count_array,
+        articles_count: articles_count,
+        account_data: account_data
+    };
 }
 
-function testocelot() {
-    document.location = "/testocelot.html"
+function render_page(response_json, html) {
+    if (response_json == null)
+        return false;
+    //
+    const header_html = response_json.header_html;
+    const header_hubs_html = html.header_hubs_html;
+    const main_html = html.main_html;
+    const last_article_html = html.last_article_html;
+    const articles_html = html.articles_html;
+    const articles_pagination_html = html.articles_pagination_html;
+    const account_data = response_json.account_data;
+    const footer_html = response_json.footer_html;
+
+    render_header({ header_html: header_html, header_hubs_html: header_hubs_html });
+    render_account(account_data);
+    render_main(main_html);
+    render_last_article(last_article_html);
+    render_articles(articles_html, articles_pagination_html);
+    render_footer(footer_html);
 }

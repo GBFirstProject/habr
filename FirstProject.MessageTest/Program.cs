@@ -1,6 +1,10 @@
-using FirstProject.MessageTest;
+//Проект для тестирования уведомлений
+
+using FirstProject.MessageTest.Hubs;
 
 using MassTransit;
+
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +15,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 
-
+builder.Services.AddSignalR();
 
 builder.Host.UseMassTransit();
-
-
 string RabbitMqHost = builder.Configuration.GetConnectionString("RabbitMqHost");
 string RabbitMqVHost = builder.Configuration.GetConnectionString("RabbitMqVHost");
 string RabbitMqUser = builder.Configuration.GetConnectionString("RabbitMqUser");
@@ -24,6 +26,11 @@ string RabbitMqPassword = builder.Configuration.GetConnectionString("RabbitMqPas
 
 builder.Services.AddMassTransit(cfg =>
 {
+    
+
+    var entryAssembly = Assembly.GetEntryAssembly();
+    cfg.AddConsumers(entryAssembly);
+ 
     cfg.UsingRabbitMq((context, cfgM) =>
     {
         cfgM.Host(RabbitMqHost, RabbitMqVHost, h =>
@@ -31,15 +38,10 @@ builder.Services.AddMassTransit(cfg =>
             h.Username(RabbitMqUser);
             h.Password(RabbitMqPassword);
         });
-        cfgM.Durable = true;
-        cfgM.AutoDelete = false;
-        cfgM.ConfigureEndpoints(context);
+        
+        cfgM.ConfigureEndpoints(context);  
     });
-    cfg.AddConsumer<TestConsumer>();
-    ;
-
 });
-
 
 
 var app = builder.Build();
@@ -50,9 +52,8 @@ if (app.Environment.IsDevelopment())
    
 }
 
-
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapHub<NotificationHub>("/Notification");
 
 app.Run();

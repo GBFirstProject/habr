@@ -7,7 +7,7 @@ namespace HabrParser.Models.APIArticles
     [Table("Authors")]
     public class Author : BaseModel<Guid>
     {
-        public int hubrId { get; set; }
+        public int hubrId { get; set; }        
         [Required]
         public string NickName { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;        

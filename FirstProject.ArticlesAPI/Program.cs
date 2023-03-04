@@ -50,6 +50,7 @@ internal class Program
         //builder.Services.AddTransient<ServiceClass<IWebHostEnvironment>>();
 
         builder.Services.AddControllers();
+        builder.Services.AddRazorPages();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
@@ -78,7 +79,7 @@ internal class Program
             });
         });
 
-        builder.Services.AddAuthentication(options =>
+        builder.Services.AddAuthorization().AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -124,6 +125,7 @@ internal class Program
         app.UseAuthorization();
 
         app.MapControllers();
+        app.MapRazorPages();
 
         app.Run();
     }
