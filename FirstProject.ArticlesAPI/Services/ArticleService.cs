@@ -85,7 +85,12 @@ namespace FirstProject.ArticlesAPI.Services
         {
             var article = _mapper.Map<Article>(articleDto);
             article.IsPublished = false;//по умолчанию статья не опубликована и отправляется на модерацию
-            article.Author ??= new Author { NickName = "UNKNOWN" };
+            article.Author = AddAuthor(new Author
+            {
+                Id = articleDto.AuthorId,
+                NickName = articleDto.AuthorNickName.Substring(0, articleDto.AuthorNickName.IndexOf('@')) 
+            });           
+            
             article.Statistics = new Statistics(); 
             for (int i = 0; i < article.Tags.Count; i++)
             {
@@ -102,7 +107,22 @@ namespace FirstProject.ArticlesAPI.Services
             var articleModel = _mapper.Map<FullArticleDTO>(article);    
             
             return articleModel.Id;
-        }       
+        }
+
+        private Author AddAuthor(Author author)
+        {
+            if (author == null) return null!;
+            string existAlias = author.NickName;
+            Author existAuthor = _authorRepository.Query().FirstOrDefault(a => a.NickName == existAlias);
+            if (existAuthor == null)
+            {
+                return author;
+            }
+            else
+            {
+                return existAuthor;
+            }
+        }
 
         public async Task<bool> DeleteArticleAsync(Guid id, Guid userId, CancellationToken cancellationToken)
         {
