@@ -42,6 +42,7 @@ namespace FirstProject.AuthAPI.Services
             claims.Add(new Claim("FirstName", user.FirstName ?? ""));
             claims.Add(new Claim("LastName" , user.LastName ?? ""));
             claims.Add(new Claim("IsBlocked" , user.IsBlocked.ToString()));
+            claims.Add(new Claim("UserName", user.UserName));
 
             if (_userMgr.SupportsUserRole)
             {

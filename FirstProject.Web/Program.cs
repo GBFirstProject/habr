@@ -59,7 +59,7 @@ builder.Services.AddRazorPages();
 
 
 builder.Configuration.AddJsonFile("ocelot.json");
-builder.Services.AddOcelot().AddDelegatingHandler<HttpDelegatingHandler>();
+builder.Services.AddOcelot().AddDelegatingHandler<HttpDelegatingHandler>(true);
 
 var app = builder.Build();
 
