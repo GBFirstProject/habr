@@ -99,6 +99,59 @@ body {
 	margin-top: 20px;
 }
 
+.section_h3 {
+	padding-top: 10px;
+	font-style: normal;
+	font-weight: 500;
+	font-size: 16px;
+	line-height: 20px;
+	letter-spacing: 3px;
+	text-transform: uppercase;
+	color: #232536;
+}
+
+.section_p_attr {
+	font-style: normal;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 20px;
+	color: #4C4C4C;
+}
+
+
+.adv_data_a {
+	color: #808080;
+}
+
+.read_more_btn {
+	padding: 10px 20px;
+	background-color: #FFA500;
+	border: none;
+	margin-bottom: 25px;
+	margin-top: 5px;
+	transition: 0.5s;
+}
+
+	.read_more_btn:hover {
+		background-color: #FF8C00;
+	}
+
+	.read_more_btn_text {
+		font-family: 'Overpass';
+		text-decoration: none;
+		font-style: normal;
+		font-weight: 700;
+		font-size: 12 px;
+		line-height: 24px;
+		display: flex;
+		align-items: center;
+		color: #232536;
+	}
+
+
+
+
+
 .all_posts_item_flex {
 	/* display: block; */
 	/* justify-content: space-between; */
