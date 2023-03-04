@@ -84,6 +84,7 @@ namespace FirstProject.ArticlesAPI.Services
         public async Task<Guid> CreateArticleAsync(CreateArticleRequest articleDto, CancellationToken cancellationToken)
         {
             var article = _mapper.Map<Article>(articleDto);
+            article.IsPublished = false;//по умолчанию статья не опубликована и отправляется на модерацию
             article.Author ??= new Author { NickName = "UNKNOWN" };
             article.Statistics = new Statistics(); 
             for (int i = 0; i < article.Tags.Count; i++)
@@ -220,7 +221,7 @@ namespace FirstProject.ArticlesAPI.Services
                 .Map<List<PreviewArticleDTO>>(articles);
             return articlePreviews;
         }
-        public async Task<SearchPreviewResultDTO> GetPreviewArticleByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken)
+        public async Task<SearchPreviewResultDTO> GetPreviewArticlesByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken)
         {
             var hubEntity = await _hubsRepository
                 .Query()                
@@ -297,7 +298,7 @@ namespace FirstProject.ArticlesAPI.Services
                     .ConfigureAwait(false)
             };
         }
-        public async Task<SearchPreviewResultDTO> GetPreviewArticleByTagLastMonthAsync(string tag, PagingParameters paging, CancellationToken cancellationToken)
+        public async Task<SearchPreviewResultDTO> GetPreviewArticlesByTagLastMonthAsync(string tag, PagingParameters paging, CancellationToken cancellationToken)
         {
             var tagEntity = await _tagsRepository
                 .Query()
@@ -386,7 +387,7 @@ namespace FirstProject.ArticlesAPI.Services
                 .ToListAsync(cancellationToken);
             return articles.Count;
         }
-        public async Task<List<ArticlesByAuthorDTO>> GetArticlesTitlesByAuthorId(Guid authorId, CancellationToken cancellationToken)
+        public async Task<List<ArticleTitleDTO>> GetArticlesTitlesByAuthorId(Guid authorId, CancellationToken cancellationToken)
         {
             Task<List<Article>> articles = _articleRepository.Query()
                .AsNoTracking()
@@ -396,7 +397,7 @@ namespace FirstProject.ArticlesAPI.Services
                .ToListAsync(cancellationToken);
 
             var articlesByAuthor = _mapper
-                .Map<List<ArticlesByAuthorDTO>>(articles.Result);
+                .Map<List<ArticleTitleDTO>>(articles.Result);
             return articlesByAuthor;
         }
 
@@ -516,6 +517,38 @@ namespace FirstProject.ArticlesAPI.Services
             {
                 throw;
             }
+        }
+
+        public async Task<PreviewArticleDTO> GetBestArticlePreview(CancellationToken cancellationToken)
+        {
+            Article article = await _articleRepository
+                .Query()
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(a => a.Author)
+                .Include(a => a.LeadData)
+                .Include(a => a.Statistics)
+                .Include(a => a.Tags)
+                .Include(a => a.Hubs)
+                .Include(a => a.MetaData)
+                .FirstAsync()
+                .ConfigureAwait(false);            
+            return _mapper.Map<PreviewArticleDTO>(article);
+        }
+
+        public async Task<List<ArticleTitleForModerationDTO>> GetUnpublishedArticlesForModeration(CancellationToken cancellationToken)
+        {
+            var articles = await _articleRepository.Query()
+               .AsNoTracking()
+               .AsSplitQuery()
+               .Where(a => a.IsPublished == false)
+               .OrderByDescending(on => on.TimePublished)
+               .ToListAsync(cancellationToken)
+               .ConfigureAwait(false);
+
+            var articlesByAuthor = _mapper
+                .Map<List<ArticleTitleForModerationDTO>>(articles);
+            return articlesByAuthor;
         }
     }
 }

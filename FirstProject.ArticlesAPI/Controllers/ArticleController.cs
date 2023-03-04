@@ -117,7 +117,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         {
             try
             {
-                var searchArticlesResult = await _articlesService.GetPreviewArticleByTagLastMonthAsync(tag, paging, token);                
+                var searchArticlesResult = await _articlesService.GetPreviewArticlesByTagLastMonthAsync(tag, paging, token);                
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -142,7 +142,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         {
             try
             {
-                var searchArticlesResult = await _articlesService.GetPreviewArticleByHubLastMonthAsync(hub, paging, token);
+                var searchArticlesResult = await _articlesService.GetPreviewArticlesByHubLastMonthAsync(hub, paging, token);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -331,6 +331,52 @@ namespace FirstProject.ArticlesAPI.Controllers
                 {
                     IsSuccess = true,
                     Result = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Получает лучшую статью. Пока - самую просматриваемую
+        /// </summary>
+        /// <param name="token">токен отмены</param>
+        /// <returns></returns>
+        [HttpGet("get-best-article")]
+        public async Task<IActionResult> GetBestArticle(CancellationToken token)
+        {
+            try
+            {
+                var entity = await _articlesService.GetBestArticlePreview(token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = entity
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Список заголовков статей с ИД и автор ИД, у которых IsPublished = false
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [HttpGet("get-articles-for-moderation")]
+        public async Task<IActionResult> GetArticlesForModeration(CancellationToken token)
+        {
+            try
+            {
+                var entity = await _articlesService.GetUnpublishedArticlesForModeration(token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = entity
                 });
             }
             catch (Exception ex)

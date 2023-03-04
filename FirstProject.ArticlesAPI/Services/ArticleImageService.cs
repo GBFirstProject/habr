@@ -68,14 +68,18 @@ namespace FirstProject.ArticlesAPI.Services
                 // Save the image to a file
                 var fileName = $"{Guid.NewGuid()}.jpg";
                 var filePath = Path.Combine("images", fileName);
-                var absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, filePath);
-                using (var stream = new FileStream(absolutePath, FileMode.CreateNew))
+                if(Directory.Exists("images"))
+                {
+                    Directory.CreateDirectory("images");
+                }
+                //var absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, filePath);
+                using (var stream = new FileStream(filePath, FileMode.CreateNew))
                 {
                     bitmap.Encode(SKEncodedImageFormat.Jpeg, 100).SaveTo(stream);
                 }
 
                 // Read the image bytes and return them
-                using (var stream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read))
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 {
                     var bytes = new byte[stream.Length];
                     stream.Read(bytes, 0, (int)stream.Length);
