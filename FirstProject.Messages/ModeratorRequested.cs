@@ -2,12 +2,12 @@
 {/// <summary>
  /// Класс сообщения запроса модератора
  /// </summary>
-    public class ModeratorRequested
-    { 
+    public class ModeratorRequested : IMessage
+    {
         /// <summary>
         /// Идентификатор отправителя
         /// </summary>
-        public Guid UserId { get; set; }
+        public string Username { get; set; }
         /// <summary>
         ///Сообщение
         /// </summary>
@@ -21,15 +21,12 @@
         /// </summary>
         public DateTime CreatedAt { get; set; }
 
-        public ModeratorRequested(Guid userId, string content, string reference, DateTime creaatedAt)
+        public ModeratorRequested(string username, string content, string reference)
         {
-            UserId= userId;
-            Content= content;
+            Username = username;
+            Content = content;
             Reference = reference;
-            CreatedAt = creaatedAt;
+            CreatedAt = DateTime.UtcNow;
         }
-
-
-
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FirstProject.CommentsAPI.Controllers
 {
-    [Authorize]
     [Route("api/comments")]
     [ApiController]
     public class CommentsAPIController : ControllerBase
@@ -34,7 +33,6 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="count">Количество</param>
         /// <param name="cts"></param>
         /// <returns>Список комментариев</returns>
-        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts)
         {
@@ -60,7 +58,6 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="articleId">Guid статьи</param>
         /// <param name="cts"></param>
         /// <returns>Количество комментариев</returns>
-        [AllowAnonymous]
         [HttpGet("getcount")]
         public async Task<IActionResult> GetCommentsCountByArticleId(string articleId, CancellationToken cts)
         {
@@ -87,7 +84,6 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Guid статей</param>
         /// <param name="cts"></param>
         /// <returns>Количество комментариев</returns>
-        [AllowAnonymous]
         [HttpPost("getcount")]
         public async Task<IActionResult> GetCommentsCountByArticleId([FromBody]MultiplyCommentsCountRequest request, CancellationToken cts)
         {
@@ -113,6 +109,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Создаваемый комментарий</param>
         /// <param name="cts"></param>
         /// <returns>Созданный комментарий</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] CreateRequest request, CancellationToken cts)
         {
@@ -140,6 +137,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Id комментария</param>
         /// <param name="cts"></param>
         /// <returns>Измененный комментарий</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("like")]
         public async Task<IActionResult> LikeComment([FromBody] GradeRequest request, CancellationToken cts)
         {
@@ -167,6 +165,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Id комментария</param>
         /// <param name="cts"></param>
         /// <returns>Измененный комментарий</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("dislike")]
         public async Task<IActionResult> DislikeComment([FromBody] GradeRequest request, CancellationToken cts)
         {
@@ -194,6 +193,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="request">Запрос на изменение</param>
         /// <param name="cts"></param>
         /// <returns>Измененный комментарий</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("change")]
         public async Task<IActionResult> ChangeContentComment([FromBody] ChangeContentRequest request, CancellationToken cts)
         {
@@ -223,6 +223,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="id">Guid комментария</param>
         /// <param name="cts"></param>
         /// <returns>Результат операции</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpDelete]
         public async Task<IActionResult> DeleteComment(string id, CancellationToken cts)
         {

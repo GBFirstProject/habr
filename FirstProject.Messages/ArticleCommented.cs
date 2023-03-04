@@ -8,28 +8,27 @@ namespace FirstProject.Messages
 { /// <summary>
   /// Класс сообщения о комментировании статьи
   /// </summary>
-    public class ArticleCommented 
+    public class ArticleCommented : IMessage
     {
-        
+
         /// <summary>
         /// Идентификатор статьи
         /// </summary>
-        public Guid ArticleId{ get; set; }
+        public Guid ArticleId { get; set; }
         /// <summary>
         /// Идентификатор сообщения
         /// </summary>
-        public Guid UserId{ get; set; }
+        public string Username { get; set; }
         /// <summary>
         /// Дата сообщения
         /// </summary>
-        public DateTime CreatedAt{ get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public ArticleCommented(Guid articleId, Guid userId , DateTime createdAt)
+        public ArticleCommented(Guid articleId, string username)
         {
-                ArticleId= articleId;
-                UserId= userId;
-                CreatedAt = createdAt;
+            ArticleId = articleId;
+            Username = username;
+            CreatedAt = DateTime.UtcNow;
         }
-
     }
 }

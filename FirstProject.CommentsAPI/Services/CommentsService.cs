@@ -2,6 +2,7 @@
 using FirstProject.CommentsAPI.Data.Models;
 using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
+using FirstProject.Messages;
 
 namespace FirstProject.CommentsAPI.Services
 {
@@ -9,13 +10,15 @@ namespace FirstProject.CommentsAPI.Services
     {
         private readonly ICommentsRepository _comments;
         private readonly ICommentsCountRepository _commentsCount;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
-        public CommentsService(ICommentsRepository comments, ICommentsCountRepository commentsCount, IMapper mapper)
+        public CommentsService(ICommentsRepository comments, ICommentsCountRepository commentsCount, IMapper mapper, INotificationService notificationService)
         {
             _comments = comments;
             _commentsCount = commentsCount;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
 
         public async Task<IEnumerable<CommentJsonDTO>> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts)
@@ -74,6 +77,9 @@ namespace FirstProject.CommentsAPI.Services
                     ReplyTo = replyTo
                 };
                 var result = await _comments.CreateComment(entry, cts);
+
+                var message = new ArticleCommented(articleId, username);
+                _notificationService.SendMessage(message, cts);
 
                 await _commentsCount.IncreaseCount(articleId, cts);
 

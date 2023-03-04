@@ -37,6 +37,7 @@ builder.Services.AddAutoMapper(config =>
 builder.Services.AddTransient<ICommentsRepository, CommentsRepository>();
 builder.Services.AddTransient<ICommentsCountRepository, CommentsCountRepository>();
 builder.Services.AddTransient<ICommentsService, CommentsService>();
+builder.Services.AddTransient<INotificationService, NotificationService>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddControllers();
