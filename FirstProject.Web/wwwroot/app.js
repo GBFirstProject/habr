@@ -134,13 +134,7 @@ function get_main_html() {
                 <a class="all_posts_pag" href="#prev">Назад</a>
                 <a class="all_posts_pag" href="#next">Вперед</a>
             </div>
-        </section>
-        <section class="section_reg_welcome">
-            <div class="container">
-                <h3 class="reg_welcome_h3">Зарегистрируйтесь, <br> чтобы оставлять комментарии</h3>
-                <button class="btn_welcome_reg">Регистрация</button>
-            </div>
-        </section>`;
+        </section>`
 }
 
 async function load() {
