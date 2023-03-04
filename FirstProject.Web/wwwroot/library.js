@@ -212,7 +212,7 @@ function get_article_comments_pagination_html(comment_count) {
 
         //назад
         textHTML += page_number > 1
-            ? `<a class="all_posts_pag" href="${window.location.origin}/article.html?id=${id}&PageNumber=${page_number - 1}&PageSize=${page_size}">Назад</a>`
+            ? `<a class="all_posts_pag pag_style" href="${window.location.origin}/article.html?id=${id}&PageNumber=${page_number - 1}&PageSize=${page_size}">Назад</a>`
             : `<a class="all_posts_pag">Назад`;
 
         //1 и 2 страницы обязательно
@@ -256,7 +256,7 @@ function get_article_comments_pagination_html(comment_count) {
 
         //вперед
         textHTML += page_number < last_page
-            ? `<a class="all_posts_pag" href="${window.location.origin}/article.html?id=${id}&PageNumber=${page_number + 1}&PageSize=${page_size}">Вперед</a>`
+            ? `<a class="all_posts_pag pag_style" href="${window.location.origin}/article.html?id=${id}&PageNumber=${page_number + 1}&PageSize=${page_size}">Вперед</a>`
             : `<a class="all_posts_pag">Вперед`;
     }
     return textHTML;
@@ -752,12 +752,12 @@ function render_articles_pagination(articles_count) {
 
         //назад
         textHTML = page_number > 1
-            ? `<a class="all_posts_pag" href="${window.location.origin}?PageNumber=${page_number - 1}&PageSize=${page_size}">Назад</a>`
+            ? `<a class="all_posts_pag pag_style" href="${window.location.origin}?PageNumber=${page_number - 1}&PageSize=${page_size}">Назад</a>`
             : `<a class="all_posts_pag">Назад`;
 
         //1 и 2 страницы обязательно
-        textHTML += `<a href="${window.location.origin}?PageNumber=1&PageSize=${page_size}"><div class="pagination">1</div></a>
-            <a href="${window.location.origin}?PageNumber=2&PageSize=${page_size}"><div class="pagination">2</div></a>`;
+        textHTML += `<a class="pag_style pag_style" href="${window.location.origin}?PageNumber=1&PageSize=${page_size}"><div class="pagination">1</div></a>
+            <a class="pag_style" href="${window.location.origin}?PageNumber=2&PageSize=${page_size}"><div class="pagination">2</div></a>`;
 
         //предыдущие страницы (если есть)      
         if (page_number > 2) {
@@ -775,7 +775,7 @@ function render_articles_pagination(articles_count) {
 
         //текущая страница
         if (page_number > 2)
-            textHTML += `<a href="${window.location.origin}?PageNumber=${page_number}&PageSize=${page_size}"><div class="pagination">${page_number}</div></a>`;
+            textHTML += `<a class="pag_style" href="${window.location.origin}?PageNumber=${page_number}&PageSize=${page_size}"><div class="pagination">${page_number}</div></a>`;
 
         //последующие следующие (если есть)
         const next_count = last_page - page_number;
@@ -784,11 +784,11 @@ function render_articles_pagination(articles_count) {
             for (let i = 1; i < 3; i++) {
                 if (page_number + i > 2)
                     //if (page_number + i < page_size)
-                    textHTML += `<a href="${window.location.origin}?PageNumber=${page_number + i}&PageSize=${page_size}"><div class="pagination">${page_number + i}</div></a>`;
+                    textHTML += `<a class="pag_style" href="${window.location.origin}?PageNumber=${page_number + i}&PageSize=${page_size}"><div class="pagination">${page_number + i}</div></a>`;
             }
             textHTML += `<div class="pagination">...</div>
-                <a href="${window.location.origin}?PageNumber=${penultimate_page}&PageSize=${page_size}"><div class="pagination">${penultimate_page}</div></a>
-                <a href="${window.location.origin}?PageNumber=${last_page}&PageSize=${page_size}"><div class="pagination">${last_page}</div></a>`;
+                <a class="pag_style" href="${window.location.origin}?PageNumber=${penultimate_page}&PageSize=${page_size}"><div class="pagination">${penultimate_page}</div></a>
+                <a class="pag_style" href="${window.location.origin}?PageNumber=${last_page}&PageSize=${page_size}"><div class="pagination">${last_page}</div></a>`;
         } else {
             for (let i = page_number + 1; i <= last_page; i++)
                 textHTML += `<a href="${window.location.origin}?PageNumber=${i}&PageSize=${page_size}"><div class="pagination">${i}</div></a>`;

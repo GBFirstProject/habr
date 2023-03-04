@@ -30,6 +30,11 @@ body {
 	margin: 0 auto;
 }
 
+a {
+	text-decoration: none;
+	color: #000000;
+}
+
 .header {
 	/* border: 1px solid blue; */
 	background-color: rgb(9, 9, 83);
@@ -80,9 +85,10 @@ body {
 .header_link {
 	text-decoration: none;
 	color: #FFFFFF;
+	transition: 0.4s;
 }
 
-	.header_link:hover {
+.header_link:hover {
 		color: #FFA500;
 		text-shadow: 0 0 3px #fff;
 	}
@@ -143,11 +149,11 @@ body {
 	transition: 0.5s;
 }
 
-	.read_more_btn:hover {
+.read_more_btn:hover {
 		background-color: #FF8C00;
 	}
 
-	.read_more_btn_text {
+.read_more_btn_text {
 		font-family: 'Overpass';
 		text-decoration: none;
 		font-style: normal;
@@ -158,8 +164,6 @@ body {
 		align-items: center;
 		color: #232536;
 	}
-
-
 
 .all_posts_item_flex {
 	/* display: block; */
@@ -209,21 +213,21 @@ body {
 	border: 1px solid green;
 }
 
-.section_reg_welcome {
-	margin-top: 20px;
+/*.section_reg_welcome {
+	margin-top: 20px;*/
 	/* margin-bottom: 20px; */
 	/* border: 1px solid red; */
-	text-align: center;
+	/*text-align: center;
 	background-color: rgb(222, 222, 245);
-}
+}*/
 
-.reg_welcome_h3 {
+/*.reg_welcome_h3 {
 	padding-top: 20px;
 }
 
 .btn_welcome_reg {
 	margin-bottom: 10px;
-}
+}*/
 
 .all_read_more_btn {
 	padding: 10px 20px;
@@ -249,6 +253,10 @@ body {
 	display: flex;
 	align-items: center;
 	color: #232536;
+}
+
+.pag_style {
+	text-decoration: none;
 }
 
 .footer {
@@ -281,11 +289,12 @@ body {
 	align-self: center;
 	margin-right: 10px;
 	color: azure;
-	transition: 0.3s;
+	transition: 0.4s;
 }
 
 	.footer_nav:hover {
-		color: rgb(170, 169, 240);
+		color: #FFA500;
+		text-shadow: 0 0 3px #fff;
 	}
 
 .section_new_post_img {
@@ -305,11 +314,12 @@ body {
 
 .all_posts_pag {
 	font-weight: 700;
-	transition: 0.3s;
+	transition: 0.4s;
 }
 
-	.all_posts_pag:hover {
-		color: rgba(36, 24, 216, 0.541);
+.all_posts_pag:hover {
+		color: #FFA500;
+		text-shadow: 0 0 3px #fff;
 	}
 
 .btn_welcome_reg {
@@ -340,6 +350,7 @@ body {
 .pagination {
 	margin-left: 0.5em;
 	margin-right: 0.5em;
+	text-decoration: none;
 }
 
 .hidden {
