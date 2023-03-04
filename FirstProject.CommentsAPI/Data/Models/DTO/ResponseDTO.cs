@@ -1,4 +1,4 @@
-﻿namespace FirstProject.CommentsAPI.Models.DTO
+﻿namespace FirstProject.CommentsAPI.Data.Models.DTO
 {
     public class ResponseDTO
     {

@@ -1,26 +1,22 @@
 ﻿using AutoMapper;
+using FirstProject.CommentsAPI.Data.Models;
+using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
-using FirstProject.CommentsAPI.Models;
-using FirstProject.CommentsAPI.Models.DTO;
 using FirstProject.Messages;
-
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
-namespace FirstProject.CommentsAPI.Repositories
+namespace FirstProject.CommentsAPI.Data.Repositories
 {
     public class CommentsRepository : ICommentsRepository
     {
         private readonly CommentsDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _notificationServiceUrl;
 
-        public CommentsRepository(CommentsDbContext context, IMapper mapper, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public CommentsRepository(CommentsDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _httpClientFactory=httpClientFactory;
-            _notificationServiceUrl = configuration.GetConnectionString("NotificationService");
         }
 
         public async Task<CommentDTO> CreateComment(CommentDTO comment, CancellationToken cts)
@@ -32,9 +28,9 @@ namespace FirstProject.CommentsAPI.Repositories
                     throw new ArgumentNullException("Comment was null");
                 }
 
-                if (comment.UserId == Guid.Empty)
+                if (comment.Username == string.Empty)
                 {
-                    throw new ArgumentException("User Id was empty");
+                    throw new ArgumentException("Username was empty");
                 }
 
                 if (comment.ArticleId == Guid.Empty)
@@ -48,25 +44,11 @@ namespace FirstProject.CommentsAPI.Repositories
                 }
 
                 var entry = _mapper.Map<Comment>(comment);
-                entry.Id = Guid.NewGuid();
                 entry.CreatedAt = DateTime.UtcNow;
 
                 await _context.AddAsync(entry, cts);
 
                 await _context.SaveChangesAsync(cts);
-
-
-                /////
-                var client = _httpClientFactory.CreateClient();
-
-                var message = new ArticleCommented(comment.ArticleId, comment.UserId, comment.CreatedAt);
-
-                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/commented");
-
-                request.Content = JsonContent.Create(message);
-
-                await client.SendAsync(request);
-                /////
 
                 return _mapper.Map<CommentDTO>(entry);
             }
@@ -85,8 +67,12 @@ namespace FirstProject.CommentsAPI.Repositories
                     throw new ArgumentException("Article Id was empty");
                 }
 
-                var entries = await _context.Comments.Where(s => s.ArticleId == articleId).ToListAsync(cts);
-                entries.Sort((a, b) => b.CreatedAt.CompareTo(a.CreatedAt));
+                var entries = await _context.Comments
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .OrderByDescending(s => s.CreatedAt)
+                    .Where(s => s.ArticleId == articleId)
+                    .ToListAsync(cts);
 
                 if (index + count > entries.Count)
                 {
@@ -114,9 +100,12 @@ namespace FirstProject.CommentsAPI.Repositories
                     throw new ArgumentException("Article Id was empty");
                 }
 
-                var entries = await _context.Comments.Where(s => s.ArticleId == articleId).ToListAsync(cts);
+                var result = await _context.Comments
+                    .AsNoTracking()
+                    .Where(s => s.ArticleId == articleId)
+                    .CountAsync(cts);
 
-                return entries.Count;
+                return result;
             }
             catch
             {
@@ -124,7 +113,7 @@ namespace FirstProject.CommentsAPI.Repositories
             }
         }
 
-        public async Task<CommentDTO> LikeComment(Guid commentId, Guid userId, CancellationToken cts)
+        public async Task<CommentDTO> LikeComment(Guid commentId, string username, CancellationToken cts)
         {
             try
             {
@@ -133,7 +122,7 @@ namespace FirstProject.CommentsAPI.Repositories
                     throw new ArgumentException("Comment Id was empty");
                 }
 
-                if (userId == Guid.Empty)
+                if (username == string.Empty)
                 {
                     throw new ArgumentException("User Id was empty");
                 }
@@ -144,18 +133,18 @@ namespace FirstProject.CommentsAPI.Repositories
                     throw new Exception("Comment not found");
                 }
 
-                if (entry.Dislikes.Contains(userId))
+                if (entry.Dislikes.Contains(username))
                 {
-                    entry.Dislikes.Remove(userId);
+                    entry.Dislikes.Remove(username);
                 }
 
-                if (!entry.Likes.Contains(userId))
+                if (!entry.Likes.Contains(username))
                 {
-                    entry.Likes.Add(userId);
+                    entry.Likes.Add(username);
                 }
                 else
                 {
-                    entry.Likes.Remove(userId);
+                    entry.Likes.Remove(username);
                 }
 
                 await _context.SaveChangesAsync(cts);
@@ -168,7 +157,7 @@ namespace FirstProject.CommentsAPI.Repositories
             }
         }
 
-        public async Task<CommentDTO> DislikeComment(Guid commentId, Guid userId, CancellationToken cts)
+        public async Task<CommentDTO> DislikeComment(Guid commentId, string username, CancellationToken cts)
         {
             try
             {
@@ -177,7 +166,7 @@ namespace FirstProject.CommentsAPI.Repositories
                     throw new ArgumentException("Comment Id was empty");
                 }
 
-                if (userId == Guid.Empty)
+                if (username == string.Empty)
                 {
                     throw new ArgumentException("User Id was empty");
                 }
@@ -188,18 +177,18 @@ namespace FirstProject.CommentsAPI.Repositories
                     throw new Exception("Comment not found");
                 }
 
-                if (entry.Likes.Contains(userId))
+                if (entry.Likes.Contains(username))
                 {
-                    entry.Likes.Remove(userId);
+                    entry.Likes.Remove(username);
                 }
 
-                if (!entry.Dislikes.Contains(userId))
+                if (!entry.Dislikes.Contains(username))
                 {
-                    entry.Dislikes.Add(userId);
+                    entry.Dislikes.Add(username);
                 }
                 else
                 {
-                    entry.Dislikes.Remove(userId);
+                    entry.Dislikes.Remove(username);
                 }
 
                 await _context.SaveChangesAsync(cts);
@@ -244,7 +233,7 @@ namespace FirstProject.CommentsAPI.Repositories
             }
         }
 
-        public async Task<bool> DeleteComment(Guid commentId, CancellationToken cts)
+        public async Task<Guid> DeleteComment(Guid commentId, CancellationToken cts)
         {
             try
             {
@@ -256,14 +245,14 @@ namespace FirstProject.CommentsAPI.Repositories
                 var entry = await _context.Comments.FirstOrDefaultAsync(s => s.Id == commentId, cts);
                 if (entry == null)
                 {
-                    return false;
+                    return Guid.Empty;
                 }
 
                 _context.Comments.Remove(entry);
 
                 await _context.SaveChangesAsync(cts);
 
-                return true;
+                return entry.ArticleId;
             }
             catch
             {
@@ -271,7 +260,7 @@ namespace FirstProject.CommentsAPI.Repositories
             }
         }
 
-        public async Task<Guid> GetUserIdByCommentId(Guid commentId, CancellationToken cts)
+        public async Task<string> GetUsernameByCommentId(Guid commentId, CancellationToken cts)
         {
             try
             {
@@ -286,7 +275,7 @@ namespace FirstProject.CommentsAPI.Repositories
                     throw new Exception("Comment not found");
                 }
 
-                return entry.UserId;
+                return entry.Username;
             }
             catch
             {

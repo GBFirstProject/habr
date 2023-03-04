@@ -1,6 +1,6 @@
 ﻿using HabrParser.Models.APIComments;
 
-namespace HabrParser.Database.Repositories
+namespace HabrParser.Interfaces
 {
     public interface ICommentsRepository
     {

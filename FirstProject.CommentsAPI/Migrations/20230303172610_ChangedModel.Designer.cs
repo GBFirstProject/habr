@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FirstProject.CommentsAPI.Migrations
 {
     [DbContext(typeof(CommentsDbContext))]
-    [Migration("20230207094232_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20230303172610_ChangedModel")]
+    partial class ChangedModel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,7 +24,7 @@ namespace FirstProject.CommentsAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("FirstProject.CommentsAPI.Models.Comment", b =>
+            modelBuilder.Entity("FirstProject.CommentsAPI.Data.Models.Comment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,12 +48,30 @@ namespace FirstProject.CommentsAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("ReplyTo")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("comments");
+                });
+
+            modelBuilder.Entity("FirstProject.CommentsAPI.Data.Models.CommentsCount", b =>
+                {
+                    b.Property<Guid>("ArticleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.HasKey("ArticleId");
+
+                    b.ToTable("comments-count");
                 });
 #pragma warning restore 612, 618
         }

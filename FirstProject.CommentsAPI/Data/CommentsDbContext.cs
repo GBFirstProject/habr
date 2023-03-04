@@ -1,7 +1,7 @@
-﻿using HabrParser.Models.APIComments;
+﻿using FirstProject.CommentsAPI.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HabrParser.Database
+namespace FirstProject.CommentsAPI.Data
 {
     public class CommentsDbContext : DbContext
     {
@@ -10,7 +10,10 @@ namespace HabrParser.Database
 
         public CommentsDbContext(DbContextOptions<CommentsDbContext> options) : base(options)
         {
-            Database.EnsureCreated();
+            if (Database.GetPendingMigrations().Any())
+            {
+                Database.Migrate();
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
