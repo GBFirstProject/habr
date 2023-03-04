@@ -13,7 +13,6 @@ namespace FirstProject.ArticlesAPI.Controllers
     /// <summary>
     /// Сервис работы со статьями
     /// </summary>
-    [Authorize]
     [Route("api/articles")]    
     public class ArticleController : BaseController
     {
@@ -38,8 +37,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="articleId">Guid статьи</param>
         /// <param name="token"></param>
-        /// <returns>Полная статья</returns>
-        [AllowAnonymous]
+        /// <returns>Полная статья</returns>        
         [HttpGet("get-by-id")]
         public async Task<IActionResult> GetArticleById(Guid articleId, CancellationToken token)
         {
@@ -63,8 +61,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="articleId">Guid статьи</param>
         /// <param name="token">Токен отмены операции</param>
-        /// <returns>Полная статья</returns>
-        [AllowAnonymous]
+        /// <returns>Полная статья</returns>        
         [HttpGet("get-preview-by-id")]
         public async Task<IActionResult> GetPreviewArticleById(Guid articleId, CancellationToken token)
         {
@@ -88,8 +85,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="paging">параметры страницы</param>
         /// <param name="token">отмена</param>
-        /// <returns></returns>
-        [AllowAnonymous]
+        /// <returns></returns>        
         [HttpGet]
         public async Task<IActionResult> GetArticlesPreview([FromQuery] PagingParameters paging, CancellationToken token)
         {
@@ -114,8 +110,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="paging"></param>
         /// <param name="tag"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
+        /// <returns></returns>        
         [HttpGet("get-by-tag")]
         public async Task<IActionResult> GetArticlesPreviewByTag([FromQuery] PagingParameters paging, string tag, CancellationToken token)
         {
@@ -140,8 +135,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="paging"></param>
         /// <param name="hub"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
+        /// <returns></returns>        
         [HttpGet("get-by-hub")]
         public async Task<IActionResult> GetArticlesPreviewByHub([FromQuery] PagingParameters paging, string hub, CancellationToken token)
         {
@@ -164,8 +158,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// Получение количества статей созданных за последний месяц
         /// ДЛЯ ОТЛАДКИ В ПОЛЕ DisplayMessage будет отображаться токен авторизации
         /// </summary>
-        /// <returns></returns>
-        [AllowAnonymous]
+        /// <returns></returns>        
         [HttpGet("get-articles-count")]
         public async Task<IActionResult> GetArticlesCountAsync(CancellationToken token)
         {
@@ -191,7 +184,8 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="request">тело статьи</param>
         /// <param name="cancellation"></param>
-        /// <returns></returns>        
+        /// <returns></returns>               
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPost("add-article")]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request, CancellationToken cancellation)
         {            
@@ -224,7 +218,8 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="id">id обновляемой статьи</param>
         /// <param name="updateRequest">тело обновленной статьи</param>
         /// <param name="cancellation"></param>
-        /// <returns></returns>
+        /// <returns></returns>        
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("update-article")]        
         public async Task<IActionResult> UpdateArticle(Guid id, [FromBody] UpdateArticleRequest updateRequest, CancellationToken cancellation)
         {
@@ -242,11 +237,12 @@ namespace FirstProject.ArticlesAPI.Controllers
 
 
         /// <summary>
-        /// Удаляет статью (пока не реализовано)
+        /// Удаляет статью 
         /// </summary>
         /// <param name="id">id статьи на удаление</param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpDelete("delete-article")]        
         public async Task<IActionResult> DeleteArticle(Guid id, CancellationToken cancellation)
         {
@@ -262,7 +258,12 @@ namespace FirstProject.ArticlesAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+        /// <summary>
+        /// Возвращает заголовки статей автора по ID для личного кабинета
+        /// </summary>
+        /// <param name="authorId"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>        
         [HttpGet("titlesByAuthorId")]
         public async Task<IActionResult> GetArticlesTitlesByAuthorId([FromQuery] Guid authorId, CancellationToken cancellation)
         {
@@ -288,6 +289,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="articleId">ID статьи, которую лайкаем</param>        
         /// <param name="cts"></param>
         /// <returns>Изменненый комментарий</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("like")]
         public async Task<IActionResult> LikeArticle(Guid articleId, CancellationToken cts)
         {
@@ -314,6 +316,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="articleId">ID статьи, которую дизлайкаем</param>        
         /// <param name="cts"></param>
         /// <returns>Измененный комментарий</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("dislike")]
         public async Task<IActionResult> DislikeArticle(Guid articleId, CancellationToken cts)
         {
