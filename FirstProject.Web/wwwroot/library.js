@@ -44,12 +44,12 @@ function get_header_links_html(header_hubs) {
     const hubs = header_hubs;
     let header_hubs_html = `
         <li class="header_nav_item" id="all_hubs">
-            <a href="${window.location.origin}/hubs.html">
+            <a class="header_link" href="${window.location.origin}/hubs.html">
                 Топ хабы
             </a>
         </li>
         <li class="header_nav_item" id="all_tags">
-            <a href="${window.location.origin}/tags.html">
+            <a class="header_link" href="${window.location.origin}/tags.html">
                 Топ тэги
             </a>
         </li>`;
@@ -57,7 +57,7 @@ function get_header_links_html(header_hubs) {
     hubs.result.forEach(hub => {
         header_hubs_html += `
             <li class="header_nav_item">
-                <a href="${window.location.origin}/hubs.html?hub=${hub.title.trim().toLowerCase()}">
+                <a class="header_link" href="${window.location.origin}/hubs.html?hub=${hub.title.trim().toLowerCase()}">
                     ${hub.title}
                 </a>
             </li>`;
@@ -153,8 +153,8 @@ function get_article_html(article, comment_count) {
     let hubs = '';
     for (let i = 0; i < article['hubs'].length; i++) {
         hubs += i == article['hubs'].length - 1
-            ? `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]} </a></p>`
-            : `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]}, </a></p>`;
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]}, </a></p>`;
     }
     //
     let textHTML = `
@@ -384,16 +384,16 @@ function get_last_article_html(last_article, last_article_comment_count) {
     let last_article_hubs = '';
     for (let i = 0; i < last_article[0]['hubs'].length; i++) {
         last_article_hubs += i == last_article[0]['hubs'].length - 1
-            ? `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]} </a></p>`
-            : `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]}, </a></p>`;
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]}, </a></p>`;
     }
 
     //tags
     let last_article_tags = '';
     for (let i = 0; i < last_article[0]['tags'].length; i++) {
         last_article_tags += i == last_article[0]['tags'].length - 1
-            ? `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]} </a></p>`
-            : `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]}, </a></p>`;
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]}, </a></p>`;
     }
 
     //comments
@@ -415,7 +415,7 @@ function get_last_article_html(last_article, last_article_comment_count) {
                     <div class="section_new_post_data"><p class="advanced_data">Хабы: ${last_article_hubs}</p></div>
                     <div class="section_new_post_data"><p class="advanced_data">Тэги: ${last_article_tags}</p></div>
                     <p class="section_p_legend">${last_article[0]['text']}</p>                    
-                    <p id="button_article_${last_article[0]['hubrId']}"><a href="${window.location.origin}/article.html?id=${last_article[0]['id']}">Читать дальше</a></p>
+                    <button class="read_more_btn" id="button_article_${last_article[0]['hubrId']}"><a class="read_more_btn_text" href="${window.location.origin}/article.html?id=${last_article[0]['id']}">Читать дальше</a></button>
                 </div>
                 <div class="section_new_post_pic">
                     <img class="section_new_post_img" src="${last_article[0]['imageURL']}" alt="image_${last_article[0]['hubrId']}">
@@ -650,19 +650,19 @@ function render_preview_article(article, comment_count) {
     let hubs = '';
     for (let i = 0; i < article['hubs'].length; i++) {
         hubs += i == article['hubs'].length - 1
-            ? `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]} </a></p>`
-            : `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]}, </a></p>`;
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]}, </a></p>`;
     }
 
     //tags
     let tags = '';
     for (let i = 0; i < article['tags'].length; i++) {
         tags += i == article['tags'].length - 1
-            ? `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]} </a></p>`
-            : `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]}, </a></p>`;
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]}, </a></p>`;
     }
     return `
-        <div class="all_posts_item">
+        <div class="all_posts_first all_posts_item">
             <div class="all_posts_item_flex">
                 <div class="all_posts_item_pic">
                     <img class="section_new_post_img" src="${article['imageURL']}" alt="image_${article['hubrId']}">
@@ -681,7 +681,7 @@ function render_preview_article(article, comment_count) {
                     <div class="section_new_post_data"><p class="advanced_data">Хабы: ${hubs}</p></div>
                     <div class="section_new_post_data"><p class="advanced_data">Тэги: ${tags}</p></div>
                     <p class="all_posts_item_text">${article['text']}</p>                       
-                    <p id="button_article_${article['hubrId']}"><a href="${window.location.origin}/article.html?id=${article['id']}">Читать дальше</a></p>
+                    <button class="all_read_more_btn" id="button_article_${article['hubrId']}"><a class="all_read_more_btn_text" href="${window.location.origin}/article.html?id=${article['id']}">Читать дальше</a></button>
                 </div>
             </div>
         </div>`;
@@ -692,16 +692,16 @@ async function render_preview_last_article(last_article) {
     let hubs = '';
     for(let i = 0; i < last_article[0]['hubs'].length; i++) {
         hubs += i == last_article[0]['hubs'].length - 1
-            ? `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]} </a></p>`
-            : `<p class="advanced_data"><a href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]}, </a></p>`;
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${last_article[0]['hubs'][i].trim().toLowerCase()}">${last_article[0]['hubs'][i]}, </a></p>`;
     }
 
     //tags
     let tags = '';
     for(let i = 0; i < last_article[0]['tags'].length; i++) {
         tags += i == last_article[0]['tags'].length - 1
-            ? `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]} </a></p>`
-            : `<p class="advanced_data"><a href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]}, </a></p>`;
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${last_article[0]['tags'][i].trim().toLowerCase()}">${last_article[0]['tags'][i]}, </a></p>`;
     }
 
     //comments
@@ -724,7 +724,7 @@ async function render_preview_last_article(last_article) {
                     <div class="section_new_post_data"><p class="advanced_data">Хабы: ${hubs}</p></div>
                     <div class="section_new_post_data"><p class="advanced_data">Тэги: ${tags}</p></div>
                     <p class="section_p_legend">${last_article[0]['text']}</p>                    
-                    <p id="button_article_${last_article[0]['hubrId']}"><a href="${window.location.origin}/article.html?id=${last_article[0]['id']}">Читать дальше</a></p>
+                    <button class="all_read_more_btn" id="button_article_${last_article[0]['hubrId']}"><a class="all_read_more_btn_text" href="${window.location.origin}/article.html?id=${last_article[0]['id']}">Читать дальше</a></p>
                 </div>
                 <div class="section_new_post_pic">
                     <img class="section_new_post_img" src="${last_article[0]['imageURL']}" alt="image_${last_article[0]['hubrId']}">
