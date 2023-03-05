@@ -212,7 +212,7 @@ namespace HabrParser
                     NickName = string.IsNullOrEmpty(nickname) ? "UNKNOWN" : nickname,
                 };
 
-                var guid = await ParseUser(author.NickName, cancellationToken);
+                var guid = await ParseUser(author, cancellationToken);
                 author.Id = guid;
                 var author_result = await _articlesRepository.CreateAuthor(author, cancellationToken);
 
@@ -258,10 +258,10 @@ namespace HabrParser
             return await CreateUser(author.NickName, author.FirstName, author.LastName, cancellationToken);
         }
 
-        private async Task<Guid> ParseUser(string username, CancellationToken cancellationToken)
+        private async Task<Guid> ParseUser(Author author, CancellationToken cancellationToken)
         {
             var web = new HtmlWeb();
-            var url = $"https://habr.com/ru/users/{username}";
+            var url = $"https://habr.com/ru/users/{author.NickName}";
             HtmlDocument doc = web.Load(url);
 
             var data = doc.DocumentNode.Descendants(20).FirstOrDefault(n => n.HasClass("tm-user-card__name"));
@@ -281,8 +281,10 @@ namespace HabrParser
                     lastName = splitted[1];
                 }
             }
+            author.FirstName = firstName;
+            author.LastName = lastName;
 
-            return await CreateUser(username, firstName, lastName, cancellationToken);
+            return await CreateUser(author.NickName, firstName, lastName, cancellationToken);
         }
 
         private async Task<Guid> CreateUser(string username, string firstname, string lastname, CancellationToken cancellationToken)
