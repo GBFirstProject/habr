@@ -8,7 +8,7 @@ namespace FirstProject.Messages
 { /// <summary>
   /// Класс сообщения о комментировании статьи
   /// </summary>
-    public class ArticleCommented : IMessage
+    public class ArticleCommented : MessageBase
     {
 
         /// <summary>
@@ -19,11 +19,7 @@ namespace FirstProject.Messages
         /// Идентификатор сообщения
         /// </summary>
         public string Username { get; set; }
-        /// <summary>
-        /// Дата сообщения
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
+    
         public ArticleCommented(Guid articleId, string username)
         {
             ArticleId = articleId;

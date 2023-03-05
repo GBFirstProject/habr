@@ -1,7 +1,7 @@
-﻿using FirstProject.CommentsAPI.Interfaces;
+﻿using FirstProject.ArticlesAPI.Services.Interfaces;
 using FirstProject.Messages;
 
-namespace FirstProject.CommentsAPI.Services
+namespace FirstProject.ArticlesAPI.Services
 {
     public class NotificationService : INotificationService
     {
@@ -14,13 +14,29 @@ namespace FirstProject.CommentsAPI.Services
             _notificationServiceUrl = configuration.GetConnectionString("NotificationService");
         }
 
-        public void SendCommentCreated(ArticleCommented message, CancellationToken cts)
+        public void SendArticleLiked(ArticleLiked message, CancellationToken cts)
         {
             Task.Factory.StartNew(async () =>
             {
                 var client = _httpClientFactory.CreateClient();
 
                 var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/commented")
+                {
+                    Content = JsonContent.Create(message)
+                };
+
+                await client.SendAsync(request);
+            });
+        }
+
+
+        public void SendArticleDisliked(ArticleDisliked message, CancellationToken cts)
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/disliked")
                 {
                     Content = JsonContent.Create(message)
                 };

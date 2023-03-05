@@ -14,67 +14,65 @@ namespace FirstProject.NotificationAPI.Producers
             this.bus=bus;
         }
 
-        public Task<bool> PublishModeratorRequested(ModeratorRequested notification)
+        public async Task<bool> PublishModeratorRequested(ModeratorRequested notification)
         {
             try
             {
-                bus.Publish(notification);
+               await bus.Publish(notification);
 
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
                 throw;
             }
           
         }
 
-        public Task<bool> PublishArticleLiked(ArticleLiked notification)
+        public async Task<bool> PublishArticleLiked(ArticleLiked notification)
         {
             try
             {
-                bus.Publish(notification);
+               await bus.Publish(notification);
 
-                return Task.FromResult(true);
+                return true;
 
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
                 throw;
             }
 
         }
 
-        public Task<bool> PublishArticleDisliked(ArticleDisliked notification)
+        public async Task<bool> PublishArticleDisliked(ArticleDisliked notification)
         {
             try
             {
-                bus.Publish(notification);
+               await bus.Publish(notification);
 
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
                 throw;
             }
         }
 
-
-
-        public Task<bool> PublishArticleCommented(ArticleCommented notification)
+        public  async Task<bool> PublishArticleCommented(ArticleCommented notification)
         {
             try
             {
-                bus.Publish(notification);
+                await bus.Publish(notification);
 
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
                 throw;
             }
         }

@@ -23,28 +23,28 @@ namespace FirstProject.NotificationAPI.Controllers
          [HttpPost]
          [Route("moderatorRequested")]
          
-         public Task<bool> ModeratorRequested(ModeratorRequested notification)
+         public  async Task<bool> ModeratorRequested(ModeratorRequested notification)
          {
-            var result = notifier.PublishModeratorRequested(notification);
+            var result = await notifier.PublishModeratorRequested(notification);
             return result;          
          }
 
         [HttpPost]
         [Route("liked")]
 
-        public Task<bool> ArticleLiked(ArticleLiked notification)
+        public async Task<bool> ArticleLiked(ArticleLiked notification)
         {
             
-            var result = notifier.PublishArticleLiked(notification);
+            var result = await notifier.PublishArticleLiked(notification);
             return result;
         }
 
         [HttpPost]
         [Route("disliked")]
 
-        public Task<bool> ArticleDisliked(ArticleDisliked notification)
+        public async Task<bool> ArticleDisliked(ArticleDisliked notification)
         {
-            var result = notifier.PublishArticleDisliked(notification); 
+            var result = await notifier.PublishArticleDisliked(notification); 
             return result;
         }
 
@@ -52,9 +52,9 @@ namespace FirstProject.NotificationAPI.Controllers
         [HttpPost]
         [Route("commented")]
 
-        public Task<bool> ArticleCommented(ArticleCommented notification)
+        public async Task<bool> ArticleCommented(ArticleCommented notification)
         {
-            var result = notifier.PublishArticleCommented(notification);
+            var result =await notifier.PublishArticleCommented(notification);
             return result;
         }
 
