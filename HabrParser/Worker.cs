@@ -2,8 +2,10 @@
 using HabrParser.Database;
 using HabrParser.Interfaces;
 using HabrParser.Models.APIArticles;
+using HabrParser.Models.APIAuth;
 using HabrParser.Models.APIComments;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
@@ -19,12 +21,20 @@ namespace HabrParser
         private readonly ICommentsCountRepository _countRepository;
         private readonly IMapper _mapper;
 
-        public Worker(IArticlesRepository articlesRepository, ICommentsRepository commentsRepository, IMapper mapper, ICommentsCountRepository countRepository)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public Worker(
+            IArticlesRepository articlesRepository,
+            ICommentsRepository commentsRepository,
+            ICommentsCountRepository countRepository,
+            IMapper mapper,
+            UserManager<ApplicationUser> userManager)
         {
             _articlesRepository = articlesRepository;
             _commentsRepository = commentsRepository;
-            _mapper = mapper;
             _countRepository = countRepository;
+            _mapper = mapper;
+            _userManager = userManager;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -105,6 +115,9 @@ namespace HabrParser
                                     Console.WriteLine($"ст. № {articleId} - {data.articlesList.articlesList.article.titleHtml}");
                                     Article article = _mapper.Map<Models.Article, Article>(data.articlesList.articlesList.article);
 
+                                    var guid = await GetUserAndSaveToDb(article.Author, cancellationToken);
+                                    article.Author.Id = guid;
+                                    
                                     var result = await _articlesRepository.CreateHabrArticle(article, _levelType, cancellationToken);
                                     await GetCommentsAndSaveToDb(result, cancellationToken);
                                 }
@@ -198,6 +211,9 @@ namespace HabrParser
                 {
                     NickName = string.IsNullOrEmpty(nickname) ? "UNKNOWN" : nickname,
                 };
+
+                var guid = await ParseUser(author, cancellationToken);
+                author.Id = guid;
                 var author_result = await _articlesRepository.CreateAuthor(author, cancellationToken);
 
                 Comment entry = new()
@@ -234,6 +250,73 @@ namespace HabrParser
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+            }
+        }
+
+        private async Task<Guid> GetUserAndSaveToDb(Author author, CancellationToken cancellationToken)
+        {
+            return await CreateUser(author.NickName, author.FirstName, author.LastName, cancellationToken);
+        }
+
+        private async Task<Guid> ParseUser(Author author, CancellationToken cancellationToken)
+        {
+            var web = new HtmlWeb();
+            var url = $"https://habr.com/ru/users/{author.NickName}";
+            HtmlDocument doc = web.Load(url);
+
+            var data = doc.DocumentNode.Descendants(20).FirstOrDefault(n => n.HasClass("tm-user-card__name"));
+
+            string firstName = string.Empty, lastName = string.Empty;
+
+            if (data != null)
+            {
+                var splitted = data.InnerText.Split(' ');
+                if (splitted.Length < 2)
+                {
+                    firstName = splitted[0];
+                }
+                else
+                {
+                    firstName = splitted[0];
+                    lastName = splitted[1];
+                }
+            }
+            author.FirstName = firstName;
+            author.LastName = lastName;
+
+            return await CreateUser(author.NickName, firstName, lastName, cancellationToken);
+        }
+
+        private async Task<Guid> CreateUser(string username, string firstname, string lastname, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var email = username.ToLower() + "@gmail.com";
+
+                var entry = await _userManager.FindByNameAsync(email);
+                if (entry != null)
+                {
+                    return Guid.Parse(entry.Id);
+                }
+
+                var user = new ApplicationUser()
+                {
+                    UserName = email,
+                    FirstName = firstname,
+                    LastName = lastname,
+                    EmailConfirmed = true,
+                    PhoneNumber = "88005553535",
+                    Email = email
+                };
+
+                var result_create = await _userManager.CreateAsync(user, "P@ssw0rd");
+                var result_role = await _userManager.AddToRoleAsync(user, Config.User);
+
+                return Guid.Parse(user.Id);
+            }
+            catch
+            {
+                return Guid.Empty;
             }
         }
     }
