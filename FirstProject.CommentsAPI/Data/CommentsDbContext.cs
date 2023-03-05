@@ -10,10 +10,7 @@ namespace FirstProject.CommentsAPI.Data
 
         public CommentsDbContext(DbContextOptions<CommentsDbContext> options) : base(options)
         {
-            if (Database.GetPendingMigrations().Any())
-            {
-                Database.Migrate();
-            }
+            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
