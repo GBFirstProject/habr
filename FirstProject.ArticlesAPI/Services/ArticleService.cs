@@ -541,19 +541,27 @@ namespace FirstProject.ArticlesAPI.Services
 
         public async Task<PreviewArticleDTO> GetBestArticlePreview(CancellationToken cancellationToken)
         {
-            Article article = await _articleRepository
-                .Query()
-                .AsNoTracking()
-                .AsSplitQuery()
-                .Include(a => a.Author)
-                .Include(a => a.LeadData)
-                .Include(a => a.Statistics)
-                .Include(a => a.Tags)
-                .Include(a => a.Hubs)
-                .Include(a => a.MetaData)
-                .FirstAsync()
-                .ConfigureAwait(false);            
-            return _mapper.Map<PreviewArticleDTO>(article);
+            var articles = await _articleRepository.Query()
+                .Where(a => a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished)
+                .ToListAsync(cancellationToken)                
+                .ConfigureAwait(false);
+            var statistics = await _statisticsRepository.Query()
+                .Where(s => s.Article.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && s.Article.IsPublished)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+            var now = DateTimeOffset.UtcNow;
+
+            var bestArticle = articles.Select(a => new
+            {
+                Article = a,
+                Statistics = statistics.FirstOrDefault(s => s.Article.Id == a.Id),
+                AverageReadingCount = (now - a.TimePublished.Value).TotalDays > 0 ?
+                    (double)(statistics.FirstOrDefault(s => s.Article.Id == a.Id)?.ReadingCount ?? 0) / (now - a.TimePublished.Value).TotalDays : 0
+            })
+            .OrderByDescending(x => x.AverageReadingCount)
+            .FirstOrDefault();
+            
+            return _mapper.Map<PreviewArticleDTO>(bestArticle?.Article);
         }
 
         public async Task<List<ArticleTitleForModerationDTO>> GetUnpublishedArticlesForModeration(CancellationToken cancellationToken)
