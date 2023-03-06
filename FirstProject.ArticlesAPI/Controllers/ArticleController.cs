@@ -367,9 +367,21 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
+        [Authorize(Roles = "Moderator,Admin")]
         [HttpGet("get-articles-for-moderation")]
         public async Task<IActionResult> GetArticlesForModeration(CancellationToken token)
         {
+            var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
+            var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+            if (role != "Admin" && role != "Moderator")
+            {
+                return Ok(new ResponseDTO()
+                {
+                    DisplayMessage = "Этот пользователь не имеет прав просматривать статьи для модерации",
+                    IsSuccess = false,
+                    Result = null
+                });
+            }
             try
             {
                 var entity = await _articlesService.GetUnpublishedArticlesForModeration(token);
