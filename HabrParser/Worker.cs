@@ -39,26 +39,26 @@ namespace HabrParser
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("Введите номер блока статей (* 1000) (50, 100, ..., 700), либо ID статьи, с которой нужно начать: ");
-            var levelNumber = Console.ReadLine();
-            _levelType = ArticleThreadLevel.ThreadLevel(levelNumber);
-            Console.ResetColor();
+            //Console.Clear();
+            //Console.ForegroundColor = ConsoleColor.Red;
+            //Console.Write("Введите номер блока статей (* 1000) (50, 100, ..., 700), либо ID статьи, с которой нужно начать: ");
+            //var levelNumber = Console.ReadLine();
+            //_levelType = ArticleThreadLevel.ThreadLevel(levelNumber);
+            //Console.ResetColor();
 
-            int endArticleId = 0;
-            int lastIdAdded = 0;
+            int endArticleId = 720564;
+            int lastIdAdded = 720450;
 
-            if (_levelType != ArticleThreadLevelType.None)
-            {
-                lastIdAdded = await _articlesRepository.LastArticleId(_levelType, stoppingToken);
-                endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
-            }
-            else
-            {
-                lastIdAdded = Convert.ToInt32(levelNumber);
-                endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
-            }
+            //if (_levelType != ArticleThreadLevelType.None)
+            //{
+            //    lastIdAdded = await _articlesRepository.LastArticleId(_levelType, stoppingToken);
+            //    endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
+            //}
+            //else
+            //{
+            //    lastIdAdded = Convert.ToInt32(levelNumber);
+            //    endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
+            //}
 
             _mainTitle = $"Парсинг статей с {lastIdAdded} по {endArticleId} - {_levelType}";
             Console.Title = _mainTitle;
