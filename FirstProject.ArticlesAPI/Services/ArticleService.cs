@@ -52,6 +52,12 @@ namespace FirstProject.ArticlesAPI.Services
         public async Task<FullArticleDTO> GetArticleByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             Article article = await ArticleById(id, cancellationToken).ConfigureAwait(false);
+            if(article != null)
+            {
+                article.Statistics.ReadingCount++;
+                await _articleRepository.SaveChangesAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
             return _mapper.Map<FullArticleDTO>(article);
         }
         public async Task<PreviewArticleDTO> GetPreviewArticleByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -76,7 +82,7 @@ namespace FirstProject.ArticlesAPI.Services
             if (article == null)
             {
                 throw new DataNotFoundException(nameof(Article), id);
-            }
+            }            
             return article;
         }
 
@@ -88,7 +94,7 @@ namespace FirstProject.ArticlesAPI.Services
             article.Author = AddAuthor(new Author
             {
                 Id = articleDto.AuthorId,
-                NickName = articleDto.AuthorNickName.Substring(0, articleDto.AuthorNickName.IndexOf('@')) 
+                NickName = articleDto.AuthorNickName.IndexOf('@') != 0 ? articleDto.AuthorNickName.Substring(0, articleDto.AuthorNickName.IndexOf('@')) : articleDto.AuthorNickName
             });           
             
             article.Statistics = new Statistics(); 
