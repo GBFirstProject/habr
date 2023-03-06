@@ -537,32 +537,41 @@ namespace FirstProject.ArticlesAPI.Services
             {
                 throw;
             }
-        }
-
+        }        
         public async Task<PreviewArticleDTO> GetBestArticlePreview(CancellationToken cancellationToken)
         {
+            var now = DateTimeOffset.UtcNow;
+
             var articles = await _articleRepository.Query()
-                .Where(a => a.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && a.IsPublished)
-                .ToListAsync(cancellationToken)                
-                .ConfigureAwait(false);
-            var statistics = await _statisticsRepository.Query()
-                .Where(s => s.Article.TimePublished >= DateTimeOffset.UtcNow.AddMonths(-1) && s.Article.IsPublished)
+                .Where(a => a.TimePublished >= DateTimeOffset.Now.AddMonths(-1))                
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
-            var now = DateTimeOffset.UtcNow;
+
+
+
+            var articleIds = articles.Select(a => a.Id).ToList();
+
+            var statistics = await _statisticsRepository.Query()                
+                .Where(s => articleIds.Contains(s.Article.Id))
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             var bestArticle = articles.Select(a => new
             {
                 Article = a,
                 Statistics = statistics.FirstOrDefault(s => s.Article.Id == a.Id),
-                AverageReadingCount = (now - a.TimePublished.Value).TotalDays > 0 ?
-                    (double)(statistics.FirstOrDefault(s => s.Article.Id == a.Id)?.ReadingCount ?? 0) / (now - a.TimePublished.Value).TotalDays : 0
+                AverageReadingCount = (now - a.TimePublished.Value).TotalDays > 0
+                        ? (double)(statistics.FirstOrDefault(s => s.Article.Id == a.Id)?.ReadingCount ?? 0) / (now - a.TimePublished.Value).TotalDays
+                        : 0
             })
-            .OrderByDescending(x => x.AverageReadingCount)
-            .FirstOrDefault();
-            
-            return _mapper.Map<PreviewArticleDTO>(bestArticle?.Article);
+                .OrderByDescending(x => x.AverageReadingCount)
+                .FirstOrDefault();
+
+            Article resultArticle = await ArticleById(bestArticle.Article.Id, cancellationToken).ConfigureAwait(false);
+
+            return _mapper.Map<PreviewArticleDTO>(resultArticle);
         }
+
 
         public async Task<List<ArticleTitleForModerationDTO>> GetUnpublishedArticlesForModeration(CancellationToken cancellationToken)
         {
