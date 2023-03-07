@@ -32,8 +32,8 @@
                     @Html.DisplayFor(modelItem => item.FirstName)
                 </td>
                 <td>
-                    <a asp-page="./User/Edit" asp-route-id="@item.Id">Изменить</a> |
-                    <a asp-page="./User/Details" asp-route-id="@item.Id">Просмотр</a> |
+                    <a asp-page="./User/Roles" asp-route-id="@item.Id">Роли</a>|
+                    <a asp-page="./User/Blocking" asp-route-id="@item.Id">Блокировка</a>|
                     <a asp-page="./User/Delete" asp-route-id="@item.Id">Удалить</a>
                 </td>
             </tr>
