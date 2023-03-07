@@ -18,6 +18,8 @@ namespace HabrParser.Models.APIArticles
         public int VotesCount { get; set; }
         public int VotesCountPlus { get; set; }
         public int VotesCountMinus { get; set; }
+        public Guid ArticleId { get; set; }
+        [ForeignKey("ArticleId")]
         public Article Article { get; set; }
     }
 }
