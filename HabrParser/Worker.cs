@@ -47,7 +47,7 @@ namespace HabrParser
             //Console.ResetColor();
 
             int endArticleId = 720800;
-            int lastIdAdded = 720600;
+            int lastIdAdded = 720400;
 
             //if (_levelType != ArticleThreadLevelType.None)
             //{
@@ -67,7 +67,7 @@ namespace HabrParser
 
             for (int i = lastIdAdded; i < endArticleId; i++)
             {
-                await GetArticleAndSaveToDb(i, stoppingToken);
+                await GetArticleAndSaveToDb(i, stoppingToken);                
             }
         }
 
