@@ -46,8 +46,8 @@ namespace HabrParser
             //_levelType = ArticleThreadLevel.ThreadLevel(levelNumber);
             //Console.ResetColor();
 
-            int endArticleId = 720564;
-            int lastIdAdded = 720450;
+            int endArticleId = 720800;
+            int lastIdAdded = 720600;
 
             //if (_levelType != ArticleThreadLevelType.None)
             //{
