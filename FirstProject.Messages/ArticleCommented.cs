@@ -16,7 +16,7 @@ namespace FirstProject.Messages
         /// </summary>
         public Guid ArticleId { get; set; }
         /// <summary>
-        /// Идентификатор сообщения
+        /// Идентификатор отправителя
         /// </summary>
         public string Username { get; set; }
     
@@ -25,6 +25,7 @@ namespace FirstProject.Messages
             ArticleId = articleId;
             Username = username;
             CreatedAt = DateTime.UtcNow;
+           
         }
     }
 }

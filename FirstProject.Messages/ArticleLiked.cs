@@ -16,16 +16,20 @@ namespace FirstProject.Messages
         /// </summary>
         public Guid ArticleId { get; set; }
         /// <summary>
-        /// Идентификатор сообщения
+        /// Идентификатор отправителя
         /// </summary>
         public string Username { get; set; }
+        /// <summary>
+        /// Идентификатор автора статьи
+        /// </summary>
+        public Guid ArticleAuthorId { get; set; }
 
-
-        public ArticleLiked(Guid articleId, string userId)
+        public ArticleLiked(Guid articleId, string userId, Guid articleAuthorId)
         {
             ArticleId = articleId;
             Username = userId;
             CreatedAt = DateTime.UtcNow;
+            ArticleAuthorId=articleAuthorId;
         }
     }
 }

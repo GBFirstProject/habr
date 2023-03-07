@@ -77,9 +77,10 @@ namespace FirstProject.CommentsAPI.Services
                     ReplyTo = replyTo
                 };
                 var result = await _comments.CreateComment(entry, cts);
+            
 
                 var message = new ArticleCommented(articleId, username);
-                _notificationService.SendMessage(message, cts);
+                _notificationService.SendCommentCreated(message, cts);
 
                 await _commentsCount.IncreaseCount(articleId, cts);
 
