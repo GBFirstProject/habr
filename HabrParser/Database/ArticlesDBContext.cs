@@ -130,6 +130,8 @@ namespace HabrParser.Database
                 .WithOne(a => a.Article)
                 .HasForeignKey<Statistics>(s => s.ArticleId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.TimePublished);
 
             modelBuilder.Entity<Tag>()
                 .HasMany(tag => tag.Articles)
