@@ -18,11 +18,49 @@ namespace FirstProject.ArticlesAPI.Data
         public DbSet<Metadata> Metadata { get; set; } = null!;
         public ArticlesDBContext(DbContextOptions options) : base(options)
         {            
-            Database.EnsureCreated();
-            /*if (Database.GetPendingMigrations().Any())
+            Database.EnsureCreated();            
+        }
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            TrackChangesAtRelatedToArticleTables();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+        public override int SaveChanges()
+        {
+            TrackChangesAtRelatedToArticleTables();
+            return base.SaveChanges();
+        }
+        private void TrackChangesAtRelatedToArticleTables()
+        {
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is Article && (
+                        e.State == EntityState.Added));
+
+            foreach (var entry in entries)
             {
-                Database.Migrate();
-            }*/
+                var article = entry.Entity as Article;
+                if (article != null && article.LeadData != null)
+                {
+                    article.LeadData.ArticleId = article.Id;
+                }
+            }
+            foreach (var entry in entries)
+            {
+                var article = entry.Entity as Article;
+                if (article != null && article.MetaData != null)
+                {
+                    article.MetaData.ArticleId = article.Id;
+                }
+            }
+            foreach (var entry in entries)
+            {
+                var article = entry.Entity as Article;
+                if (article != null && article.Statistics != null)
+                {
+                    article.Statistics.ArticleId = article.Id;
+                }
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -64,7 +102,7 @@ namespace FirstProject.ArticlesAPI.Data
             modelBuilder.Entity<Article>()
                 .HasOne(l => l.LeadData)
                 .WithOne(l => l.Article)
-                .HasForeignKey<LeadData>(l => l.Id);            
+                .HasForeignKey<LeadData>(l => l.Id);
             modelBuilder.Entity<Article>()
                 .Property(a => a.Language)
                 .HasConversion(new EnumToStringConverter<ArticleLanguage>());
@@ -76,6 +114,23 @@ namespace FirstProject.ArticlesAPI.Data
                 .HasOne(l => l.MetaData)
                 .WithOne(l => l.Article)
                 .HasForeignKey<Metadata>(l => l.Id);
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.LeadData)
+                .WithOne(a => a.Article)
+                .HasForeignKey<LeadData>(l => l.ArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.MetaData)
+                .WithOne(a => a.Article)
+                .HasForeignKey<Metadata>(m => m.ArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.Statistics)
+                .WithOne(a => a.Article)
+                .HasForeignKey<Statistics>(s => s.ArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.TimePublished);
 
             modelBuilder.Entity<Tag>()
                 .HasMany(tag => tag.Articles)
@@ -110,7 +165,7 @@ namespace FirstProject.ArticlesAPI.Data
                 .HasOne(le => le.Article)
                 .WithOne(le => le.LeadData)
                 .HasForeignKey<Article>(le => le.LeadDataId);
-                        
+
             modelBuilder.Entity<Metadata>()
                 .HasOne(me => me.Article)
                 .WithOne(me => me.MetaData)
@@ -120,6 +175,8 @@ namespace FirstProject.ArticlesAPI.Data
                 .HasOne(le => le.Article)
                 .WithOne(le => le.Statistics)
                 .HasForeignKey<Article>(le => le.StatisticsId);
+
+            base.OnModelCreating(modelBuilder);
 
 
         }

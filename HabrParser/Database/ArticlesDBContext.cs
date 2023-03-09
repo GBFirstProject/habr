@@ -69,6 +69,27 @@ namespace HabrParser.Database
                 .HasOne(a => a.Statistics)
                 .WithOne(a => a.Article)
                 .HasForeignKey<Statistics>(a => a.Id);
+            modelBuilder.Entity<Article>()
+                .HasOne(l => l.MetaData)
+                .WithOne(l => l.Article)
+                .HasForeignKey<Metadata>(l => l.Id);
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.LeadData)
+                .WithOne(a => a.Article)
+                .HasForeignKey<LeadData>(l => l.ArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.MetaData)
+                .WithOne(a => a.Article)
+                .HasForeignKey<Metadata>(m => m.ArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.Statistics)
+                .WithOne(a => a.Article)
+                .HasForeignKey<Statistics>(s => s.ArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.TimePublished);
 
             modelBuilder.Entity<Tag>()
                 .HasMany(tag => tag.Articles)
