@@ -549,7 +549,7 @@ namespace FirstProject.ArticlesAPI.Services
             var now = DateTimeOffset.UtcNow;
 
             var articles = await _articleRepository.Query()
-                .Where(a => a.TimePublished >= DateTimeOffset.Now.AddMonths(-1))                
+                .Where(a => a.TimePublished >= DateTimeOffset.Now.AddMonths(-1))
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
 
@@ -557,7 +557,7 @@ namespace FirstProject.ArticlesAPI.Services
 
             var articleIds = articles.Select(a => a.Id).ToList();
 
-            var statistics = await _statisticsRepository.Query()                
+            var statistics = await _statisticsRepository.Query()
                 .Where(s => articleIds.Contains(s.Article.Id))
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
@@ -573,9 +573,29 @@ namespace FirstProject.ArticlesAPI.Services
                 .OrderByDescending(x => x.AverageReadingCount)
                 .FirstOrDefault();
 
-            Article resultArticle = await ArticleById(bestArticle.Article.Id, cancellationToken).ConfigureAwait(false);
+            //Article resultArticle = await ArticleById(bestArticle.Article.Id, cancellationToken).ConfigureAwait(false);
 
-            return _mapper.Map<PreviewArticleDTO>(resultArticle);
+            return _mapper.Map<PreviewArticleDTO>(bestArticle.Article);
+            /*var now = DateTimeOffset.UtcNow;
+            
+            var statistics = await _statisticsRepository.Query()            
+                .Include(s => s.Article)
+                .Where(a => a.Article.TimePublished >= DateTimeOffset.Now.AddMonths(-1))
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            var bestStatistics = statistics.Select(a => new
+            {                
+                Statistics = statistics.FirstOrDefault(s => s.ArticleId == a.Id),
+                AverageReadingCount = (now - a.Article.TimePublished.Value).TotalDays > 0
+                        ? (double)(statistics.FirstOrDefault(s => s.ArticleId == a.Id)?.ReadingCount ?? 0) / (now - a.Article.TimePublished.Value).TotalDays
+                        : 0
+            })
+            .OrderByDescending(x => x.AverageReadingCount)
+            .FirstOrDefault();
+
+            Article resultArticle = await ArticleById(bestStatistics.Statistics.ArticleId, cancellationToken).ConfigureAwait(false);
+            return _mapper.Map<PreviewArticleDTO>(resultArticle);*/
         }
 
 
