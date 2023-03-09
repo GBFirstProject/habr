@@ -1,6 +1,7 @@
 ﻿"use strict";
 let userClaims = null;
-let article = null;
+let action = null,
+    article = null;
 let id = null;
 const page_number_deafult = 1,
     page_size_default = 10;
@@ -23,21 +24,41 @@ try {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     //
-    id = urlParams.get('id').trim().toLowerCase();
-    page_number = urlParams.get('PageNumber');
-    page_size = urlParams.get('PageSize');
+    action = urlParams.get('action');//.trim().toLowerCase();
+    if (action == null)
+        action = 'read';
     //
-    if (page_number == null || page_size == null) {
-        page_number = page_number_deafult;
-        page_size = page_size_default;
-    } else {
-        page_number = parseInt(page_number);
-        page_size = parseInt(page_size);
-        //
-        if (page_number < 1 || page_size < 1)
-            throw new Error('указаны некорректные параметры');
-    }
+    switch(action) {
+        case 'read':
+            id = urlParams.get('id').trim().toLowerCase();
+            page_number = urlParams.get('PageNumber');
+            page_size = urlParams.get('PageSize');
+            //
+            if (page_number == null || page_size == null) {
+                page_number = page_number_deafult;
+                page_size = page_size_default;
+            } else {
+                page_number = parseInt(page_number);
+                page_size = parseInt(page_size);
+                //
+                if (page_number < 1 || page_size < 1)
+                    throw new Error('указаны некорректные параметры');
+            }
+            break;
+
+        case 'create':
+            break;
+
+        case 'update':
+            id = urlParams.get('id').trim().toLowerCase();
+            break;
+
+        case 'delete':
+            id = urlParams.get('id').trim().toLowerCase();
+            break;
+    } 
 } catch (e) {
+    action = 'read';
     page_number = page_number_deafult;
     page_size = page_size_default; 
 }
@@ -60,10 +81,173 @@ try {
     }
 })();
 
+async function delete_article(id) {
+    const response = new Request(`/articles/delete-article?id=${id}`, {
+        method: 'DELETE',
+        headers: new Headers({
+            "X-CSRF": "1", 
+            "Content-Type": "application/json",
+            "Accept": "*/*"
+        })
+    });
+    //
+    try {
+        var resp = await fetch(response);
+        let data;
+        if (resp.ok)
+            data = await resp.json();      
+    } catch (e) {
+        console.log('');
+    }
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    if (!response.hasOwnProperty('result'))
+        return false;
+    return response.isSuccess;
+}
+
+async function get_article(id) {
+    const request = await fetch(`/articles/get-by-id?${new URLSearchParams({ articleId: id })}`, {
+        method: 'GET',
+        headers: new Headers({ "X-CSRF": "1" })
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (request == null || typeof request === 'undefined')
+        return null;
+    if (!request.hasOwnProperty('result'))
+        return null;
+    return request.result;
+}
+
+function get_article_html(article, comment_count) {
+    const prev_link = window.location.origin;
+    //hubs
+    let hubs = '';
+    for (let i = 0; i < article['hubs'].length; i++) {
+        hubs += i == article['hubs'].length - 1
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]}, </a></p>`;
+    }
+    //
+    let textHTML = `
+        <div class="section_new_post_text">
+            <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
+            <h2 class="section_h2"><a class="site_links" href="#">${article['title']}</a></h2>
+            <div class="section_new_post_data">
+                <p class="advanced_data" id="like_${article['id']}">Лайки: ${article['likes'].length}</p>
+                <p class="advanced_data" id="dislike_${article['id']}">Дизлайки: ${article['dislikes'].length}</p>
+            </div>
+            <div class="section_new_post_data">
+                <p class="advanced_data" id="comments_${article['id']}">Комментарии: ${comment_count}</p>
+                <p class="advanced_data">Просмотров: ${article['readingCount']}</p>
+            </div>
+            <div class="section_new_post_data">
+                ${hubs}
+            </div>            
+        </div>
+        <p class="article_text">${article['fullTextHtml']}</p>
+        <div class="comments">
+            <h2 class="section_h2" id="comments_header">Комментарии</h2>
+            <div class="all_posts_pagination" id="comments_pagination">
+            </div>
+        </div>`;
+    return textHTML;
+}
+
+function get_create_article_html() {
+    return `
+        <div class="page_panel">
+            <p id="button_back"><a href="${window.location.origin}/account.html">Личный кабинет</a></p>
+        </div>
+        <div class="article_form">
+            <form class="container_flex_column">
+                <label>Автор:</label>                    
+                <input type="text" class="article_field" id="article_author" value="${userClaims.find((claim) => claim.type === 'name').value}" readonly>
+                <label>Название:</label>                    
+                <input type="text" class="article_field" id="article_title">
+                <label>Текст:</label>                    
+                <textarea class="article_field article_text" id="article_text"></textarea>
+                <label>Изображение:</label>                    
+                <input type="text" class="article_field" id="article_image">                
+                <label>Тэги:</label>                    
+                <input type="text" class="article_field" id="article_tags">
+                <label>Хабы:</label>                    
+                <input type="text" class="article_field" id="article_hubs">
+                <label>Комментарии разрешены:</label>                    
+                <select class="article_field" id="article_comments">
+                    <option selected>Да</option>
+                    <option >Нет</option>                
+                </select>
+                <p id="button_save"><u>Сохранить</u></p>
+                <div id="message_div"></div>
+            </form>
+        </div>`;
+}
+
+function get_delete_article_html(article, article_id) {
+    return `
+        <div class="container_flex_column">
+            Удалить статью "${article['title']}"?
+            <div class="container_flex_row">
+                <p class="row_item" id="button_yes"><u>Да</u></p>
+                <p class="row_item" id="button_no" onclick="window.history.back()"><u>Нет</u></p>                
+            </div>
+            <div id="message_div"></div>
+        </div>`;
+}
+
 function get_main_html() {
     return `
         <p id="button_back" onclick="window.history.back()"><u>Назад</u></p>
         <div id="article_div"></div>`;
+}
+
+function get_update_article_html(article, comment_count) {
+    const prev_link = window.location.origin;
+    //hubs
+    let hubs = '';
+    for (let i = 0; i < article['hubs'].length; i++) {
+        hubs += i == article['hubs'].length - 1
+            ? `${article['hubs'][i]}`
+            : `${article['hubs'][i]},`;
+    }
+
+    let tags = '';
+    for (let i = 0; i < article['tags'].length; i++) {
+        tags += i == article['tags'].length - 1
+            ? `${article['tags'][i]}`
+            : `${article['tags'][i]},`;
+    }
+    //
+    return `
+        <div class="article_form">
+            <form class="container_flex_column">
+                <label>Автор:</label>                    
+                <input type="text" class="article_field" id="article_author" value="${article['authorNickName']}" readonly>
+                <label>Название:</label>                    
+                <input type="text" class="article_field" id="article_title" value="${article['title']}">
+                <label>Текст:</label>                    
+                <textarea class="article_field article_text" id="article_text">${article['fullTextHtml'].trim()}</textarea>
+                <label>Изображение:</label>                    
+                <input type="text" class="article_field" id="article_image">                
+                <label>Тэги:</label>                    
+                <input type="text" class="article_field" id="article_tags" value="${tags}">
+                <label>Хабы:</label>                    
+                <input type="text" class="article_field" id="article_hubs" value="${hubs}">
+                <label>Дата публикации:</label>                    
+                <input type="text" class="article_field" id="article_date" value="${get_datetime_string(article['timePublished'])}" readonly>
+                <label>Комментарии разрешены:</label>                    
+                <select class="article_field" id="article_comments">
+                    <option ${article['commentsEnabled'] ? 'selected' : ''}>Да</option>
+                    <option ${article['commentsEnabled'] ? '' : 'selected'}>Нет</option>                
+                </select>
+                <p id="button_save"><u>Сохранить</u></p>
+                <div id="message_div"></div>
+            </form>
+        </div>`;
 }
 
 async function load() {
@@ -75,9 +259,27 @@ async function load() {
     //рендер html
     const header_hubs_html = get_header_links_html(response_json.header_hubs);
     const main_html = get_main_html();
-    const article_html = get_article_html(response_json.article, response_json.article_comment_count);
-    const article_comments_html = get_article_comments_html(response_json.article, response_json.article_comment_count, response_json.article_comments);
-    const article_comments_pagination_html = get_article_comments_pagination_html(response_json.article_comment_count);
+
+    let article_html = '';
+    let article_comments_html = '';
+
+    //create
+    if (action == 'create')
+        article_html = get_create_article_html();
+
+    //read
+    if (action == 'read') {
+        article_html = get_article_html(response_json.article, response_json.article_comment_count);
+        article_comments_html = get_article_comments_html(response_json.article, response_json.article_comment_count, response_json.article_comments);
+    }
+
+    //update
+    if (action == 'update') 
+        article_html = get_update_article_html(response_json.article);
+
+    //delete
+    if (action == 'delete')
+        article_html = get_delete_article_html(response_json.article, id);
 
     //добавить на страницу
     delete_progressbar();
@@ -87,8 +289,7 @@ async function load() {
             header_hubs_html: header_hubs_html,
             main_html: main_html,
             article_html: article_html,
-            article_comments_html: article_comments_html,
-            article_comments_pagination_html: article_comments_pagination_html
+            article_comments_html: article_comments_html
         }
     );
 }
@@ -110,11 +311,20 @@ async function load_data() {
         header_html = await get_header();
         footer_html = await get_footer();
         header_hubs = await get_top_hubs(4);//популярные хабы
+        account_data = get_account_data();
         //
         article = await get_article(id);
-        article_comment_count = await get_comments_count(id);
-        article_comments = await get_comments(id, page_number, page_size);
-        account_data = get_account_data();
+
+        //read
+        if (action == 'read') {
+            article_comment_count = await get_comments_count(id);
+            article_comments = await get_comments(id, page_number, page_size);
+        }
+
+        //update
+        //if (action == 'update')
+        //delete
+        //if (action == 'delete')            
     } catch (ex) {
         throw new Error('ошибка загрузки данных');
     }
@@ -131,6 +341,178 @@ async function load_data() {
     };
 }
 
+async function render_article(account_data, action, article, article_html, article_comments_html, comments) {
+    //статья
+    const article_div = document.getElementById('article_div');
+    if (article_div == null)
+        return false;
+    article_div.innerHTML = '';
+    article_div.insertAdjacentHTML('afterbegin', article_html);
+
+    //события
+    switch(action) {
+        case 'create':
+            const button_save_create = document.getElementById('button_save');
+            if (button_save_create != null) {
+                button_save_create.addEventListener('click', () => {
+                    //проверка введенных данных
+                    const article_title = document.getElementById('article_title');
+                    const article_text = document.getElementById('article_text');
+                    const article_image = document.getElementById('article_image');
+                    const article_tags = document.getElementById('article_tags');
+                    const article_hubs = document.getElementById('article_hubs');
+                    //
+                    if (article_title == null || article_text == null ||
+                        article_image == null || article_tags == null ||
+                        article_hubs == null)
+                        return false;
+
+                    const sub = userClaims.find((claim) => claim.type === 'sub').value;
+
+                    //объект
+                    const custom_article = {
+                        authorId: sub,
+                        authorNickName: '',
+                        title: article_title.value,
+                        textHtml: article_text.value,
+                        imageUrl: article_image.value,
+                        commentsEnabled: true,
+                        tags: article_tags.value.split(','),
+                        hubs: article_hubs.value.split(',')               
+                    };
+                    //
+                    const response = set_article(action, account_data, custom_article);
+                    const textHTML = response
+                        ? `<p id="message">Сохранено</p>`
+                        : `<p id="message">Ошибка</p>`;
+                    //
+                    const message_div = document.getElementById('message_div');
+                    if (message_div != null)
+                        message_div.insertAdjacentHTML('afterbegin', textHTML);
+                    //
+                    setTimeout(() => {
+                        let message = document.getElementById('message');
+                        if (message != null) {
+                            message.remove();
+                            //
+                            if (response)
+                                window.location = `${window.location.origin}/account.html`;
+                        }                  
+                    }, 3000);            
+                });
+            }
+            break;
+
+        case 'read':
+            //отправить комментарий
+            const button_comment_send = document.getElementById('button_comment_send');
+            if (button_comment_send != null)
+                button_comment_send.addEventListener('click', button_comment_send_click);
+            
+            //лайк статьи
+            const button_like_article = document.getElementById(`like_${id}`);
+            if (button_like_article != null)
+                button_like_article.addEventListener('click', button_like_article_click);
+
+            //дизлайк статьи
+            const button_dislike_article = document.getElementById(`dislike_${id}`);
+            if (button_dislike_article != null)
+                button_dislike_article.addEventListener('click', button_dislike_article_click);
+            //
+            const img_array = document.getElementsByTagName('img');
+            for (let img of img_array) {
+                const data_src = img.getAttribute('data-src');
+                let src = document.createAttribute('src');
+                src.value = data_src;
+                //
+                img.setAttributeNode(src);
+                img.removeAttribute('data-src');
+                img.removeAttribute('width');
+                img.removeAttribute('height');
+                img.classList.add('section_new_post_img_full');
+            }
+
+            //комментарии
+            const comments_header = document.getElementById('comments_header');
+            if (comments_header == null)
+                return false;
+            comments_header.insertAdjacentHTML('afterend', article_comments_html);
+
+            //события
+            comments.forEach(comment => {
+                //лайк комментария
+                const button_like_comment = document.getElementById(`like_${comment['id']}`);
+                if (button_like_comment != null)
+                    button_like_comment.addEventListener('click', button_like_comment_click);
+
+                //дизлайк комментария
+                const button_dislike_comment = document.getElementById(`dislike_${comment['id']}`);
+                if (button_dislike_comment != null)
+                    button_dislike_comment.addEventListener('click', button_dislike_comment_click);
+            });
+            break;
+
+        case 'update':
+            const button_save = document.getElementById('button_save');
+            if (button_save != null) {
+                button_save.addEventListener('click', async () => {
+                    const response = await set_article(action, account_data, article);
+                    const textHTML = response
+                        ? `<p id="message">Сохранено</p>`
+                        : `<p id="message">Ошибка</p>`;
+                    //
+                    const message_div = document.getElementById('message_div');
+                    if (message_div != null)
+                        message_div.insertAdjacentHTML('afterbegin', textHTML);
+                    //
+                    setTimeout(() => {
+                        let message = document.getElementById('message');
+                        if (message != null) {
+                            message.remove();
+                            //
+                            if (response)
+                                window.location = `${window.location.origin}/account.html`;
+                        }                  
+                    }, 3000);
+                });
+            }
+            break;
+        
+        case 'delete':
+            const button_yes = document.getElementById('button_yes');
+            if (button_yes != null) {
+                button_yes.addEventListener('click', async () => {
+                    const response = await delete_article(article['id']);
+                    const textHTML = response
+                        ? `<p id="message">Сохранено</p>`
+                        : `<p id="message">Ошибка</p>`;
+                    //
+                    const message_div = document.getElementById('message_div');
+                    if (message_div != null)
+                        message_div.insertAdjacentHTML('afterbegin', textHTML);
+                    //
+                    setTimeout(() => {
+                        let message = document.getElementById('message');
+                        if (message != null) {
+                            message.remove();
+                            //
+                            if (response)
+                                window.location = `${window.location.origin}/account.html`;
+                        }                  
+                    }, 3000);
+                });
+            }
+
+            /*const button_no = document.getElementById('button_no');
+            if (button_no != null) {
+                button_no.addEventListener('click', async () => {
+                    //
+                });
+            }*/
+            break;
+    }
+}
+
 function render_page(response_json, html) {
     if (response_json == null)
         return false;
@@ -140,13 +522,127 @@ function render_page(response_json, html) {
     const main_html = html.main_html;
     const article_html = html.article_html;
     const article_comments_html = html.article_comments_html;
-    const article_comments_pagination_html = html.article_comments_pagination_html;
     const account_data = response_json.account_data;
     const footer_html = response_json.footer_html;
 
     render_header({ header_html: header_html, header_hubs_html: header_hubs_html });
     render_account(account_data);
     render_main(main_html);
-    render_article(article_html, article_comments_html, article_comments_pagination_html);
+    render_article(account_data, action, response_json.article, article_html, article_comments_html, response_json.article_comments);
     render_footer(footer_html);
+}
+
+async function set_article(action, account_data, article) {
+    let hubs = '';
+    for (let i = 0; i < article['hubs'].length; i++) {
+        hubs += i == article['hubs'].length - 1
+            ? `${article['hubs'][i]}`
+            : `${article['hubs'][i]},`;
+    }
+    //
+    let tags = '';
+    for (let i = 0; i < article['tags'].length; i++) {
+        tags += i == article['tags'].length - 1
+            ? `${article['tags'][i]}`
+            : `${article['tags'][i]},`;
+    }
+
+    if (action == 'update') {
+        const article_data = {
+            articleId: article['id'],
+            title: article['title'], 
+            textHtml: article['fullTextHtml'],
+            imageUrl: '',
+            commentsEnabled: article['commentsEnabled'], 
+            isPublished: false,
+            tags: article['tags'],
+            hubs: article['hubs']
+        };
+        //
+        const response = new Request(`/articles/update-article?id=${article['id']}`, {
+            method: 'PUT',
+            body: JSON.stringify(article_data),
+            headers: new Headers({
+                "X-CSRF": "1", 
+                "Content-Type": "application/json",
+                "Accept": "*/*"
+            })
+        });
+        //
+        try {
+            var resp = await fetch(response);
+            let data;
+            if (resp.ok)
+                data = await resp.json();      
+        } catch (e) {
+            console.log('');
+        }
+        //
+        if (response == null || typeof response === 'undefined')
+            return false;
+        if (!response.hasOwnProperty('result'))
+            return false;
+        return response.isSuccess;
+    }
+
+    if (action == 'delete') {
+        //
+    }
+}
+
+async function button_comment_send_click(e) {
+    /*const response = await fetch(`/comments`, {
+        method: 'POST',
+        body: JSON.stringify({
+            "articleId": "24666353-b59e-42b6-bc45-08db1adf7a3d",
+            "content": "string"         
+        })
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    /*try {
+        var resp = await fetch(response);
+
+        let data;
+        if (resp.ok) {
+            data = await resp.json();
+        }
+        log(resp.status, data);
+    } catch (e) {
+        log(e.message);
+    }
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    if (!response.hasOwnProperty('result'))
+        return false;*/
+    const response = new Request(`/comments`, {
+        method: 'POST',
+        body: JSON.stringify({
+            "articleId": "02218b82-32e2-41c0-0176-08db1b366333",
+            "content": "string"
+        }),
+        headers: new Headers({
+            "X-CSRF": "1",
+            "Content-Type": "application/json",
+            "Accept": "*/*"
+        })
+    })
+    //
+    try {
+        var resp = await fetch(response);
+
+        let data;
+        if (resp.ok) {
+            data = await resp.json();
+        }
+        log(resp.status, data);
+    } catch (e) {
+        log(e.message);
+    }
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    if (!response.hasOwnProperty('result'))
+        return false;
 }
