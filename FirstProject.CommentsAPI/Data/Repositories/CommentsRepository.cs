@@ -2,9 +2,7 @@
 using FirstProject.CommentsAPI.Data.Models;
 using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
-using FirstProject.Messages;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace FirstProject.CommentsAPI.Data.Repositories
 {
@@ -73,18 +71,36 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                     .AsSplitQuery()
                     .OrderByDescending(s => s.CreatedAt)
                     .Where(s => s.ArticleId == articleId)
+                    .Where(s => s.ReplyTo == Guid.Empty)
+                    .Skip(index)
+                    .Take(count)
                     .ToListAsync(cts);
 
-                if (index + count > entries.Count)
+                return _mapper.Map<IEnumerable<CommentDTO>>(entries);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<CommentDTO>> GetCommentReplies(Guid commentId, CancellationToken cts)
+        {
+            try
+            {
+                if (commentId == Guid.Empty)
                 {
-                    var result_entries = entries.GetRange(index, entries.Count - index);
-                    return _mapper.Map<IEnumerable<CommentDTO>>(result_entries);
+                    throw new ArgumentException("Comment Id was empty");
                 }
-                else
-                {
-                    var result_entries = entries.GetRange(index, count);
-                    return _mapper.Map<IEnumerable<CommentDTO>>(result_entries);
-                }
+
+                var entries = await _context.Comments
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .OrderByDescending(s => s.CreatedAt)
+                    .Where(s => s.ReplyTo == commentId)
+                    .ToListAsync(cts);
+
+                return _mapper.Map<IEnumerable<CommentDTO>>(entries);
             }
             catch
             {

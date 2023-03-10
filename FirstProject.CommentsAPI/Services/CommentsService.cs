@@ -25,7 +25,12 @@ namespace FirstProject.CommentsAPI.Services
         {
             try
             {
-                var result = await _comments.GetCommentsByArticleId(articleId, index, count, cts);
+                var result = (await _comments.GetCommentsByArticleId(articleId, index, count, cts)).ToList();
+
+                for (int i = 0; i < result.Count; i++)
+                {
+                    result.AddRange(await _comments.GetCommentReplies(result[i].Id, cts));
+                }
 
                 List<CommentJsonDTO> comments = await GenerateCommentJson(result, Guid.Empty, cts);
 
