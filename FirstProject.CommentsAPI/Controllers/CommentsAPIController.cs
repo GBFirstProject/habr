@@ -38,7 +38,7 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var entries = await _service.GetCommentsByArticleId(articleId, index, 100000, cts);
+                var entries = await _service.GetCommentsByArticleId(articleId, index, count, cts);
 
                 return Ok(new ResponseDTO()
                 {
