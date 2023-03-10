@@ -39,6 +39,9 @@ namespace FirstProject.ArticlesAPI
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
                 .ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId));
+
+            CreateMap<Article, LikeResultDTO>()
+                .ForMember(dest => dest.ArticleId, opt => opt.MapFrom(src => src.Id));
         }
     }
 }

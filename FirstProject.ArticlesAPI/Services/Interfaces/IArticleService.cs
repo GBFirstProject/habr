@@ -25,7 +25,7 @@ namespace FirstProject.ArticlesAPI.Services.Interfaces
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public Task<List<ArticleTitleForModerationDTO>> GetUnpublishedArticlesForModeration(CancellationToken cancellationToken);
-        public Task<FullArticleDTO> LikeArticle(Guid articleId, Guid userId, CancellationToken cts);
-        public Task<FullArticleDTO> DislikeArticle(Guid articleId, Guid userId, CancellationToken cts);
+        public Task<LikeResultDTO> LikeArticle(Guid articleId, Guid userId, CancellationToken cts);
+        public Task<LikeResultDTO> DislikeArticle(Guid articleId, Guid userId, CancellationToken cts);
     }
 }
