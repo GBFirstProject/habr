@@ -10,6 +10,8 @@ let page_number = null,
 const tags_count = 10;
 //arrays
 window.addEventListener("load", load);//DOMContentLoaded
+window.addEventListener('scroll', throttle(checkPosition, 250));
+window.addEventListener('resize', throttle(checkPosition, 250));
 window.onclick = function (e) {
     if (!e.target.matches('.dropbtn')) {
         let authorize_dropdown = document.getElementById("authorize_dropdown");
@@ -60,6 +62,35 @@ try {
     }
 })();
 
+async function checkPosition() {
+    const height = document.body.offsetHeight;
+    const screenHeight = window.innerHeight;
+    const scrolled = window.scrollY;
+    const threshold = height - screenHeight / 4;//2
+    const position = scrolled + screenHeight;
+    //
+    if (position >= threshold) {
+        if (tag == null)//заглушка для страницы топа
+            return;
+        // Если мы пересекли полосу-порог, вызываем нужное действие.
+        let load_pause = page_number % 5;
+        if (load_pause == 0) {
+            const tags_load = document.querySelector('.tags_load');
+            if (tags_load == null) {
+                const textHTML = `<div class="tags_load"><u>Продолжить просмотр ленты</u></div>`;
+                const tags_div = document.getElementById('tags_div');
+                if (tags_div != null)
+                    tags_div.insertAdjacentHTML('beforeend', textHTML);
+                //
+                const tags_load = document.querySelector('.tags_load');
+                tags_load.addEventListener('click', tags_load_click);
+            }    
+            return;
+        }        
+        tags_load_click();
+    }
+}
+
 async function get_tags(page_number, page_size, tag, tags_count) {
     let response = tag == null
         ? await get_top_tags(tags_count)
@@ -70,10 +101,15 @@ async function get_tags(page_number, page_size, tag, tags_count) {
     return response;
 }
 
-function get_tags_html(tags, tag, tags_count) {
-    return tag == null
-        ? get_tags_top_html(tags)
-        : get_tags_query_html(tags);
+function get_tags_html(tags, tag, query_top) {
+    if (tag == null)
+        return get_tags_top_html(tags);
+    //
+    let textHTML = '';
+    if (query_top)
+        textHTML += get_tags_query_top_html(tags.title);
+    textHTML += get_tags_query_html(tags);
+    return textHTML;
 }
 
 async function get_tags_query(page_number, page_size, tag, tags_count) {
@@ -127,10 +163,11 @@ function get_tags_top_html(value) {
 function get_tags_query_html(value) {
     //добавить хабы
     const articles = get_articles_html(value.result.resultData, value.comments, value.result.count);//articles
-    return `
-        <h4 class="title_row">${value.title}:</h4>
-        ${articles.articles_html}
-        <div class="all_posts_pagination">${articles.articles_pagination_html}</div>`;
+    return `${articles.articles_html}`;
+}
+
+function get_tags_query_top_html(title) {
+    return `<h4 class="title_row">${title}:</h4>`;
 }
 
 function get_main_html() {
@@ -146,7 +183,7 @@ async function load() {
     //рендер html
     const header_hubs_html = get_header_links_html(response_json.header_hubs);
     const main_html = get_main_html();
-    const tags_html = get_tags_html(response_json.tags, tag, response_json.tags_count);
+    const tags_html = get_tags_html(response_json.tags, tag, true);
 
     //добавить на страницу
     delete_progressbar();
@@ -173,7 +210,7 @@ async function load_data() {
         footer_html = await get_footer();
         header_hubs = await get_top_hubs(4);//популярные хабы
         //
-        tags = await get_tags(page_number, page_size, tag, tags_count);
+        tags = await get_tags(page_number, 3, tag, tags_count);
         account_data = get_account_data();
     } catch (ex) {
         throw new Error('ошибка загрузки данных');
@@ -188,6 +225,13 @@ async function load_data() {
         tags: tags,
         tags_count: tags_count
     };
+}
+
+function render_added_tags(tags_html) {
+    //тэги
+    const tags_div = document.getElementById('tags_div');
+    if (tags_div != null)
+        tags_div.insertAdjacentHTML('beforeend', tags_html);
 }
 
 function render_tags(tags_html) {
@@ -217,4 +261,16 @@ function render_page(response_json, html) {
     render_main(main_html);
     render_tags(tags_html);
     render_footer(footer_html);
+}
+
+async function tags_load_click(e) {
+    //удалить существующую ссылку на продолжение загрузки
+    const tags_load = document.querySelector('.tags_load');
+    if (tags_load != null)
+    tags_load.remove();
+
+    //загрузка превью тэгов
+    const tags = await get_tags(++page_number, 3, tag, tags_count);
+    const tags_html = get_tags_html(tags, tag, false);
+    render_added_tags(tags_html);
 }

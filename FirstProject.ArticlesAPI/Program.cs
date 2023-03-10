@@ -79,7 +79,7 @@ internal class Program
             });
         });
 
-        builder.Services.AddAuthentication(options =>
+        builder.Services.AddAuthorization().AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

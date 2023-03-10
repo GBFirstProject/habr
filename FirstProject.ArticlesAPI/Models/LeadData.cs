@@ -5,7 +5,9 @@ namespace FirstProject.ArticlesAPI.Models
 {
     [Table("LeadData")]
     public class LeadData : BaseModel<Guid>
-    {
+    {        
+        public Guid ArticleId { get; set; }
+        [ForeignKey("ArticleId")]
         public Article Article { get; set; }
         /// <summary>
         /// Сокращенное содержание статьи. Генерируется из первого абзаца с удалением лишних тэгов

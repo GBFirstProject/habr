@@ -14,8 +14,8 @@ let articles = [],
     top_article = [];
 //
 window.addEventListener("load", load);//DOMContentLoaded
-window.addEventListener('scroll', throttle(checkPosition, 250))
-window.addEventListener('resize', throttle(checkPosition, 250))
+window.addEventListener('scroll', throttle(checkPosition, 250));
+window.addEventListener('resize', throttle(checkPosition, 250));
 //
 window.onclick = function (e) {
     if (!e.target.matches('.dropbtn')) {

@@ -52,6 +52,12 @@ namespace FirstProject.ArticlesAPI.Services
         public async Task<FullArticleDTO> GetArticleByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             Article article = await ArticleById(id, cancellationToken).ConfigureAwait(false);
+            if(article != null)
+            {
+                article.Statistics.ReadingCount++;
+                await _articleRepository.SaveChangesAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
             return _mapper.Map<FullArticleDTO>(article);
         }
         public async Task<PreviewArticleDTO> GetPreviewArticleByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -76,7 +82,7 @@ namespace FirstProject.ArticlesAPI.Services
             if (article == null)
             {
                 throw new DataNotFoundException(nameof(Article), id);
-            }
+            }            
             return article;
         }
 
@@ -84,7 +90,13 @@ namespace FirstProject.ArticlesAPI.Services
         public async Task<Guid> CreateArticleAsync(CreateArticleRequest articleDto, CancellationToken cancellationToken)
         {
             var article = _mapper.Map<Article>(articleDto);
-            article.Author ??= new Author { NickName = "UNKNOWN" };
+            article.IsPublished = false;//по умолчанию статья не опубликована и отправляется на модерацию
+            article.Author = AddAuthor(new Author
+            {
+                Id = articleDto.AuthorId,
+                NickName = articleDto.AuthorNickName.IndexOf('@') != 0 ? articleDto.AuthorNickName.Substring(0, articleDto.AuthorNickName.IndexOf('@')) : articleDto.AuthorNickName
+            });           
+            
             article.Statistics = new Statistics(); 
             for (int i = 0; i < article.Tags.Count; i++)
             {
@@ -101,7 +113,22 @@ namespace FirstProject.ArticlesAPI.Services
             var articleModel = _mapper.Map<FullArticleDTO>(article);    
             
             return articleModel.Id;
-        }       
+        }
+
+        private Author AddAuthor(Author author)
+        {
+            if (author == null) return null!;
+            string existAlias = author.NickName;
+            Author existAuthor = _authorRepository.Query().FirstOrDefault(a => a.NickName == existAlias);
+            if (existAuthor == null)
+            {
+                return author;
+            }
+            else
+            {
+                return existAuthor;
+            }
+        }
 
         public async Task<bool> DeleteArticleAsync(Guid id, Guid userId, CancellationToken cancellationToken)
         {
@@ -220,7 +247,7 @@ namespace FirstProject.ArticlesAPI.Services
                 .Map<List<PreviewArticleDTO>>(articles);
             return articlePreviews;
         }
-        public async Task<SearchPreviewResultDTO> GetPreviewArticleByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken)
+        public async Task<SearchPreviewResultDTO> GetPreviewArticlesByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken)
         {
             var hubEntity = await _hubsRepository
                 .Query()                
@@ -297,7 +324,7 @@ namespace FirstProject.ArticlesAPI.Services
                     .ConfigureAwait(false)
             };
         }
-        public async Task<SearchPreviewResultDTO> GetPreviewArticleByTagLastMonthAsync(string tag, PagingParameters paging, CancellationToken cancellationToken)
+        public async Task<SearchPreviewResultDTO> GetPreviewArticlesByTagLastMonthAsync(string tag, PagingParameters paging, CancellationToken cancellationToken)
         {
             var tagEntity = await _tagsRepository
                 .Query()
@@ -386,7 +413,7 @@ namespace FirstProject.ArticlesAPI.Services
                 .ToListAsync(cancellationToken);
             return articles.Count;
         }
-        public async Task<List<ArticlesByAuthorDTO>> GetArticlesTitlesByAuthorId(Guid authorId, CancellationToken cancellationToken)
+        public async Task<List<ArticleTitleDTO>> GetArticlesTitlesByAuthorId(Guid authorId, CancellationToken cancellationToken)
         {
             Task<List<Article>> articles = _articleRepository.Query()
                .AsNoTracking()
@@ -396,7 +423,7 @@ namespace FirstProject.ArticlesAPI.Services
                .ToListAsync(cancellationToken);
 
             var articlesByAuthor = _mapper
-                .Map<List<ArticlesByAuthorDTO>>(articles.Result);
+                .Map<List<ArticleTitleDTO>>(articles.Result);
             return articlesByAuthor;
         }
 
@@ -516,6 +543,75 @@ namespace FirstProject.ArticlesAPI.Services
             {
                 throw;
             }
+        }        
+        public async Task<PreviewArticleDTO> GetBestArticlePreview(CancellationToken cancellationToken)
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            var articles = await _articleRepository.Query()
+                .Where(a => a.TimePublished >= DateTimeOffset.Now.AddMonths(-1))
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+
+
+            var articleIds = articles.Select(a => a.Id).ToList();
+
+            var statistics = await _statisticsRepository.Query()
+                .Where(s => articleIds.Contains(s.Article.Id))
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            var bestArticle = articles.Select(a => new
+            {
+                Article = a,
+                Statistics = statistics.FirstOrDefault(s => s.Article.Id == a.Id),
+                AverageReadingCount = (now - a.TimePublished.Value).TotalDays > 0
+                        ? (double)(statistics.FirstOrDefault(s => s.Article.Id == a.Id)?.ReadingCount ?? 0) / (now - a.TimePublished.Value).TotalDays
+                        : 0
+            })
+                .OrderByDescending(x => x.AverageReadingCount)
+                .FirstOrDefault();
+
+            //Article resultArticle = await ArticleById(bestArticle.Article.Id, cancellationToken).ConfigureAwait(false);
+
+            return _mapper.Map<PreviewArticleDTO>(bestArticle.Article);
+            /*var now = DateTimeOffset.UtcNow;
+            
+            var statistics = await _statisticsRepository.Query()            
+                .Include(s => s.Article)
+                .Where(a => a.Article.TimePublished >= DateTimeOffset.Now.AddMonths(-1))
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            var bestStatistics = statistics.Select(a => new
+            {                
+                Statistics = statistics.FirstOrDefault(s => s.ArticleId == a.Id),
+                AverageReadingCount = (now - a.Article.TimePublished.Value).TotalDays > 0
+                        ? (double)(statistics.FirstOrDefault(s => s.ArticleId == a.Id)?.ReadingCount ?? 0) / (now - a.Article.TimePublished.Value).TotalDays
+                        : 0
+            })
+            .OrderByDescending(x => x.AverageReadingCount)
+            .FirstOrDefault();
+
+            Article resultArticle = await ArticleById(bestStatistics.Statistics.ArticleId, cancellationToken).ConfigureAwait(false);
+            return _mapper.Map<PreviewArticleDTO>(resultArticle);*/
+        }
+
+
+        public async Task<List<ArticleTitleForModerationDTO>> GetUnpublishedArticlesForModeration(CancellationToken cancellationToken)
+        {
+            var articles = await _articleRepository.Query()
+               .AsNoTracking()
+               .AsSplitQuery()
+               .Where(a => a.IsPublished == false)
+               .OrderByDescending(on => on.TimePublished)
+               .ToListAsync(cancellationToken)
+               .ConfigureAwait(false);
+
+            var articlesByAuthor = _mapper
+                .Map<List<ArticleTitleForModerationDTO>>(articles);
+            return articlesByAuthor;
         }
     }
 }

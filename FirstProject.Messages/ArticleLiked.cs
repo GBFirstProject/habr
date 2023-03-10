@@ -9,7 +9,7 @@ namespace FirstProject.Messages
     /// <summary>
     /// Класс сообщения о лайке статьи
     /// </summary>
-    public class ArticleLiked 
+    public class ArticleLiked : IMessage
     {
         /// <summary>
         /// Идентификатор статьи
@@ -18,17 +18,17 @@ namespace FirstProject.Messages
         /// <summary>
         /// Идентификатор сообщения
         /// </summary>
-        public Guid UserId { get; set; }
+        public string Username { get; set; }
         /// <summary>
         /// Дата сообщения
         /// </summary>
         public DateTime CreatedAt { get; set; }
 
-        public ArticleLiked(Guid articleId, Guid userId, DateTime createdAt)
+        public ArticleLiked(Guid articleId, string userId)
         {
-            ArticleId= articleId;
-            UserId= userId;
-            CreatedAt = createdAt;
+            ArticleId = articleId;
+            Username = userId;
+            CreatedAt = DateTime.UtcNow;
         }
     }
 }

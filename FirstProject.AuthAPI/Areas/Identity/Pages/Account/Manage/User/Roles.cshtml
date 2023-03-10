@@ -1,0 +1,45 @@
+﻿@page
+@model FirstProject.AuthAPI.Areas.Identity.Pages.Account.Manage.User.RolesModel
+@{
+    ViewData["Title"] = "Редактирование";
+}
+
+<h1>Редактирование</h1>
+
+<h4>@Model.User.UserName</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <table class="table">
+                @foreach (var item in Model.UserRoles)
+                {
+                    <tr>
+                        <td>
+                            @if(@Model.Role.Contains(@item)){
+                                <input name="roles" type="checkbox" value="@item" checked /> @item
+
+                                <br />
+                            } else {
+                                <input name="roles" type="checkbox" value="@item" /> @item
+
+                                <br />
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+            <button>Update</button>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="../UsersManager">К списку пользователей</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }

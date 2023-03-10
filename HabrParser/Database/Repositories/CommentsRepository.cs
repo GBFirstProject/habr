@@ -1,4 +1,6 @@
-﻿using HabrParser.Models.APIComments;
+﻿using AutoMapper;
+using HabrParser.Interfaces;
+using HabrParser.Models.APIComments;
 using Microsoft.EntityFrameworkCore;
 
 namespace HabrParser.Database.Repositories
@@ -16,31 +18,6 @@ namespace HabrParser.Database.Repositories
         {
             try
             {
-                //if (comment == null)
-                //{
-                //    throw new ArgumentNullException("Comment was null");
-                //}
-
-                //if (comment.UserId == Guid.Empty)
-                //{
-                //    throw new ArgumentException("User Id was empty");
-                //}
-
-                //if (comment.ArticleId == Guid.Empty)
-                //{
-                //    throw new ArgumentException("Article Id was empty");
-                //}
-
-                //if (comment.Content == string.Empty)
-                //{
-                //    throw new ArgumentException("Content was empty");
-                //}
-
-                if(comment.UserId==Guid.Empty)
-                {
-
-                }
-
                 await _context.AddAsync(comment, cts);
 
                 await _context.SaveChangesAsync(cts);

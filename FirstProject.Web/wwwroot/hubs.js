@@ -10,6 +10,8 @@ let page_number = null,
 const hubs_count = 10;
 //arrays
 window.addEventListener("load", load);//DOMContentLoaded
+window.addEventListener('scroll', throttle(checkPosition, 250));
+window.addEventListener('resize', throttle(checkPosition, 250));
 window.onclick = function (e) {
     if (!e.target.matches('.dropbtn')) {
         let authorize_dropdown = document.getElementById("authorize_dropdown");
@@ -60,6 +62,35 @@ try {
     }
 })();
 
+async function checkPosition() {
+    const height = document.body.offsetHeight;
+    const screenHeight = window.innerHeight;
+    const scrolled = window.scrollY;
+    const threshold = height - screenHeight / 4;//2
+    const position = scrolled + screenHeight;
+    //
+    if (position >= threshold) {
+        if (hub == null)//заглушка для страницы топа
+            return;
+        // Если мы пересекли полосу-порог, вызываем нужное действие.
+        let load_pause = page_number % 5;
+        if (load_pause == 0) {
+            const hubs_load = document.querySelector('.hubs_load');
+            if (hubs_load == null) {
+                const textHTML = `<div class="hubs_load"><u>Продолжить просмотр ленты</u></div>`;
+                const hubs_div = document.getElementById('hubs_div');
+                if (hubs_div != null)
+                    hubs_div.insertAdjacentHTML('beforeend', textHTML);
+                //
+                const hubs_load = document.querySelector('.hubs_load');
+                hubs_load.addEventListener('click', hubs_load_click);
+            }    
+            return;
+        }        
+        hubs_load_click();
+    }
+}
+
 async function get_hubs(page_number, page_size, hub, hubs_count) {
     let response = hub == null
         ? await get_top_hubs(hubs_count)
@@ -70,10 +101,15 @@ async function get_hubs(page_number, page_size, hub, hubs_count) {
     return response;
 }
 
-function get_hubs_html(hubs, hub, hubs_count) {
-    return hub == null
-        ? get_hubs_top_html(hubs)
-        : get_hubs_query_html(hubs);
+function get_hubs_html(hubs, hub, query_top) {
+    if (hub == null)
+        return get_hubs_top_html(hubs);
+    //
+    let textHTML = '';
+    if (query_top)
+        textHTML += get_hubs_query_top_html(hubs.title);
+    textHTML += get_hubs_query_html(hubs);
+    return textHTML;
 }
 
 async function get_hubs_query(page_number, page_size, hub, hubs_count) {
@@ -97,6 +133,10 @@ async function get_hubs_query(page_number, page_size, hub, hubs_count) {
     for (let article of response.result.resultData)
         comments.push(await get_comments_count(article['id']));
     return { result: response.result, title: hub, comments: comments };
+}
+
+function get_hubs_query_top_html(title) {
+    return `<h4 class="title_row">${title}:</h4>`;
 }
 
 function get_hubs_top_html(value) {
@@ -127,14 +167,23 @@ function get_hubs_top_html(value) {
 function get_hubs_query_html(value) {
     //добавить хабы
     const articles = get_articles_html(value.result.resultData, value.comments, value.result.count);//articles
-    return `
-        <h4 class="title_row">${value.title}:</h4>
-        ${articles.articles_html}
-        <div class="all_posts_pagination">${articles.articles_pagination_html}</div>`;
+    return `${articles.articles_html}`;
 }
 
 function get_main_html() {
     return `<div id="hubs_div"></div>`;
+}
+
+async function hubs_load_click(e) {
+    //удалить существующую ссылку на продолжение загрузки
+    const hubs_load = document.querySelector('.hubs_load');
+    if (hubs_load != null)
+    hubs_load.remove();
+
+    //загрузка превью хабов
+    const hubs = await get_hubs(++page_number, 3, hub, hubs_count);
+    const hubs_html = get_hubs_html(hubs, hub, false);
+    render_added_hubs(hubs_html);
 }
 
 async function load() {
@@ -146,7 +195,7 @@ async function load() {
     //рендер html
     const header_hubs_html = get_header_links_html(response_json.header_hubs);
     const main_html = get_main_html();
-    const hubs_html = get_hubs_html(response_json.hubs, hub, response_json.hubs_count);
+    const hubs_html = get_hubs_html(response_json.hubs, hub, true);
 
     //добавить на страницу
     delete_progressbar();
@@ -173,7 +222,7 @@ async function load_data() {
         footer_html = await get_footer();
         header_hubs = await get_top_hubs(4);//популярные хабы
         //
-        hubs = await get_hubs(page_number, page_size, hub, hubs_count);
+        hubs = await get_hubs(page_number, 3, hub, hubs_count);//page_size
         account_data = get_account_data();
     } catch (ex) {
         throw new Error('ошибка загрузки данных');
@@ -188,6 +237,13 @@ async function load_data() {
         hubs: hubs,
         hubs_count: hubs_count
     };
+}
+
+function render_added_hubs(hubs_html) {
+    //хабы
+    const hubs_div = document.getElementById('hubs_div');
+    if (hubs_div != null)
+        hubs_div.insertAdjacentHTML('beforeend', hubs_html);
 }
 
 function render_hubs(hubs_html) {

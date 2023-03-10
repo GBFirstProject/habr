@@ -13,7 +13,6 @@ namespace FirstProject.ArticlesAPI.Controllers
     /// <summary>
     /// Сервис работы со статьями
     /// </summary>
-    [Authorize]
     [Route("api/articles")]    
     public class ArticleController : BaseController
     {
@@ -38,11 +37,11 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="articleId">Guid статьи</param>
         /// <param name="token"></param>
-        /// <returns>Полная статья</returns>
-        [AllowAnonymous]
+        /// <returns>Полная статья</returns>        
         [HttpGet("get-by-id")]
         public async Task<IActionResult> GetArticleById(Guid articleId, CancellationToken token)
         {
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
             try
             {
                 var entity = await _articlesService.GetArticleByIdAsync(articleId, token);
@@ -63,8 +62,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="articleId">Guid статьи</param>
         /// <param name="token">Токен отмены операции</param>
-        /// <returns>Полная статья</returns>
-        [AllowAnonymous]
+        /// <returns>Полная статья</returns>        
         [HttpGet("get-preview-by-id")]
         public async Task<IActionResult> GetPreviewArticleById(Guid articleId, CancellationToken token)
         {
@@ -88,8 +86,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="paging">параметры страницы</param>
         /// <param name="token">отмена</param>
-        /// <returns></returns>
-        [AllowAnonymous]
+        /// <returns></returns>        
         [HttpGet]
         public async Task<IActionResult> GetArticlesPreview([FromQuery] PagingParameters paging, CancellationToken token)
         {
@@ -114,14 +111,13 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="paging"></param>
         /// <param name="tag"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
+        /// <returns></returns>        
         [HttpGet("get-by-tag")]
         public async Task<IActionResult> GetArticlesPreviewByTag([FromQuery] PagingParameters paging, string tag, CancellationToken token)
         {
             try
             {
-                var searchArticlesResult = await _articlesService.GetPreviewArticleByTagLastMonthAsync(tag, paging, token);                
+                var searchArticlesResult = await _articlesService.GetPreviewArticlesByTagLastMonthAsync(tag, paging, token);                
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -140,14 +136,13 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="paging"></param>
         /// <param name="hub"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
+        /// <returns></returns>        
         [HttpGet("get-by-hub")]
         public async Task<IActionResult> GetArticlesPreviewByHub([FromQuery] PagingParameters paging, string hub, CancellationToken token)
         {
             try
             {
-                var searchArticlesResult = await _articlesService.GetPreviewArticleByHubLastMonthAsync(hub, paging, token);
+                var searchArticlesResult = await _articlesService.GetPreviewArticlesByHubLastMonthAsync(hub, paging, token);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -164,8 +159,7 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// Получение количества статей созданных за последний месяц
         /// ДЛЯ ОТЛАДКИ В ПОЛЕ DisplayMessage будет отображаться токен авторизации
         /// </summary>
-        /// <returns></returns>
-        [AllowAnonymous]
+        /// <returns></returns>        
         [HttpGet("get-articles-count")]
         public async Task<IActionResult> GetArticlesCountAsync(CancellationToken token)
         {
@@ -191,14 +185,16 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// </summary>
         /// <param name="request">тело статьи</param>
         /// <param name="cancellation"></param>
-        /// <returns></returns>        
+        /// <returns></returns>               
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPost("add-article")]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request, CancellationToken cancellation)
         {            
             try
-            {                
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
-                var userNickName = User.Claims.Where(s => s.Type == "name")?.FirstOrDefault()?.Value;         
+            {
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;
+                var userNickName = User.Claims.Where(s => s.Type == "UserName")?.FirstOrDefault()?.Value;         
                 if(request.AuthorId != Guid.Parse(userId))
                 {
                     throw new UnauthorizedAccessException("ID пользователя в DTO не сооветствует токену авторизации");
@@ -224,13 +220,14 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="id">id обновляемой статьи</param>
         /// <param name="updateRequest">тело обновленной статьи</param>
         /// <param name="cancellation"></param>
-        /// <returns></returns>
+        /// <returns></returns>        
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("update-article")]        
         public async Task<IActionResult> UpdateArticle(Guid id, [FromBody] UpdateArticleRequest updateRequest, CancellationToken cancellation)
         {
             try
             {
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;                
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 await _articlesService.UpdateArticleDataAsync(updateRequest, Guid.Parse(userId), cancellation);
                 return NoContent();
             }
@@ -242,17 +239,18 @@ namespace FirstProject.ArticlesAPI.Controllers
 
 
         /// <summary>
-        /// Удаляет статью (пока не реализовано)
+        /// Удаляет статью 
         /// </summary>
         /// <param name="id">id статьи на удаление</param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpDelete("delete-article")]        
         public async Task<IActionResult> DeleteArticle(Guid id, CancellationToken cancellation)
         {
             try
             {
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 await _articlesService.DeleteArticleAsync(id, Guid.Parse(userId), cancellation);
                 return NoContent();
             }
@@ -262,7 +260,12 @@ namespace FirstProject.ArticlesAPI.Controllers
             }
         }
 
-        [AllowAnonymous]
+        /// <summary>
+        /// Возвращает заголовки статей автора по ID для личного кабинета
+        /// </summary>
+        /// <param name="authorId"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>        
         [HttpGet("titlesByAuthorId")]
         public async Task<IActionResult> GetArticlesTitlesByAuthorId([FromQuery] Guid authorId, CancellationToken cancellation)
         {
@@ -288,13 +291,14 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="articleId">ID статьи, которую лайкаем</param>        
         /// <param name="cts"></param>
         /// <returns>Изменненый комментарий</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("like")]
         public async Task<IActionResult> LikeArticle(Guid articleId, CancellationToken cts)
         {
             try
             {
-                //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+                //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);                
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 var result = await _articlesService.LikeArticle(articleId, Guid.Parse(userId), cts);
                 return Ok(new ResponseDTO()
                 {
@@ -314,18 +318,77 @@ namespace FirstProject.ArticlesAPI.Controllers
         /// <param name="articleId">ID статьи, которую дизлайкаем</param>        
         /// <param name="cts"></param>
         /// <returns>Измененный комментарий</returns>
+        [Authorize(Roles = "User,Moderator,Admin")]
         [HttpPut("dislike")]
         public async Task<IActionResult> DislikeArticle(Guid articleId, CancellationToken cts)
         {
             try
             {
                 //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
-                var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
+                var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 var result = await _articlesService.DislikeArticle(articleId, Guid.Parse(userId), cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
                     Result = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Получает лучшую статью. Пока - самую просматриваемую
+        /// </summary>
+        /// <param name="token">токен отмены</param>
+        /// <returns></returns>
+        [HttpGet("get-best-article")]
+        public async Task<IActionResult> GetBestArticle(CancellationToken token)
+        {
+            try
+            {
+                var entity = await _articlesService.GetBestArticlePreview(token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = entity
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Список заголовков статей с ИД и автор ИД, у которых IsPublished = false
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Moderator,Admin")]
+        [HttpGet("get-articles-for-moderation")]
+        public async Task<IActionResult> GetArticlesForModeration(CancellationToken token)
+        {
+            var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
+            var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+            if (role != "Admin" && role != "Moderator")
+            {
+                return Ok(new ResponseDTO()
+                {
+                    DisplayMessage = "Этот пользователь не имеет прав просматривать статьи для модерации",
+                    IsSuccess = false,
+                    Result = null
+                });
+            }
+            try
+            {
+                var entity = await _articlesService.GetUnpublishedArticlesForModeration(token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = entity
                 });
             }
             catch (Exception ex)

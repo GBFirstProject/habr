@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using HabrParser.Database;
-using HabrParser.Database.Repositories;
+using HabrParser.Interfaces;
 using HabrParser.Models.APIArticles;
+using HabrParser.Models.APIAuth;
 using HabrParser.Models.APIComments;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using System.Threading;
-using System.Xml.Linq;
 
 namespace HabrParser
 {
@@ -18,37 +18,47 @@ namespace HabrParser
 
         private readonly IArticlesRepository _articlesRepository;
         private readonly ICommentsRepository _commentsRepository;
+        private readonly ICommentsCountRepository _countRepository;
         private readonly IMapper _mapper;
 
-        public Worker(IArticlesRepository articlesRepository, ICommentsRepository commentsRepository, IMapper mapper)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public Worker(
+            IArticlesRepository articlesRepository,
+            ICommentsRepository commentsRepository,
+            ICommentsCountRepository countRepository,
+            IMapper mapper,
+            UserManager<ApplicationUser> userManager)
         {
             _articlesRepository = articlesRepository;
             _commentsRepository = commentsRepository;
+            _countRepository = countRepository;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("Введите номер блока статей (* 1000) (50, 100, ..., 700), либо ID статьи, с которой нужно начать: ");
-            var levelNumber = Console.ReadLine();
-            _levelType = ArticleThreadLevel.ThreadLevel(levelNumber);
-            Console.ResetColor();
+            //Console.Clear();
+            //Console.ForegroundColor = ConsoleColor.Red;
+            //Console.Write("Введите номер блока статей (* 1000) (50, 100, ..., 700), либо ID статьи, с которой нужно начать: ");
+            //var levelNumber = Console.ReadLine();
+            //_levelType = ArticleThreadLevel.ThreadLevel(levelNumber);
+            //Console.ResetColor();
 
-            int endArticleId = 0;
-            int lastIdAdded = 0;
+            int endArticleId = 720800;
+            int lastIdAdded = 720400;
 
-            if (_levelType != ArticleThreadLevelType.None)
-            {
-                lastIdAdded = await _articlesRepository.LastArticleId(_levelType, stoppingToken);
-                endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
-            }
-            else
-            {
-                lastIdAdded = Convert.ToInt32(levelNumber);
-                endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
-            }
+            //if (_levelType != ArticleThreadLevelType.None)
+            //{
+            //    lastIdAdded = await _articlesRepository.LastArticleId(_levelType, stoppingToken);
+            //    endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
+            //}
+            //else
+            //{
+            //    lastIdAdded = Convert.ToInt32(levelNumber);
+            //    endArticleId = ArticleThreadLevel.IteratorLastNumber(_levelType);
+            //}
 
             _mainTitle = $"Парсинг статей с {lastIdAdded} по {endArticleId} - {_levelType}";
             Console.Title = _mainTitle;
@@ -57,7 +67,7 @@ namespace HabrParser
 
             for (int i = lastIdAdded; i < endArticleId; i++)
             {
-                await GetArticleAndSaveToDb(i, stoppingToken);
+                await GetArticleAndSaveToDb(i, stoppingToken);                
             }
         }
 
@@ -105,6 +115,9 @@ namespace HabrParser
                                     Console.WriteLine($"ст. № {articleId} - {data.articlesList.articlesList.article.titleHtml}");
                                     Article article = _mapper.Map<Models.Article, Article>(data.articlesList.articlesList.article);
 
+                                    var guid = await GetUserAndSaveToDb(article.Author, cancellationToken);
+                                    article.Author.Id = guid;
+                                    
                                     var result = await _articlesRepository.CreateHabrArticle(article, _levelType, cancellationToken);
                                     await GetCommentsAndSaveToDb(result, cancellationToken);
                                 }
@@ -149,18 +162,21 @@ namespace HabrParser
 
         private async Task ParseComment(HtmlNode comment, Guid replyId, Guid articleId, CancellationToken cancellationToken)
         {
-            
             try
             {
                 var temp1 = comment.Element("article").Element("div").Elements("div");
                 var temp2 = temp1.First().Element("header")?.FirstChild.FirstChild.Element("span");
                 var nickname = temp2?.FirstChild.InnerText.TrimStart().TrimEnd();
-                var date = temp2?.LastChild.InnerText.TrimStart().TrimEnd().Replace(" в ", " ");
+                var date = temp2?.LastChild.InnerText.TrimStart().TrimEnd().Replace(" в ", " ")!;
+
+                if (!DateTime.TryParse(date, out var c) && date != null)
+                {
+                    date = date.Split('\n')[0];
+                }
 
                 var content = temp1.First().Element("div").InnerHtml;
                 var rating = temp1.Last().FirstChild.FirstChild?.FirstChild.InnerText.Split(':').Last().TrimStart().TrimEnd();
 
-                //var likes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[0].Remove(0, 1));
                 int likes = 0;
                 if (!string.IsNullOrEmpty(rating))
                 {
@@ -175,7 +191,7 @@ namespace HabrParser
                         }
                     }
                 }
-                //var dislikes = string.IsNullOrEmpty(rating) ? 0 : int.Parse(rating.Split(" и ")[1].Remove(0, 1));
+
                 int dislikes = 0;
                 if (!string.IsNullOrEmpty(rating))
                 {
@@ -195,26 +211,31 @@ namespace HabrParser
                 {
                     NickName = string.IsNullOrEmpty(nickname) ? "UNKNOWN" : nickname,
                 };
+
+                var guid = await ParseUser(author, cancellationToken);
+                author.Id = guid;
                 var author_result = await _articlesRepository.CreateAuthor(author, cancellationToken);
+
                 Comment entry = new()
                 {
                     ArticleId = articleId,
-                    UserId = author_result.Id,
+                    Username = author_result.NickName,
                     Content = content,
-                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date.Split('\n')[0]),
+                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date),
                     ReplyTo = replyId
                 };
                 for (int i = 0; i < likes; i++)
                 {
-                    entry.Likes.Add(Guid.NewGuid());
+                    entry.Likes.Add(Guid.NewGuid().ToString());
                 }
                 for (int i = 0; i < dislikes; i++)
                 {
-                    entry.Dislikes.Add(Guid.NewGuid());
+                    entry.Dislikes.Add(Guid.NewGuid().ToString());
                 }
-                await _commentsRepository.CreateComment(entry, cancellationToken);
 
-
+                entry.CreatedAt = DateTime.Parse(date);
+                var result = await _commentsRepository.CreateComment(entry, cancellationToken);
+                await _countRepository.IncreaseCount(articleId, cancellationToken);
 
                 var replyComments = comment.Element("div");
                 if (replyComments == null)
@@ -226,9 +247,76 @@ namespace HabrParser
                     await ParseComment(replyComment, entry.Id, articleId, cancellationToken);
                 }
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+            }
+        }
+
+        private async Task<Guid> GetUserAndSaveToDb(Author author, CancellationToken cancellationToken)
+        {
+            return await CreateUser(author.NickName, author.FirstName, author.LastName, cancellationToken);
+        }
+
+        private async Task<Guid> ParseUser(Author author, CancellationToken cancellationToken)
+        {
+            var web = new HtmlWeb();
+            var url = $"https://habr.com/ru/users/{author.NickName}";
+            HtmlDocument doc = web.Load(url);
+
+            var data = doc.DocumentNode.Descendants(20).FirstOrDefault(n => n.HasClass("tm-user-card__name"));
+
+            string firstName = string.Empty, lastName = string.Empty;
+
+            if (data != null)
+            {
+                var splitted = data.InnerText.Split(' ');
+                if (splitted.Length < 2)
+                {
+                    firstName = splitted[0];
+                }
+                else
+                {
+                    firstName = splitted[0];
+                    lastName = splitted[1];
+                }
+            }
+            author.FirstName = firstName;
+            author.LastName = lastName;
+
+            return await CreateUser(author.NickName, firstName, lastName, cancellationToken);
+        }
+
+        private async Task<Guid> CreateUser(string username, string firstname, string lastname, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var email = username.ToLower() + "@gmail.com";
+
+                var entry = await _userManager.FindByNameAsync(email);
+                if (entry != null)
+                {
+                    return Guid.Parse(entry.Id);
+                }
+
+                var user = new ApplicationUser()
+                {
+                    UserName = email,
+                    FirstName = firstname,
+                    LastName = lastname,
+                    EmailConfirmed = true,
+                    PhoneNumber = "88005553535",
+                    Email = email
+                };
+
+                var result_create = await _userManager.CreateAsync(user, "P@ssw0rd");
+                var result_role = await _userManager.AddToRoleAsync(user, Config.User);
+
+                return Guid.Parse(user.Id);
+            }
+            catch
+            {
+                return Guid.Empty;
             }
         }
     }

@@ -12,6 +12,8 @@
         public int ReadingCount { get; set; }
         public List<string> Tags { get; set; }
         public List<string> Hubs { get; set; }
+        public List<Guid> Likes { get; set; } = new List<Guid>();
+        public List<Guid> Dislikes { get; set; } = new List<Guid>();
         /// <summary>
         /// номер статьи на хабре для отладки
         /// </summary>

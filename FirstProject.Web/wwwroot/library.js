@@ -40,31 +40,6 @@ function account_click() {
     dropdown_content.classList.toggle('hidden');
 }
 
-function get_header_links_html(header_hubs) {
-    const hubs = header_hubs;
-    let header_hubs_html = `
-        <li class="header_nav_item" id="all_hubs">
-            <a class="header_link" href="${window.location.origin}/hubs.html">
-                Топ хабы
-            </a>
-        </li>
-        <li class="header_nav_item" id="all_tags">
-            <a class="header_link" href="${window.location.origin}/tags.html">
-                Топ тэги
-            </a>
-        </li>`;
-    //
-    hubs.result.forEach(hub => {
-        header_hubs_html += `
-            <li class="header_nav_item">
-                <a class="header_link" href="${window.location.origin}/hubs.html?hub=${hub.title.trim().toLowerCase()}">
-                    ${hub.title}
-                </a>
-            </li>`;
-    });
-    return header_hubs_html;
-}
-
 function add_link(item, link) {
     if (item == null || typeof item === 'undefined')
         return false;
@@ -127,37 +102,6 @@ async function button_dislike_article_click(e) {
     return true;
 }
 
-async function button_dislike_comment_click(e) {
-    if (e.currentTarget == null || e.currentTarget === 'undefined')
-        return;
-    //
-    const id = e.currentTarget.id.substr(8);
-    const response = await fetch(`/comments/dislike`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF': '1'
-            },
-        body: JSON.stringify({commentId: id})
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return false;
-    if (!response.hasOwnProperty('result'))
-        return false;
-    
-    //обновить страницу
-    if (!response.isSuccess)
-        return false;
-    //
-    const dislike = document.getElementById(`dislike_${id}`);
-    if (dislike != null)
-        dislike.innerText = `Дизлайки: ${response.result.dislikes}`;
-    return true;
-}
-
 async function button_like_article_click(e) {
     if (e.currentTarget == null || e.currentTarget === 'undefined')
         return;
@@ -185,37 +129,6 @@ async function button_like_article_click(e) {
     const like = document.getElementById(`like_${id}`);
     if (like != null)
         like.innerText = `Лайки: ${response.result.likes.length}`;
-    return true;
-}
-
-async function button_like_comment_click(e) {
-    if (e.currentTarget == null || e.currentTarget === 'undefined')
-        return;
-    //
-    const id = e.currentTarget.id.substr(5);
-    const response = await fetch(`/comments/like`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF': '1'
-            },
-        body: JSON.stringify({commentId: id})
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return false;
-    if (!response.hasOwnProperty('result'))
-        return false;
-    
-    //обновить страницу
-    if (!response.isSuccess)
-        return false;
-    //
-    const like = document.getElementById(`like_${id}`);
-    if (like != null)
-        like.innerText = `Лайки: ${response.result.likes}`;
     return true;
 }
 
@@ -257,25 +170,6 @@ function get_account_data() {
     return account_data;
 }
 
-function get_article_comments_html(articles, comment_count, comments) {
-    //добавить комментарии
-    let textHTML = '';
-    for (let i = comments.length - 1; i >= 0; i--) {
-        textHTML += `
-            <div>
-                <p class="section_p_attr">пользователь | ${get_datetime_string(comments[i]['createdAt'])}</p>
-                <p class="article_text">${comments[i]['content']}</p>
-                <div class="section_new_post_data">
-                    <p class="advanced_data" id="like_${comments[i]['id']}">Лайки: ${comments[i]['likes']}</p>
-                    <p class="advanced_data" id="dislike_${comments[i]['id']}">Дизлайки: ${comments[i]['dislikes']}</p>
-                    <p class="advanced_data" id="replies_${comments[i]['id']}">Ответить</p>
-                </div>
-            </div>`;
-            console.log(comments[i]['id']);
-    }
-    return textHTML;
-}
-
 async function get_articles(current_page_number, current_page_size) {
     const request = await fetch(`/articles?${new URLSearchParams({ PageNumber: current_page_number, PageSize: current_page_size })}`, {
         method: 'GET',
@@ -314,22 +208,6 @@ function get_articles_html(articles, comment_count_array) {
     for (let i = 0; i < articles.length; i++)
         articles_html += render_preview_article(articles[i], articles_comment_count[i]);
     return { articles_html: articles_html };
-}
-
-async function get_comments(id, page_number, page_size) {
-    //comments
-    const response = await fetch(`/comments?articleId=${id}&index=${(page_number - 1) * page_size}&count=${page_size}`, {
-        method: 'GET',
-        headers: new Headers({ "X-CSRF": "1" })
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return -1;
-    if (!response.hasOwnProperty('result'))
-        return 0;
-    return response.result;
 }
 
 async function get_comments_count(id) {
@@ -378,6 +256,31 @@ async function get_header() {
     if (response == null || typeof response === 'undefined')
         return null;
     return response;
+}
+
+function get_header_links_html(header_hubs) {
+    const hubs = header_hubs;
+    let header_hubs_html = `
+        <li class="header_nav_item" id="all_hubs">
+            <a class="header_link" href="${window.location.origin}/hubs.html">
+                Топ хабы
+            </a>
+        </li>
+        <li class="header_nav_item" id="all_tags">
+            <a class="header_link" href="${window.location.origin}/tags.html">
+                Топ тэги
+            </a>
+        </li>`;
+    //
+    hubs.result.forEach(hub => {
+        header_hubs_html += `
+            <li class="header_nav_item">
+                <a class="header_link" href="${window.location.origin}/hubs.html?hub=${hub.title.trim().toLowerCase()}">
+                    ${hub.title}
+                </a>
+            </li>`;
+    });
+    return header_hubs_html;
 }
 
 async function get_footer() {

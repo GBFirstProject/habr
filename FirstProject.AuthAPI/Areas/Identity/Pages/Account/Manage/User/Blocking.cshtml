@@ -1,0 +1,31 @@
+﻿@page
+@model FirstProject.AuthAPI.Areas.Identity.Pages.Account.Manage.User.BlockingModel
+@{
+    ViewData["Title"] = "Редактирование";
+}
+
+<h1>Редактирование</h1>
+
+<h4>@Model.User.UserName</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <p>Блокировка</p> 
+            @*<input name="isBlocked" type="checkbox" value=@Model.User.IsBlocked />*@
+            @Html.CheckBoxFor(m => m.IsBlocked)
+            <br>
+            <button>Сохранить</button>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="../UsersManager">К списку пользователей</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }
