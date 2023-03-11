@@ -3,6 +3,7 @@ using FirstProject.CommentsAPI.Data.Models;
 using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace FirstProject.CommentsAPI.Data.Repositories
 {
@@ -73,7 +74,7 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                     .Where(s => s.ReplyTo == Guid.Empty)
                     .Skip(index)
                     .Take(count)
-                    .ToListAsync(cts);
+                    .FromCacheAsync(cts);
 
                 return _mapper.Map<IEnumerable<CommentDTO>>(entries);
             }
@@ -97,7 +98,7 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                     .AsSplitQuery()
                     .OrderByDescending(s => s.CreatedAt)
                     .Where(s => s.ReplyTo == commentId)
-                    .ToListAsync(cts);
+                    .FromCacheAsync(cts);
 
                 return _mapper.Map<IEnumerable<CommentDTO>>(entries);
             }

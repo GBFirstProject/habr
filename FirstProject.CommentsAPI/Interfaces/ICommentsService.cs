@@ -1,5 +1,4 @@
-﻿using FirstProject.CommentsAPI.Data.Models;
-using FirstProject.CommentsAPI.Data.Models.DTO;
+﻿using FirstProject.CommentsAPI.Data.Models.DTO;
 
 namespace FirstProject.CommentsAPI.Interfaces
 {
