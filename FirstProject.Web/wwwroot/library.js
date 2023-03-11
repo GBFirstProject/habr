@@ -75,6 +75,12 @@ function add_progressbar() {
 async function button_dislike_article_click(e) {
     if (e.currentTarget == null || e.currentTarget === 'undefined')
         return;
+
+    //гость
+    if (userClaims == null) {
+        alert('Войдите в систему или зарегистрируйтесь для того, чтобы оценивать посты');
+        return;
+    }
     //
     const id = e.currentTarget.id.substr(8);
     const response = await fetch(`/articles/dislike?articleId=${id}`, {
@@ -96,15 +102,17 @@ async function button_dislike_article_click(e) {
     if (!response.isSuccess)
         return false;
     //
-    const dislike = document.getElementById(`dislike_${id}`);
-    if (dislike != null)
-        dislike.innerText = `Дизлайки: ${response.result.dislikes.length}`;
-    return true;
+    return set_like_dislike_article(response.result, id);
 }
 
 async function button_like_article_click(e) {
     if (e.currentTarget == null || e.currentTarget === 'undefined')
+        return;    
+    if (userClaims == null) {
+        //гость
+        alert('Войдите в систему или зарегистрируйтесь для того, чтобы оценивать посты');
         return;
+    }
     //
     const id = e.currentTarget.id.substr(5);
     const response = await fetch(`/articles/like?articleId=${id}`, {
@@ -126,10 +134,9 @@ async function button_like_article_click(e) {
     if (!response.isSuccess)
         return false;
     //
-    const like = document.getElementById(`like_${id}`);
-    if (like != null)
-        like.innerText = `Лайки: ${response.result.likes.length}`;
-    return true;
+    //result.likes
+    //const sub = userClaims.find((claim) => claim.type === 'sub').value;
+    return set_like_dislike_article(response.result, id);
 }
 
 function contains_role(role) {
@@ -612,6 +619,18 @@ function render_top_article(top_article_html, id) {
     const button_dislike = document.getElementById(`dislike_${id}`);
     if (button_dislike != null)
         button_dislike.addEventListener('click', button_dislike_article_click);
+}
+
+function set_like_dislike_article(value, id) {
+    const like = document.getElementById(`like_${id}`);
+    const dislike = document.getElementById(`dislike_${id}`);
+    //
+    if (like != null && dislike != null) {
+        like.innerText = `Лайки: ${value.likes.length}`;
+        dislike.innerText = `Дизлайки: ${value.dislikes.length}`;
+        return true;
+    }
+    return false;
 }
 
 function throttle(callee, timeout) {

@@ -457,7 +457,7 @@ namespace FirstProject.ArticlesAPI.Services
             }
         }
 
-        public async Task<FullArticleDTO> LikeArticle(Guid articleId, Guid userId, CancellationToken cts)
+        public async Task<LikeResultDTO> LikeArticle(Guid articleId, Guid userId, CancellationToken cts)
         {
             try
             {
@@ -471,29 +471,30 @@ namespace FirstProject.ArticlesAPI.Services
                     throw new ArgumentException("Id пользователя не указан");
                 }
 
-                var entry = await _articleRepository.Query().FirstOrDefaultAsync(a => a.Id == articleId, cts);
-                if (entry == null)
+                var entity = await _articleRepository.Query().FirstOrDefaultAsync(a => a.Id == articleId, cts);
+                if (entity == null)
                 {
                     throw new Exception("Статья не найдена");
                 }
 
-                if (entry.Dislikes.Contains(userId))
+                if (entity.Dislikes.Contains(userId))
                 {
-                    entry.Dislikes.Remove(userId);
+                    entity.Dislikes.Remove(userId);
                 }
 
-                if (!entry.Likes.Contains(userId))
+                if (!entity.Likes.Contains(userId))
                 {
-                    entry.Likes.Add(userId);
+                    entity.Likes.Add(userId);
                 }
                 else
                 {
-                    entry.Likes.Remove(userId);
+                    entity.Likes.Remove(userId);
                 }
 
+                _articleRepository.UpdateAsync(entity, cts).Wait();
                 await _articleRepository.SaveChangesAsync(cts);
 
-                return _mapper.Map<FullArticleDTO>(entry);
+                return _mapper.Map<LikeResultDTO>(entity);
             }
             catch
             {
@@ -501,7 +502,7 @@ namespace FirstProject.ArticlesAPI.Services
             }
         }
 
-        public async Task<FullArticleDTO> DislikeArticle(Guid articleId, Guid userId, CancellationToken cts)
+        public async Task<LikeResultDTO> DislikeArticle(Guid articleId, Guid userId, CancellationToken cts)
         {
             try
             {
@@ -515,29 +516,30 @@ namespace FirstProject.ArticlesAPI.Services
                     throw new ArgumentException("Id пользователя не указан");
                 }
 
-                var entry = await _articleRepository.Query().FirstOrDefaultAsync(a => a.Id == articleId, cts);
-                if (entry == null)
+                var entity = await _articleRepository.Query().FirstOrDefaultAsync(a => a.Id == articleId, cts);
+                if (entity == null)
                 {
                     throw new Exception("Статья не найдена");
                 }
 
-                if (entry.Likes.Contains(userId))
+                if (entity.Likes.Contains(userId))
                 {
-                    entry.Likes.Remove(userId);
+                    entity.Likes.Remove(userId);
                 }
 
-                if (!entry.Dislikes.Contains(userId))
+                if (!entity.Dislikes.Contains(userId))
                 {
-                    entry.Dislikes.Add(userId);
+                    entity.Dislikes.Add(userId);
                 }
                 else
                 {
-                    entry.Dislikes.Remove(userId);
+                    entity.Dislikes.Remove(userId);
                 }
 
+                _articleRepository.UpdateAsync(entity, cts).Wait();
                 await _articleRepository.SaveChangesAsync(cts);
 
-                return _mapper.Map<FullArticleDTO>(entry);
+                return _mapper.Map<LikeResultDTO>(entity);
             }
             catch
             {

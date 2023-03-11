@@ -118,7 +118,7 @@ async function checkPosition() {
     // Обозначим порог, по приближении к которому
     // будем вызывать какое-то действие.
     // В нашем случае — четверть экрана до конца страницы:
-    const threshold = height - screenHeight / 4;//2
+    const threshold = height - screenHeight / 3;//4
 
     // Отслеживаем, где находится низ экрана относительно страницы:
     const position = scrolled + screenHeight;

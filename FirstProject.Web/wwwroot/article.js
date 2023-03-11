@@ -147,6 +147,9 @@ async function button_like_comment_click(e) {
 }
 
 async function checkPosition() {
+    if (action != 'read')
+        return;
+    //
     const height = document.body.offsetHeight;
     const screenHeight = window.innerHeight;
     const scrolled = window.scrollY;
@@ -155,7 +158,7 @@ async function checkPosition() {
     //
     if (position >= threshold) {
         // Если мы пересекли полосу-порог, вызываем нужное действие.
-        /*let load_pause = page_number % 5;
+        let load_pause = page_number % 5;
         if (load_pause == 0) {
             const article_comments_load = document.querySelector('.article_comments_load');
             if (article_comments_load == null) {
@@ -169,7 +172,7 @@ async function checkPosition() {
             }    
             return;                    
         }        
-        article_comments_load_click();*/
+        article_comments_load_click();
     }
 }
 
@@ -180,8 +183,9 @@ async function article_comments_load_click(e) {
         article_comments_load.remove();
 
     //загрузка комментариев
-    const article_comments = await get_comments(id, page_number, 3);
-    const article_comments_html = get_article_comments_html(response_json.article, response_json.article_comment_count, article_comments);    
+    ++page_number;
+    const article_comments = await get_comments(id, 3 + page_number, 3);
+    const article_comments_html = get_article_comments_html(response_json.article, response_json.article_comment_count, article_comments);
     render_added_article_comments(article_comments_html);
 }
 
@@ -296,7 +300,6 @@ function get_article_html(article, comment_count) {
         <p class="article_text">${article['fullTextHtml']}</p>
         <div class="comments">
             <h2 class="section_h2" id="comments_header">Комментарии</h2>
-            <div class="all_posts_pagination" id="comments_pagination">
             </div>
         </div>`;
     return textHTML;
@@ -323,7 +326,7 @@ function get_article_comments_html(articles, comment_count, comments) {
 async function get_comments(id, page_number, page_size) {
     //comments
     ///comments?articleId=${id}&index=${(page_number - 1) * page_size}&count=${page_size}
-    const response = await fetch(`/comments?articleId=${id}&index=${(page_number - 1) * page_size}&count=${page_size}`, {
+    const response = await fetch(`/comments?articleId=${id}&index=${page_number - 1}&count=${page_size}`, {
         method: 'GET',
         headers: new Headers({ "X-CSRF": "1" })
     })
@@ -526,10 +529,10 @@ async function load_data() {
 
 function render_added_article_comments(article_comments_html) {
     //комментарии
-    const comments_header = document.getElementById('comments_header');
-    if (comments_header == null)
+    const comments = document.querySelector('.comments');
+    if (comments == null)
         return false;
-    comments_header.insertAdjacentHTML('beforeend', article_comments_html);
+    comments.insertAdjacentHTML('beforeend', article_comments_html);
 }
 
 async function render_article(account_data, action, article, article_html, article_comments_html, comments) {
@@ -573,7 +576,7 @@ async function render_article(account_data, action, article, article_html, artic
                         hubs: article_hubs.value.split(',')               
                     };
                     //
-                    const response = update_article(action, account_data, custom_article);
+                    const response = create_article(action, account_data, custom_article);
                     const textHTML = response
                         ? `<p id="message">Сохранено</p>`
                         : `<p id="message">Ошибка</p>`;
@@ -590,7 +593,7 @@ async function render_article(account_data, action, article, article_html, artic
                             if (response)
                                 window.location = `${window.location.origin}/account.html`;
                         }                  
-                    }, 3000);            
+                    }, 2000);            
                 });
             }
             break;
@@ -701,7 +704,7 @@ async function render_article(account_data, action, article, article_html, artic
                             if (response)
                                 window.location = `${window.location.origin}/account.html`;
                         }                  
-                    }, 3000);
+                    }, 2000);
                 });
             }
             break;
@@ -727,7 +730,7 @@ async function render_article(account_data, action, article, article_html, artic
                             if (response)
                                 window.location = `${window.location.origin}/account.html`;
                         }                  
-                    }, 3000);
+                    }, 2000);
                 });
             }
 
@@ -761,21 +764,27 @@ function render_page(response_json, html) {
 }
 
 async function update_article(action, account_data, article) {
-    let hubs = '';
-    for (let i = 0; i < article['hubs'].length; i++) {
-        hubs += i == article['hubs'].length - 1
-            ? `${article['hubs'][i]}`
-            : `${article['hubs'][i]},`;
-    }
+    if (article == null || typeof article === 'undefined')
+        return;
     //
-    let tags = '';
-    for (let i = 0; i < article['tags'].length; i++) {
-        tags += i == article['tags'].length - 1
-            ? `${article['tags'][i]}`
-            : `${article['tags'][i]},`;
-    }
+    article.tags = article.tags.split(',');
+    article.hubs = article.hubs.split(',');
 
-    const response = new Request(`/articles/update-article?id=${article['articleId']}`, {
+    const response = await fetch(`/articles/update-article?id=${article['articleId']}`, {
+        method: 'PUT',
+        body: JSON.stringify(article),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF': '1'
+            },
+    })
+        .then(response => response.text())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    return true;
+    /*const response = new Request(`/articles/update-article?id=${article['articleId']}`, {
         method: 'PUT',
         body: JSON.stringify(article),
         headers: new Headers({
@@ -797,7 +806,7 @@ async function update_article(action, account_data, article) {
         return false;
     if (!response.hasOwnProperty('result'))
         return false;
-    return response.isSuccess;
+    return response.isSuccess;*/
 }
 
 async function button_comment_send_click(e) {
