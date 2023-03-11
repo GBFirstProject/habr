@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
+using System.Globalization;
+
 namespace HabrParser
 {
     internal class Worker : BackgroundService
@@ -46,8 +48,8 @@ namespace HabrParser
             //_levelType = ArticleThreadLevel.ThreadLevel(levelNumber);
             //Console.ResetColor();
 
-            int endArticleId = 720800;
-            int lastIdAdded = 720400;
+            int endArticleId = 720750;
+            int lastIdAdded = 720460;
 
             //if (_levelType != ArticleThreadLevelType.None)
             //{
@@ -167,7 +169,9 @@ namespace HabrParser
                 var temp1 = comment.Element("article").Element("div").Elements("div");
                 var temp2 = temp1.First().Element("header")?.FirstChild.FirstChild.Element("span");
                 var nickname = temp2?.FirstChild.InnerText.TrimStart().TrimEnd();
-                var date = temp2?.LastChild.InnerText.TrimStart().TrimEnd().Replace(" в ", " ")!;
+                var date = temp2?.LastChild.InnerText.TrimStart().TrimEnd().Replace("в", "").Replace(" ", "")
+                .Replace("Комментарийбылизменен", "").Replace("часаназад", "").Replace("часоназад", "")
+                .Replace("чера", "").Replace("янв", "/01 ").Replace("фев", "/02 ").Replace("мар", "/03 ");
 
                 if (!DateTime.TryParse(date, out var c) && date != null)
                 {
@@ -221,7 +225,7 @@ namespace HabrParser
                     ArticleId = articleId,
                     Username = author_result.NickName,
                     Content = content,
-                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.Parse(date),
+                    CreatedAt = string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.ParseExact(date, "d/MM HH:mm", null),
                     ReplyTo = replyId
                 };
                 for (int i = 0; i < likes; i++)
@@ -233,7 +237,7 @@ namespace HabrParser
                     entry.Dislikes.Add(Guid.NewGuid().ToString());
                 }
 
-                entry.CreatedAt = DateTime.Parse(date);
+                entry.CreatedAt =  string.IsNullOrEmpty(date) ? new DateTime(2000, 1, 1) : DateTime.ParseExact(date, "d/MM HH:mm", null);
                 var result = await _commentsRepository.CreateComment(entry, cancellationToken);
                 await _countRepository.IncreaseCount(articleId, cancellationToken);
 

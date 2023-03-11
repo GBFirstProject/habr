@@ -16,7 +16,7 @@ internal class Program
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        builder.Services.AddHttpClient();
         builder.Services.AddCors(setup =>
         {
             setup.AddDefaultPolicy(policy =>
@@ -47,6 +47,7 @@ internal class Program
         builder.Services.AddTransient<IHubService, HubService>();
         builder.Services.AddTransient<ITagService, TagService>();
         builder.Services.AddScoped<IArticleImageService, ArticleImageService>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
         //builder.Services.AddTransient<ServiceClass<IWebHostEnvironment>>();
 
         builder.Services.AddControllers();
