@@ -3,6 +3,7 @@ using FirstProject.CommentsAPI.Data;
 using FirstProject.CommentsAPI.Data.Repositories;
 using FirstProject.CommentsAPI.Interfaces;
 using FirstProject.CommentsAPI.Services;
+using FirstProject.CommentsAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -38,6 +39,7 @@ builder.Services.AddAutoMapper(config =>
 builder.Services.AddTransient<ICommentsRepository, CommentsRepository>();
 builder.Services.AddTransient<ICommentsService, CommentsService>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
+builder.Services.AddSingleton<CommentsCache>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddControllers()
