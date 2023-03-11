@@ -8,14 +8,12 @@ namespace FirstProject.CommentsAPI.Services
     public class CommentsService : ICommentsService
     {
         private readonly ICommentsRepository _comments;
-        private readonly ICommentsCountRepository _commentsCount;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
-        public CommentsService(ICommentsRepository comments, ICommentsCountRepository commentsCount, IMapper mapper, INotificationService notificationService)
+        public CommentsService(ICommentsRepository comments, IMapper mapper, INotificationService notificationService)
         {
             _comments = comments;
-            _commentsCount = commentsCount;
             _mapper = mapper;
             _notificationService = notificationService;
         }
@@ -46,7 +44,7 @@ namespace FirstProject.CommentsAPI.Services
         {
             try
             {
-                var result = await _commentsCount.GetCount(articleId, cts);
+                var result = await _comments.GetCommentsCountByArticleId(articleId, cts);
 
                 return result;
             }
@@ -60,7 +58,7 @@ namespace FirstProject.CommentsAPI.Services
         {
             try
             {
-                var result = await _commentsCount.GetCount(articleIds, cts);
+                var result = await _comments.GetCommentsCountByArticleId(articleIds, cts);
 
                 return result;
             }
@@ -86,8 +84,6 @@ namespace FirstProject.CommentsAPI.Services
                 var message = new ArticleCommented(articleId, username);
                 _notificationService.SendMessage(message, cts);
 
-                await _commentsCount.IncreaseCount(articleId, cts);
-
                 return result;
             }
             catch
@@ -101,11 +97,6 @@ namespace FirstProject.CommentsAPI.Services
             try
             {
                 var result = await _comments.DeleteComment(id, cts);
-
-                if (result != Guid.Empty)
-                {
-                    await _commentsCount.DecreaseCount(result, cts);
-                }
 
                 return true;
             }
