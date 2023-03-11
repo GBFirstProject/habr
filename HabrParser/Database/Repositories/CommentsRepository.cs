@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using HabrParser.Interfaces;
+﻿using HabrParser.Interfaces;
 using HabrParser.Models.APIComments;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,8 +19,6 @@ namespace HabrParser.Database.Repositories
             {
                 await _context.AddAsync(comment, cts);
 
-                await _context.SaveChangesAsync(cts);
-
                 return comment;
             }
             catch
@@ -33,6 +30,11 @@ namespace HabrParser.Database.Repositories
         public async Task<bool> CommentsAlreadyExists(Guid articleId, CancellationToken cts)
         {
             return await _context.Comments.AnyAsync(s => s.ArticleId == articleId, cts);
+        }
+
+        public async Task<int> SaveChanges(CancellationToken cts)
+        {
+            return await _context.SaveChangesAsync(cts);
         }
     }
 }

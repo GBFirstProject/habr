@@ -2,9 +2,8 @@
 using FirstProject.CommentsAPI.Data.Models;
 using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
-using FirstProject.Messages;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using Z.EntityFramework.Plus;
 
 namespace FirstProject.CommentsAPI.Data.Repositories
 {
@@ -21,6 +20,7 @@ namespace FirstProject.CommentsAPI.Data.Repositories
 
         public async Task<CommentDTO> CreateComment(CommentDTO comment, CancellationToken cts)
         {
+
             try
             {
                 if (comment == null)
@@ -72,18 +72,36 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                     .AsSplitQuery()
                     .OrderByDescending(s => s.CreatedAt)
                     .Where(s => s.ArticleId == articleId)
-                    .ToListAsync(cts);
+                    .Where(s => s.ReplyTo == Guid.Empty)
+                    .Skip(index)
+                    .Take(count)
+                    .FromCacheAsync(cts);
 
-                if (index + count > entries.Count)
+                return _mapper.Map<IEnumerable<CommentDTO>>(entries);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<CommentDTO>> GetCommentReplies(Guid commentId, CancellationToken cts)
+        {
+            try
+            {
+                if (commentId == Guid.Empty)
                 {
-                    var result_entries = entries.GetRange(index, entries.Count - index);
-                    return _mapper.Map<IEnumerable<CommentDTO>>(result_entries);
+                    throw new ArgumentException("Comment Id was empty");
                 }
-                else
-                {
-                    var result_entries = entries.GetRange(index, count);
-                    return _mapper.Map<IEnumerable<CommentDTO>>(result_entries);
-                }
+
+                var entries = await _context.Comments
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .OrderByDescending(s => s.CreatedAt)
+                    .Where(s => s.ReplyTo == commentId)
+                    .FromCacheAsync(cts);
+
+                return _mapper.Map<IEnumerable<CommentDTO>>(entries);
             }
             catch
             {
@@ -102,8 +120,35 @@ namespace FirstProject.CommentsAPI.Data.Repositories
 
                 var result = await _context.Comments
                     .AsNoTracking()
-                    .Where(s => s.ArticleId == articleId)
-                    .CountAsync(cts);
+                    .CountAsync(s => s.ArticleId == articleId, cts);
+
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<Dictionary<Guid, int>> GetCommentsCountByArticleId(Guid[] articleIds, CancellationToken cts)
+        {
+            try
+            {
+                if (!articleIds.Any())
+                {
+                    throw new ArgumentException("Article Ids was empty");
+                }
+
+                Dictionary<Guid, int> result = new();
+
+                foreach (var articleId in articleIds)
+                {
+                    var entry = await _context.Comments
+                        .AsNoTracking()
+                        .CountAsync(s => s.ArticleId == articleId, cts);
+
+                    result.Add(articleId, entry);
+                }
 
                 return result;
             }
