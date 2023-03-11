@@ -23,6 +23,7 @@ namespace FirstProject.ArticlesAPI.Services
         private readonly IRepository<Statistics> _statisticsRepository;
         private readonly IRepository<Tag> _tagsRepository;
         private readonly IRepository<LeadData> _leadDataRepository;
+        //private readonly INotificationService _notificationService;
 
         private readonly IMapper _mapper;
         public ArticleService(IRepository<Article> articleRepository, 
@@ -31,7 +32,8 @@ namespace FirstProject.ArticlesAPI.Services
                                 IRepository<Statistics> statisticsRepository,
                                 IRepository<Tag> tagsRepository,
                                 IRepository<LeadData> leadDataRepository,
-                                IMapper mapper)
+                                IMapper mapper/*,
+                                INotificationService notificationService*/)
         {            
             (_articleRepository, 
                 _authorRepository, 
@@ -39,14 +41,16 @@ namespace FirstProject.ArticlesAPI.Services
                 _statisticsRepository,
                 _tagsRepository,
                 _leadDataRepository,
-                _mapper) = 
+                _mapper/*,
+                _notificationService*/) = 
                 (articleRepository,
                 authorRepository, 
                 hubsRepository,
                 statisticsRepository,
                 tagsRepository,
                 leadDataRepository,
-                mapper);
+                mapper/*,
+                notificationService*/);
         }
 
         public async Task<FullArticleDTO> GetArticleByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -171,9 +175,10 @@ namespace FirstProject.ArticlesAPI.Services
             article.Title = updateArticleDataDto.Title;
             article.TextHtml = updateArticleDataDto.TextHtml;
             article.LeadData.TextHtml = LeadDataUtilityService.GetLeadDataDescription(updateArticleDataDto.TextHtml);
-            article.LeadData.ImageUrl = string.IsNullOrEmpty(updateArticleDataDto.ImageUrl)
+            /*article.LeadData.ImageUrl = string.IsNullOrEmpty(updateArticleDataDto.ImageUrl)
                 ? GenerateAutomaticImageUrl()
-                : updateArticleDataDto.ImageUrl;
+                : updateArticleDataDto.ImageUrl;*/
+            article.LeadData.ImageUrl = updateArticleDataDto.ImageUrl;
             article.CommentsEnabled = updateArticleDataDto.CommentsEnabled;
             article.IsPublished = updateArticleDataDto.IsPublished;
 
@@ -183,6 +188,10 @@ namespace FirstProject.ArticlesAPI.Services
             article.Hubs.Clear();
             article.Hubs.AddRange(await GetOrCreateHubsAsync(updateArticleDataDto.Hubs, cancellationToken));
 
+            await _leadDataRepository.UpdateAsync(article.LeadData, cancellationToken);
+            await _leadDataRepository.SaveChangesAsync(cancellationToken);
+
+            await _articleRepository.UpdateAsync(article, cancellationToken);
             // Save the changes to the database
             await _articleRepository.SaveChangesAsync(cancellationToken);
 

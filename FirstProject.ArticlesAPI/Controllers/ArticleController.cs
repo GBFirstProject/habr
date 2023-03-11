@@ -228,8 +228,12 @@ namespace FirstProject.ArticlesAPI.Controllers
             try
             {
                 var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
-                await _articlesService.UpdateArticleDataAsync(updateRequest, Guid.Parse(userId), cancellation);
-                return NoContent();
+                var updatedArticle = await _articlesService.UpdateArticleDataAsync(updateRequest, Guid.Parse(userId), cancellation);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = updatedArticle
+                });
             }
             catch (Exception ex)
             {

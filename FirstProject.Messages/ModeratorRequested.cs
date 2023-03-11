@@ -2,7 +2,7 @@
 {/// <summary>
  /// Класс сообщения запроса модератора
  /// </summary>
-    public class ModeratorRequested : IMessage
+    public class ModeratorRequested : MessageBase
     {
         /// <summary>
         /// Идентификатор отправителя
@@ -16,11 +16,7 @@
         /// Ссылка на комментарий
         /// </summary>
         public string Reference { get; set; }
-        /// <summary>
-        /// Дата запроса
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
+    
         public ModeratorRequested(string username, string content, string reference)
         {
             Username = username;
