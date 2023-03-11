@@ -18,7 +18,6 @@ namespace HabrParser
 
         private readonly IArticlesRepository _articlesRepository;
         private readonly ICommentsRepository _commentsRepository;
-        private readonly ICommentsCountRepository _countRepository;
         private readonly IMapper _mapper;
 
         private readonly UserManager<ApplicationUser> _userManager;
@@ -26,13 +25,11 @@ namespace HabrParser
         public Worker(
             IArticlesRepository articlesRepository,
             ICommentsRepository commentsRepository,
-            ICommentsCountRepository countRepository,
             IMapper mapper,
             UserManager<ApplicationUser> userManager)
         {
             _articlesRepository = articlesRepository;
             _commentsRepository = commentsRepository;
-            _countRepository = countRepository;
             _mapper = mapper;
             _userManager = userManager;
         }
@@ -119,6 +116,7 @@ namespace HabrParser
                                     article.Author.Id = guid;
                                     
                                     var result = await _articlesRepository.CreateHabrArticle(article, _levelType, cancellationToken);
+
                                     await GetCommentsAndSaveToDb(result, cancellationToken);
                                 }
                             }
@@ -153,6 +151,8 @@ namespace HabrParser
                 {
                     await ParseComment(comment, Guid.Empty, article.Id, cancellationToken);
                 }
+
+                await _commentsRepository.SaveChanges(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace HabrParser
                 var temp1 = comment.Element("article").Element("div").Elements("div");
                 var temp2 = temp1.First().Element("header")?.FirstChild.FirstChild.Element("span");
                 var nickname = temp2?.FirstChild.InnerText.TrimStart().TrimEnd();
-                var date = temp2?.LastChild.InnerText.TrimStart().TrimEnd().Replace(" в ", " ")!;
+                var date = temp2?.LastChild.Element("time").Attributes.FirstOrDefault(s => s.Name == "datetime")?.Value;
 
                 if (!DateTime.TryParse(date, out var c) && date != null)
                 {
@@ -235,7 +235,6 @@ namespace HabrParser
 
                 entry.CreatedAt = DateTime.Parse(date);
                 var result = await _commentsRepository.CreateComment(entry, cancellationToken);
-                await _countRepository.IncreaseCount(articleId, cancellationToken);
 
                 var replyComments = comment.Element("div");
                 if (replyComments == null)
@@ -293,7 +292,7 @@ namespace HabrParser
             {
                 var email = username.ToLower() + "@gmail.com";
 
-                var entry = await _userManager.FindByNameAsync(email);
+                var entry = await _userManager.FindByNameAsync(username);
                 if (entry != null)
                 {
                     return Guid.Parse(entry.Id);
@@ -301,7 +300,7 @@ namespace HabrParser
 
                 var user = new ApplicationUser()
                 {
-                    UserName = email,
+                    UserName = username,
                     FirstName = firstname,
                     LastName = lastname,
                     EmailConfirmed = true,

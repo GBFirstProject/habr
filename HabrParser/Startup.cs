@@ -31,7 +31,6 @@ namespace HabrParser
 
             services.AddTransient<IArticlesRepository, ArticlesRepository>();
             services.AddTransient<ICommentsRepository, CommentsRepository>();
-            services.AddTransient<ICommentsCountRepository, CommentsCountRepository>();
 
             services.AddScoped<IDbInitializer, DbInitializer>();
 
