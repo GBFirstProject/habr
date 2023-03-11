@@ -44,5 +44,35 @@ namespace FirstProject.ArticlesAPI.Services
                 await client.SendAsync(request);
             });
         }
+
+        public void SendArticleApproved(ArticleApproved message, CancellationToken cts)
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/approved")
+                {
+                    Content = JsonContent.Create(message)
+                };
+
+                await client.SendAsync(request);
+            });
+        }
+
+        public void SendArticleRejected(ArticleRejected message, CancellationToken cts)
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/rejected")
+                {
+                    Content = JsonContent.Create(message)
+                };
+
+                await client.SendAsync(request);
+            });
+        }
     }
 }
