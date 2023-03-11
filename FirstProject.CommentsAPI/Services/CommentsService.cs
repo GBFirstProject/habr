@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FirstProject.CommentsAPI.Data.Models;
 using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
 using FirstProject.Messages;
@@ -29,7 +28,8 @@ namespace FirstProject.CommentsAPI.Services
 
                 for (int i = 0; i < result.Count; i++)
                 {
-                    result.AddRange(await _comments.GetCommentReplies(result[i].Id, cts));
+                    var temp = (await _comments.GetCommentReplies(result[i].Id, cts)).ToList();
+                    result.AddRange(temp);
                 }
 
                 List<CommentJsonDTO> comments = await GenerateCommentJson(result, Guid.Empty, cts);
@@ -177,7 +177,7 @@ namespace FirstProject.CommentsAPI.Services
             foreach (var entry in result.Where(s => s.ReplyTo == currentEntry))
             {
                 var comment = _mapper.Map<CommentJsonDTO>(entry);
-                comment.Replies.AddRange(await GenerateCommentJson(result.Where(s => s.ReplyTo == entry.Id), entry.Id, cts));
+                comment.Replies.AddRange(await GenerateCommentJson(result, entry.Id, cts));
 
                 comments.Add(comment);
             }

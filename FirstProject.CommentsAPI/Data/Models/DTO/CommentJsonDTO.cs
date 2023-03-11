@@ -1,6 +1,4 @@
-﻿using FirstProject.CommentsAPI.Data.Models.DTO;
-
-namespace FirstProject.CommentsAPI.Data.Models
+﻿namespace FirstProject.CommentsAPI.Data.Models.DTO
 {
     public class CommentJsonDTO
     {
