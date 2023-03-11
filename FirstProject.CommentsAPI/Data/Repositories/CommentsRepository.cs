@@ -119,8 +119,35 @@ namespace FirstProject.CommentsAPI.Data.Repositories
 
                 var result = await _context.Comments
                     .AsNoTracking()
-                    .Where(s => s.ArticleId == articleId)
-                    .CountAsync(cts);
+                    .CountAsync(s => s.ArticleId == articleId, cts);
+
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<Dictionary<Guid, int>> GetCommentsCountByArticleId(Guid[] articleIds, CancellationToken cts)
+        {
+            try
+            {
+                if (!articleIds.Any())
+                {
+                    throw new ArgumentException("Article Ids was empty");
+                }
+
+                Dictionary<Guid, int> result = new();
+
+                foreach (var articleId in articleIds)
+                {
+                    var entry = await _context.Comments
+                        .AsNoTracking()
+                        .CountAsync(s => s.ArticleId == articleId, cts);
+
+                    result.Add(articleId, entry);
+                }
 
                 return result;
             }
