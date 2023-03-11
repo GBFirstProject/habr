@@ -43,13 +43,14 @@ internal class Program
         builder.Services.AddTransient<IRepository<Statistics>, Repository<Statistics>>();
         builder.Services.AddTransient<IRepository<Tag>, Repository<Tag>>();
         builder.Services.AddTransient<IRepository<LeadData>, Repository<LeadData>>();        
-        //builder.Services.AddTransient<INotificationService, NotificationService>();
+        builder.Services.AddTransient<INotificationService, NotificationService>();
         builder.Services.AddTransient<IArticleService, ArticleService>();
         builder.Services.AddTransient<IHubService, HubService>();
         builder.Services.AddTransient<ITagService, TagService>();
         builder.Services.AddScoped<IArticleImageService, ArticleImageService>();
-        builder.Services.AddScoped<INotificationService, NotificationService>();
-        //builder.Services.AddTransient<ServiceClass<IWebHostEnvironment>>();
+        
+        builder.Services.AddHttpClient();
+
 
         builder.Services.AddControllers();
         builder.Services.AddRazorPages();

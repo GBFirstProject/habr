@@ -9,6 +9,7 @@ using FirstProject.Messages;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace FirstProject.ArticlesAPI.Controllers
 {
@@ -405,6 +406,79 @@ namespace FirstProject.ArticlesAPI.Controllers
                 {
                     IsSuccess = true,
                     Result = entity
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Метод для модератора/админа, который одобряет статью, делают ей IsPublished = true
+        /// меняет дату публикацию на ту, которая была в момент одобрения
+        /// </summary>
+        /// <param name="articleId"></param>
+        /// <param name="cts"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Moderator,Admin")]
+        [HttpPut("approve-article")]
+        public async Task<IActionResult> ApproveArticle(Guid articleId, CancellationToken cts)
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
+                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+                if (role != "Admin" && role != "Moderator")
+                {
+                    return Ok(new ResponseDTO()
+                    {
+                        DisplayMessage = "Этот пользователь не имеет прав просматривать статьи для модерации",
+                        IsSuccess = false,
+                        Result = null
+                    });
+                }
+                await _articlesService.ApproveArticleAsync(articleId, cts);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Модератор отклоняет статью
+        /// </summary>
+        /// <param name="articleId"></param>
+        /// <param name="cts"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Moderator,Admin")]
+        [HttpPut("reject-article")]
+        public async Task<IActionResult> RejectArticle(Guid articleId, CancellationToken cts)
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
+                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+                if (role != "Admin" && role != "Moderator")
+                {
+                    return Ok(new ResponseDTO()
+                    {
+                        DisplayMessage = "Этот пользователь не имеет прав просматривать статьи для модерации",
+                        IsSuccess = false,
+                        Result = null
+                    });
+                }
+                await _articlesService.RejectArticleAsync(articleId, cts);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = null
                 });
             }
             catch (Exception ex)
