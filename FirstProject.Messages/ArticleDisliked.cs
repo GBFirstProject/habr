@@ -8,7 +8,7 @@ namespace FirstProject.Messages
 {  /// <summary>
    /// Класс сообщения о дизлайке статьи
    /// </summary>
-    public class ArticleDisliked : IMessage
+    public class ArticleDisliked : MessageBase
     {
 
         /// <summary>
@@ -16,19 +16,20 @@ namespace FirstProject.Messages
         /// </summary>
         public Guid ArticleId { get; set; }
         /// <summary>
-        /// Идентификатор сообщения
+        /// Идентификатор отправителя
         /// </summary>
         public string Username { get; set; }
         /// <summary>
-        /// Дата сообщения
+        /// Идентификатор автора статьи
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public Guid ArticleAuthorId { get; set; }
 
-        public ArticleDisliked(Guid articleId, string username)
+        public ArticleDisliked(Guid articleId, string username, Guid articleAuthorId)
         {
             ArticleId = articleId;
             Username = username;
             CreatedAt = DateTime.UtcNow;
+            ArticleAuthorId=articleAuthorId;
         }
     }
 }
