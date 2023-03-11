@@ -4,6 +4,8 @@ using FirstProject.ArticlesAPI.Models.DTO;
 using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services;
 using FirstProject.ArticlesAPI.Services.Interfaces;
+using FirstProject.Messages;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,16 +22,18 @@ namespace FirstProject.ArticlesAPI.Controllers
         private const string ROLE = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
         private readonly IArticleService _articlesService;
-        
+        private readonly INotificationService _notificationService;
         /// <summary>
         /// Конструктор сервиса работы со статьями
         /// </summary>
         /// <param name="articlesService"></param>
         /// <param name="logger"></param>
         /// <param name="mapper"></param>
-        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper) : base(logger,mapper) 
+        /// <param name="notificationService"></param>
+        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper, INotificationService notificationService) : base(logger,mapper) 
         {
-            _articlesService = articlesService;            
+            _articlesService = articlesService;     
+            _notificationService = notificationService;
         }
 
         /// <summary>
@@ -304,6 +308,11 @@ namespace FirstProject.ArticlesAPI.Controllers
                 //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);                
                 var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 var result = await _articlesService.LikeArticle(articleId, Guid.Parse(userId), cts);
+
+                var articleAuthorId = _articlesService.GetArticleByIdAsync(articleId, cts).Result.AuthorId;
+
+                _notificationService.SendArticleLiked(new ArticleLiked(articleId, userId, articleAuthorId), cts);
+                
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -331,6 +340,9 @@ namespace FirstProject.ArticlesAPI.Controllers
                 //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
                 var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 var result = await _articlesService.DislikeArticle(articleId, Guid.Parse(userId), cts);
+
+                var articleAuthorId = _articlesService.GetArticleByIdAsync(articleId, cts).Result.AuthorId;
+                _notificationService.SendArticleDisliked(new ArticleDisliked(articleId, userId, articleAuthorId), cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,

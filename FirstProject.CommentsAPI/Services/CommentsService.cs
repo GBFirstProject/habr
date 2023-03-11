@@ -100,7 +100,7 @@ namespace FirstProject.CommentsAPI.Services
                 _cache.Drop(articleId);
 
                 var message = new ArticleCommented(articleId, username);
-                _notificationService.SendMessage(message, cts);
+                _notificationService.SendCommentCreated(message, cts);
 
                 return result;
             }

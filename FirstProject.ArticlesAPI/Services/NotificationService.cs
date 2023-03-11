@@ -20,18 +20,18 @@ namespace FirstProject.ArticlesAPI.Services
         {
             try
             {
-                Task.Factory.StartNew(async () =>
+            Task.Factory.StartNew(async () =>
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/commented")
                 {
-                    var client = _httpClientFactory.CreateClient();
+                    Content = JsonContent.Create(message)
+                };
 
-                    var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/commented")
-                    {
-                        Content = JsonContent.Create(message)
-                    };
-
-                    await client.SendAsync(request);
-                });
-            }
+                await client.SendAsync(request);
+            });
+        }
             catch (Exception ex)
             {
                 _logger.LogError("NotificationService:SendArticleLiked", ex);
@@ -43,18 +43,18 @@ namespace FirstProject.ArticlesAPI.Services
         {
             try
             { 
-                Task.Factory.StartNew(async () =>
+            Task.Factory.StartNew(async () =>
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/disliked")
                 {
-                    var client = _httpClientFactory.CreateClient();
+                    Content = JsonContent.Create(message)
+                };
 
-                    var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/disliked")
-                    {
-                        Content = JsonContent.Create(message)
-                    };
-
-                    await client.SendAsync(request);
-                });
-            }
+                await client.SendAsync(request);
+            });
+        }
             catch (Exception ex)
             {
                 _logger.LogError("NotificationService:SendArticleDisliked", ex);
@@ -65,18 +65,18 @@ namespace FirstProject.ArticlesAPI.Services
         {
             try
             {
-                Task.Factory.StartNew(async () =>
+            Task.Factory.StartNew(async () =>
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/approved")
                 {
-                    var client = _httpClientFactory.CreateClient();
+                    Content = JsonContent.Create(message)
+                };
 
-                    var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/approved")
-                    {
-                        Content = JsonContent.Create(message)
-                    };
-
-                    await client.SendAsync(request);
-                });
-            }
+                await client.SendAsync(request);
+            });
+        }
             catch (Exception ex)
             {
                 _logger.LogError("NotificationService:SendArticleApproved", ex);
@@ -87,18 +87,18 @@ namespace FirstProject.ArticlesAPI.Services
         {
             try
             {
-                Task.Factory.StartNew(async () =>
+            Task.Factory.StartNew(async () =>
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/rejected")
                 {
-                    var client = _httpClientFactory.CreateClient();
+                    Content = JsonContent.Create(message)
+                };
 
-                    var request = new HttpRequestMessage(HttpMethod.Post, _notificationServiceUrl + "/Notifications" + "/rejected")
-                    {
-                        Content = JsonContent.Create(message)
-                    };
-
-                    await client.SendAsync(request);
-                });
-            }
+                await client.SendAsync(request);
+            });
+        }
             catch (Exception ex)
             {
                 _logger.LogError("NotificationService:SendArticleRejected", ex);
