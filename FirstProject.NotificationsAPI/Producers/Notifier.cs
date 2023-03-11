@@ -14,6 +14,10 @@ namespace FirstProject.NotificationAPI.Producers
             this.bus=bus;
         }
 
+
+
+
+
         public async Task<bool> PublishModeratorRequested(ModeratorRequested notification)
         {
             try
@@ -76,5 +80,38 @@ namespace FirstProject.NotificationAPI.Producers
                 throw;
             }
         }
+
+        public async Task<bool> PublishArticleApproved(ArticleApproved notification)
+        {
+            try
+            {
+                await bus.Publish(notification);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
+
+
+        public async Task<bool> PublishArticleRejected(ArticleRejected notification)
+        {
+            try
+            {
+                await bus.Publish(notification);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                throw;
+            }
+        }
+
+
     }
 }

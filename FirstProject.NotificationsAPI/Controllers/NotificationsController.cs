@@ -58,7 +58,24 @@ namespace FirstProject.NotificationAPI.Controllers
             return result;
         }
 
+        [HttpPost]
+        [Route("approved")]
 
+        public async Task<bool> ArticleApproved(ArticleApproved notification)
+        {
+            var result = await notifier.PublishArticleApproved(notification);
+            return result;
+        }
+
+
+        [HttpPost]
+        [Route("rejected")]
+
+        public async Task<bool> ArticleRejected(ArticleRejected notification)
+        {
+            var result = await notifier.PublishArticleRejected(notification);
+            return result;
+        }
 
 
 
