@@ -50,22 +50,26 @@ function get_account_html(account) {
     //блок "статьи"
     if (role == 'user' || role == 'moderator' || role == 'admin') {
         textHTML += `
+        <div class="container">
             <div class="section_account_flex">
-                <h4 class="site_h1">Профиль</h4>
-                <ul>
-                    <li>Логин: ${name}</li>
-                    <li>Почта: ${email}</li>
-                    <li>Роль: ${role}</li>
+                <h2 class="site_h1">Профиль</h4>
+                <ul class="lk_ul_flex">
+                    <li class="lk_li"><p class="lk_li_p">Логин</p> ${name}</li>
+                    <li class="lk_li"><p class="lk_li_p">Почта</p> ${email}</li>
+                    <li class="lk_li"><p class="lk_li_p">Роль</p> ${role}</li>
                 </ul>                        
             </div>
             <div class="section_account_flex">
-                <h4 class="site_h1">Статьи</h4>
+                <h2 class="site_h1">Статьи</h4>
                     <p class="header_row">Мои статьи</p>
                     <ul>
                         <li>Статья 1</li>
                         <li>Статья 2</li>
                         <li>Статья 3</li>                            
-                    </ul>`;
+                    </ul>
+                    </div>
+                     </div>
+                    `;
         //
         if (role == 'moderator' || role == 'admin') {
             textHTML += `
@@ -78,9 +82,13 @@ function get_account_html(account) {
         }
         //
         textHTML += `
-                <a href="${window.location.origin}/create_article.html">Добавить статью</a>
+          <div class="container">
+          <div class="section_account_flex">
+                <button class="add_cart_btn"><a class="add_art_a" href="${window.location.origin}/create_article.html">Написать статью</a></button>
                 <a href="">Все статьи</a>
-            </div>`;
+            </div>
+            </div>
+           `;
 
         //блок "пользователи"
         if (role == 'admin') {
