@@ -607,7 +607,7 @@ li {
 	background-color: #FFA500;
 	border: none;
 	margin-bottom: 25px;
-	margin-top: 5px;
+	margin-top: 15px;
 	transition: 0.5s;
 }
 
@@ -645,3 +645,17 @@ li {
 	label {
 		font-weight: 700;
 		}
+
+.account_li_block {
+/*	display: flex;*/
+/*	flex-direction: column;
+	justify-content: flex-start;*/
+/*	align-items: flex-start;*/
+	background-color: #FFFFFF;
+	padding: 30px;
+}
+
+.account_li_item {
+	font-weight: 600;
+	font-size: 1.2em;
+}

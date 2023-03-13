@@ -51,18 +51,20 @@ function get_account_html(account, articles_for_moderation, author_articles, art
     //блок "статьи"
     if (role == 'user' || role == 'moderator' || role == 'admin') {
         textHTML += `
+         <div class="container">
             <div class="section_account_flex">
-                <h4 class="site_h1">Профиль</h4>
-                <ul>
-                    <li>Логин: ${name}</li>
-                    <li>Почта: ${email}</li>
-                    <li>Роль: ${role}</li>
+                <h2 class="site_h1">Профиль</h2>
+                <ul class="lk_ul_flex">
+                    <li class="lk_li"><p class="lk_li_p">Логин</p> ${name}</li>
+                    <li class="lk_li"><p class="lk_li_p">Почта</p> ${email}</li>
+                    <li class="lk_li"><p class="lk_li_p">Роль</p> ${role}</li>
                 </ul>                        
             </div>
             <div class="section_account_flex">
-                <h4 class="site_h1">Статьи</h4>
+                <h2 class="site_h1">Статьи</h2>
                     <p class="header_row">Мои статьи</p>
-                    <ul>`;
+                    </div>
+                     </div>`;
                     
         //мои статьи
         if (author_articles == null || author_articles.length == 0)
@@ -80,12 +82,12 @@ function get_account_html(account, articles_for_moderation, author_articles, art
                 });
                 //
                 textHTML += `
-                    <li>
+                   <div class="container">
                         <div class="account_li_block">
                             <a class="account_li_item" href="${window.location.origin}/article.html?id=${author_article['articleId']}">${author_article['title']}</a>
                             ${article_actions_html}
                         </div>
-                    </li>`;
+                    </div>`;
             });
         }        
         textHTML += '</ul>';
@@ -123,18 +125,24 @@ function get_account_html(account, articles_for_moderation, author_articles, art
         }
         //
         textHTML += `
-                <a href="${window.location.origin}/article.html?action=create">Добавить статью</a>
+        <div class="container">
+         <div class="section_account_flex">
+                <button class="add_cart_btn"><a href="${window.location.origin}/article.html?action=create">Добавить статью</a></button>
                 <a href="">Все статьи</a>
+            </div>
             </div>`;
 
         //блок "пользователи"
         if (role == 'admin') {
             textHTML += `
+             <div class="container">
                 <div class="section_account_flex">
                     <h4 class="site_h1">Пользователи</h4>                            
                     <a href="">Все пользователи</a>
                     <a href="">Изменить права</a>
-                </div>`;
+                </div>
+                </div>
+                `;
         }
     }
     return textHTML;
