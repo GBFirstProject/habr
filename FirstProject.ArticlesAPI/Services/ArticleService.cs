@@ -13,6 +13,7 @@ using FirstProject.Messages;
 using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FirstProject.ArticlesAPI.Services
 {
@@ -661,6 +662,43 @@ namespace FirstProject.ArticlesAPI.Services
                 _notificationService.SendArticleRejected(new ArticleRejected(articleId), cancellationToken);
             }
             return true;
+        }
+
+        public async Task<SearchPreviewResultDTO> GetPreviewArticlesByKeywordLastMonthAsync(string keyword, PagingParameters paging, CancellationToken cancellationToken)
+        {
+            var query = _articleRepository.Query()
+            .Where(a => a.TextHtml.Contains(keyword))
+            .Where(a => a.TimePublished > DateTimeOffset.UtcNow.AddDays(-30))
+            .OrderByDescending(a => a.TimePublished)
+            .Select(a => new PreviewArticleDTO
+            {
+                Id = a.Id,
+                AuthorId = a.AuthorId,
+                AuthorNickName = a.AuthorNickName,
+                Title = a.Title,
+                Text = a.TextHtml,
+                ImageURL = a.LeadData.ImageUrl,
+                TimePublished = a.TimePublished.Value.DateTime,
+                ReadingCount = a.Statistics.ReadingCount,
+                Tags = a.Tags.Select(t => t.TagName).ToList(),
+                Hubs = a.Hubs.Select(h => h.Title).ToList(),
+                Likes = a.Likes,
+                Dislikes = a.Dislikes,
+                HubrId = a.hubrId
+            });
+
+            var count = await query.CountAsync();
+
+            var articles = await query
+                .Skip((paging.PageNumber - 1) * paging.PageSize)
+                .Take(paging.PageSize)
+                .ToListAsync();
+
+            return new SearchPreviewResultDTO
+            {
+                Count = count,
+                ResultData = articles
+            };
         }
     }
 }
