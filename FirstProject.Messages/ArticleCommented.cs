@@ -27,5 +27,10 @@ namespace FirstProject.Messages
             CreatedAt = DateTime.UtcNow;
            
         }
+
+        public ArticleCommented()
+        {
+            
+        }
     }
 }
