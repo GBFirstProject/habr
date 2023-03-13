@@ -18,6 +18,7 @@ namespace FirstProject.ArticlesAPI.Services.Interfaces
         public Task<int> GetArticlesCount(CancellationToken cancellationToken);
         public Task<SearchPreviewResultDTO> GetPreviewArticlesByHubLastMonthAsync(string hub, PagingParameters paging, CancellationToken cancellationToken);
         public Task<SearchPreviewResultDTO> GetPreviewArticlesByTagLastMonthAsync(string tag, PagingParameters paging, CancellationToken cancellationToken);
+        public Task<SearchPreviewResultDTO> GetPreviewArticlesByKeywordLastMonthAsync(string keyword, PagingParameters paging, CancellationToken cancellationToken);
         public Task<List<ArticleTitleDTO>> GetArticlesTitlesByAuthorId(Guid authorId, CancellationToken cancellationToken);
         /// <summary>
         /// Список статей для модерации (IsPublished = false)

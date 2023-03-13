@@ -474,5 +474,30 @@ namespace FirstProject.ArticlesAPI.Controllers
                 return Error(ex);
             }
         }
+
+        /// <summary>
+        /// Получает превью статей по ключевому слову
+        /// </summary>
+        /// <param name="paging"></param>
+        /// <param name="keyword">ключевое слово для поиска</param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [HttpGet("get-by-keyword")]
+        public async Task<IActionResult> GetArticlesPreviewByKeyword([FromQuery] PagingParameters paging, string keyword, CancellationToken token)
+        {
+            try
+            {
+                var searchArticlesResult = await _articlesService.GetPreviewArticlesByKeywordLastMonthAsync(keyword, paging, token);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = searchArticlesResult
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
     }
 }
