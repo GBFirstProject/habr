@@ -9,6 +9,7 @@ using FirstProject.ArticlesAPI.Models.Enums;
 using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services.Interfaces;
 using FirstProject.ArticlesAPI.Utility;
+using FirstProject.Messages;
 using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace FirstProject.ArticlesAPI.Services
         private readonly IRepository<Statistics> _statisticsRepository;
         private readonly IRepository<Tag> _tagsRepository;
         private readonly IRepository<LeadData> _leadDataRepository;
+        private readonly INotificationService _notificationService;
 
         private readonly IMapper _mapper;
         public ArticleService(IRepository<Article> articleRepository, 
@@ -31,7 +33,8 @@ namespace FirstProject.ArticlesAPI.Services
                                 IRepository<Statistics> statisticsRepository,
                                 IRepository<Tag> tagsRepository,
                                 IRepository<LeadData> leadDataRepository,
-                                IMapper mapper)
+                                IMapper mapper,
+                                INotificationService notificationService)
         {            
             (_articleRepository, 
                 _authorRepository, 
@@ -39,14 +42,16 @@ namespace FirstProject.ArticlesAPI.Services
                 _statisticsRepository,
                 _tagsRepository,
                 _leadDataRepository,
-                _mapper) = 
+                _mapper,
+                _notificationService) = 
                 (articleRepository,
                 authorRepository, 
                 hubsRepository,
                 statisticsRepository,
                 tagsRepository,
                 leadDataRepository,
-                mapper);
+                mapper,
+                notificationService);
         }
 
         public async Task<FullArticleDTO> GetArticleByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -171,9 +176,10 @@ namespace FirstProject.ArticlesAPI.Services
             article.Title = updateArticleDataDto.Title;
             article.TextHtml = updateArticleDataDto.TextHtml;
             article.LeadData.TextHtml = LeadDataUtilityService.GetLeadDataDescription(updateArticleDataDto.TextHtml);
-            article.LeadData.ImageUrl = string.IsNullOrEmpty(updateArticleDataDto.ImageUrl)
+            /*article.LeadData.ImageUrl = string.IsNullOrEmpty(updateArticleDataDto.ImageUrl)
                 ? GenerateAutomaticImageUrl()
-                : updateArticleDataDto.ImageUrl;
+                : updateArticleDataDto.ImageUrl;*/
+            article.LeadData.ImageUrl = updateArticleDataDto.ImageUrl;
             article.CommentsEnabled = updateArticleDataDto.CommentsEnabled;
             article.IsPublished = updateArticleDataDto.IsPublished;
 
@@ -183,6 +189,10 @@ namespace FirstProject.ArticlesAPI.Services
             article.Hubs.Clear();
             article.Hubs.AddRange(await GetOrCreateHubsAsync(updateArticleDataDto.Hubs, cancellationToken));
 
+            await _leadDataRepository.UpdateAsync(article.LeadData, cancellationToken);
+            await _leadDataRepository.SaveChangesAsync(cancellationToken);
+
+            await _articleRepository.UpdateAsync(article, cancellationToken);
             // Save the changes to the database
             await _articleRepository.SaveChangesAsync(cancellationToken);
 
@@ -494,6 +504,8 @@ namespace FirstProject.ArticlesAPI.Services
                 _articleRepository.UpdateAsync(entity, cts).Wait();
                 await _articleRepository.SaveChangesAsync(cts);
 
+                _notificationService.SendArticleLiked(new ArticleLiked(articleId, userId.ToString(), entity.AuthorId), cts);
+
                 return _mapper.Map<LikeResultDTO>(entity);
             }
             catch
@@ -538,6 +550,8 @@ namespace FirstProject.ArticlesAPI.Services
 
                 _articleRepository.UpdateAsync(entity, cts).Wait();
                 await _articleRepository.SaveChangesAsync(cts);
+
+                _notificationService.SendArticleDisliked(new ArticleDisliked(articleId, entity.AuthorNickName, entity.AuthorId), cts);
 
                 return _mapper.Map<LikeResultDTO>(entity);
             }
@@ -614,6 +628,39 @@ namespace FirstProject.ArticlesAPI.Services
             var articlesByAuthor = _mapper
                 .Map<List<ArticleTitleForModerationDTO>>(articles);
             return articlesByAuthor;
+        }
+
+        public async Task<bool> ApproveArticleAsync(Guid articleId, CancellationToken cancellationToken)
+        {
+            Article article = await ArticleById(articleId, cancellationToken).ConfigureAwait(false);
+            if (article != null)
+            {
+                article.IsPublished = true;
+                article.TimePublished = DateTime.UtcNow;
+                await _articleRepository.UpdateAsync(article, cancellationToken);
+                await _articleRepository.SaveChangesAsync(cancellationToken)
+                    .ConfigureAwait(false);
+                _notificationService.SendArticleApproved(
+                    new ArticleApproved(articleId)
+                    {
+                       CreatedAt = article.TimePublished == null ? DateTime.UtcNow : DateTime.Parse(article.TimePublished.ToString())
+                    }, cancellationToken);
+            }
+            return true;
+        }
+
+        public async Task<bool> RejectArticleAsync(Guid articleId, CancellationToken cancellationToken)
+        {
+            Article article = await ArticleById(articleId, cancellationToken).ConfigureAwait(false);
+            if (article != null)
+            {
+                article.IsPublished = false;                
+                await _articleRepository.UpdateAsync(article, cancellationToken);
+                await _articleRepository.SaveChangesAsync(cancellationToken)
+                    .ConfigureAwait(false);
+                _notificationService.SendArticleRejected(new ArticleRejected(articleId), cancellationToken);
+            }
+            return true;
         }
     }
 }

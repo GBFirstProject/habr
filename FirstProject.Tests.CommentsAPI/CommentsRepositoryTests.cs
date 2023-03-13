@@ -5,7 +5,7 @@ using FirstProject.CommentsAPI.Data;
 using FirstProject.CommentsAPI.Data.Models;
 using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Interfaces;
-using FirstProject.CommentsAPI.Repositories;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace FirstProject.Tests.CommentsAPI

@@ -8,6 +8,10 @@
         public string Title { get; set; }
         public string Language { get; set; }
         public string PreviewTextHtml { get; set; }
+        /// <summary>
+        /// URL изображения для preview
+        /// </summary>
+        public string ImageURL { get; set; }
         public string FullTextHtml { get; set; }        
         public DateTime TimePublished { get; set; }
         public bool CommentsEnabled { get; set; }

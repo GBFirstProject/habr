@@ -4,9 +4,12 @@ using FirstProject.ArticlesAPI.Models.DTO;
 using FirstProject.ArticlesAPI.Models.Requests;
 using FirstProject.ArticlesAPI.Services;
 using FirstProject.ArticlesAPI.Services.Interfaces;
+using FirstProject.Messages;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace FirstProject.ArticlesAPI.Controllers
 {
@@ -20,16 +23,18 @@ namespace FirstProject.ArticlesAPI.Controllers
         private const string ROLE = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
         private readonly IArticleService _articlesService;
-        
+        private readonly INotificationService _notificationService;
         /// <summary>
         /// Конструктор сервиса работы со статьями
         /// </summary>
         /// <param name="articlesService"></param>
         /// <param name="logger"></param>
         /// <param name="mapper"></param>
-        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper) : base(logger,mapper) 
+        /// <param name="notificationService"></param>
+        public ArticleController(IArticleService articlesService, ILogger<ArticleController> logger, IMapper mapper, INotificationService notificationService) : base(logger,mapper) 
         {
-            _articlesService = articlesService;            
+            _articlesService = articlesService;     
+            _notificationService = notificationService;
         }
 
         /// <summary>
@@ -228,8 +233,12 @@ namespace FirstProject.ArticlesAPI.Controllers
             try
             {
                 var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
-                await _articlesService.UpdateArticleDataAsync(updateRequest, Guid.Parse(userId), cancellation);
-                return NoContent();
+                var updatedArticle = await _articlesService.UpdateArticleDataAsync(updateRequest, Guid.Parse(userId), cancellation);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = updatedArticle
+                });
             }
             catch (Exception ex)
             {
@@ -300,6 +309,11 @@ namespace FirstProject.ArticlesAPI.Controllers
                 //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);                
                 var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 var result = await _articlesService.LikeArticle(articleId, Guid.Parse(userId), cts);
+
+                var articleAuthorId = _articlesService.GetArticleByIdAsync(articleId, cts).Result.AuthorId;
+
+                _notificationService.SendArticleLiked(new ArticleLiked(articleId, userId, articleAuthorId), cts);
+                
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -327,6 +341,9 @@ namespace FirstProject.ArticlesAPI.Controllers
                 //var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
                 var userId = User.Claims.Where(u => u.Type == ID)?.FirstOrDefault()?.Value;                
                 var result = await _articlesService.DislikeArticle(articleId, Guid.Parse(userId), cts);
+
+                var articleAuthorId = _articlesService.GetArticleByIdAsync(articleId, cts).Result.AuthorId;
+                _notificationService.SendArticleDisliked(new ArticleDisliked(articleId, userId, articleAuthorId), cts);
                 return Ok(new ResponseDTO()
                 {
                     IsSuccess = true,
@@ -389,6 +406,79 @@ namespace FirstProject.ArticlesAPI.Controllers
                 {
                     IsSuccess = true,
                     Result = entity
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Метод для модератора/админа, который одобряет статью, делают ей IsPublished = true
+        /// меняет дату публикацию на ту, которая была в момент одобрения
+        /// </summary>
+        /// <param name="articleId"></param>
+        /// <param name="cts"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Moderator,Admin")]
+        [HttpPut("approve-article")]
+        public async Task<IActionResult> ApproveArticle(Guid articleId, CancellationToken cts)
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
+                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+                if (role != "Admin" && role != "Moderator")
+                {
+                    return Ok(new ResponseDTO()
+                    {
+                        DisplayMessage = "Этот пользователь не имеет прав просматривать статьи для модерации",
+                        IsSuccess = false,
+                        Result = null
+                    });
+                }
+                await _articlesService.ApproveArticleAsync(articleId, cts);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// Модератор отклоняет статью
+        /// </summary>
+        /// <param name="articleId"></param>
+        /// <param name="cts"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Moderator,Admin")]
+        [HttpPut("reject-article")]
+        public async Task<IActionResult> RejectArticle(Guid articleId, CancellationToken cts)
+        {
+            try
+            {
+                var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
+                var userId = Guid.Parse(User.Claims.FirstOrDefault(s => s.Type == ID)!.Value);
+                if (role != "Admin" && role != "Moderator")
+                {
+                    return Ok(new ResponseDTO()
+                    {
+                        DisplayMessage = "Этот пользователь не имеет прав просматривать статьи для модерации",
+                        IsSuccess = false,
+                        Result = null
+                    });
+                }
+                await _articlesService.RejectArticleAsync(articleId, cts);
+                return Ok(new ResponseDTO()
+                {
+                    IsSuccess = true,
+                    Result = null
                 });
             }
             catch (Exception ex)

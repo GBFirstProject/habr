@@ -1,9 +1,9 @@
 {
-    "ConnectionStrings": {
-        "Articles": "Server=MSI\\SQLEXPRESS;Database=ArticlesDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=Elo44ka!;Encrypt=false",
-        "Comments": "Server=MSI\\SQLEXPRESS;Database=CommentsDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=Elo44ka!;Encrypt=false",
-        "Auth": "Server=MSI\\SQLEXPRESS;Database=AuthDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=Elo44ka!;Encrypt=false"
-    },
+  "ConnectionStrings": {
+    "Articles": "Server=localhost\\MSSQLSERVER01;Database=ArticlesDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=habruser;pwd=7ellowEl7akey;Encrypt=false",
+    "Comments": "Server=localhost\\MSSQLSERVER01;Database=CommentsDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=habruser;pwd=7ellowEl7akey;Encrypt=false",
+    "Auth": "Server=localhost\\MSSQLSERVER01;Database=AuthDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=habruser;pwd=7ellowEl7akey;Encrypt=false"
+  },
   //последняя добавленная статья на хабре (чтобы знать до куда парсить)
-  "LastIdInHabr" : "720000"
+  "LastIdInHabr" : "719500"
 }
