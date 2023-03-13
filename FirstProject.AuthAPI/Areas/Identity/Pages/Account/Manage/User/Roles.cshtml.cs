@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace FirstProject.AuthAPI.Areas.Identity.Pages.Account.Manage.User
 {
     [BindProperties]
-    public class EditModel : PageModel
+    public class RolesModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public EditModel(UserManager<ApplicationUser> userManager)
+        public RolesModel(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }

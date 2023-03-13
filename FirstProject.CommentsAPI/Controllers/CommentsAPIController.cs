@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FirstProject.CommentsAPI.Data.Models.DTO;
+﻿using FirstProject.CommentsAPI.Data.Models.DTO;
 using FirstProject.CommentsAPI.Data.Models.Requests;
 using FirstProject.CommentsAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +11,7 @@ namespace FirstProject.CommentsAPI.Controllers
     public class CommentsAPIController : ControllerBase
     {
         private const string ID = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+        private const string USERNAME = "UserName";
         private const string ROLE = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
         private readonly ICommentsService _service;
@@ -38,7 +38,7 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var entries = await _service.GetCommentsByArticleId(articleId, index, 100000, cts);
+                var entries = await _service.GetCommentsByArticleId(articleId, index, count, cts);
 
                 return Ok(new ResponseDTO()
                 {
@@ -85,7 +85,7 @@ namespace FirstProject.CommentsAPI.Controllers
         /// <param name="cts"></param>
         /// <returns>Количество комментариев</returns>
         [HttpPost("getcount")]
-        public async Task<IActionResult> GetCommentsCountByArticleId([FromBody]MultiplyCommentsCountRequest request, CancellationToken cts)
+        public async Task<IActionResult> GetCommentsCountByArticleId([FromBody] MultiplyCommentsCountRequest request, CancellationToken cts)
         {
             try
             {
@@ -115,7 +115,7 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
+                var username = GetUsername();
 
                 var result = await _service.CreateComment(request.ArticleId, username, request.Content, request.ReplyTo, cts);
 
@@ -143,7 +143,7 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
+                var username = GetUsername();
 
                 var result = await _service.LikeComment(request.CommentId, username, cts);
 
@@ -171,7 +171,7 @@ namespace FirstProject.CommentsAPI.Controllers
         {
             try
             {
-                var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
+                var username = GetUsername();
 
                 var result = await _service.DislikeComment(request.CommentId, username, cts);
 
@@ -264,7 +264,7 @@ namespace FirstProject.CommentsAPI.Controllers
         private async Task<bool> IsHasRights(Guid commentId, CancellationToken cts)
         {
             var role = User.Claims.FirstOrDefault(s => s.Type == ROLE)!.Value;
-            var username = User.Claims.FirstOrDefault(s => s.Type == ID)!.Value;
+            var username = GetUsername();
 
             if (role != "Admin" && role != "Moderator")
             {
@@ -277,5 +277,7 @@ namespace FirstProject.CommentsAPI.Controllers
 
             return true;
         }
+
+        private string GetUsername() => User.Claims.FirstOrDefault(s => s.Type == USERNAME)!.Value.Split('@')[0];
     }
 }

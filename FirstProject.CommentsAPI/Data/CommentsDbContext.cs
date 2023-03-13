@@ -6,14 +6,10 @@ namespace FirstProject.CommentsAPI.Data
     public class CommentsDbContext : DbContext
     {
         public virtual DbSet<Comment> Comments { get; set; } = null!;
-        public virtual DbSet<CommentsCount> CommentsCount { get; set; } = null!;
 
         public CommentsDbContext(DbContextOptions<CommentsDbContext> options) : base(options)
         {
-            if (Database.GetPendingMigrations().Any())
-            {
-                Database.Migrate();
-            }
+            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

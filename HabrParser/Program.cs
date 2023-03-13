@@ -1,32 +1,17 @@
 ﻿using HabrParser;
-using HabrParser.Database;
-using HabrParser.Database.Repositories;
-using HabrParser.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 try
 {
-    IHost host = Host.CreateDefaultBuilder(args)
-        .ConfigureHostConfiguration(builder => builder.SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("config.json", optional: false))
-        .ConfigureServices((context, services) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureAppConfiguration((_, builder) => builder.SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("config.json", optional: false))
+        .ConfigureWebHostDefaults(webBuilder =>
         {
-            services.AddAutoMapper(config => config.RegisterMaps());
-
-            services.AddDbContext<ArticlesDBContext>(options => options.UseSqlServer(context.Configuration.GetConnectionString("Articles")));
-            services.AddDbContext<CommentsDbContext>(options => options.UseSqlServer(context.Configuration.GetConnectionString("Comments")));
-
-            services.AddTransient<IArticlesRepository, ArticlesRepository>();
-            services.AddTransient<ICommentsRepository, CommentsRepository>();
-            services.AddTransient<ICommentsCountRepository, CommentsCountRepository>();
-
-            services.AddHostedService<Worker>();
-        }).Build();
-
-    host.Start();
-    host.WaitForShutdown();
+            webBuilder.UseStartup<Startup>();
+        })
+        .Build().Run();
 }
 catch (Exception e)
 {
