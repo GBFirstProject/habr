@@ -1,8 +1,8 @@
 {
   "ConnectionStrings": {
-    "Articles": "Server=PROG-5;Database=ArticlesDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=bdw;Encrypt=false",
-    "Comments": "Server=PROG-5;Database=CommentsDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=bdw;Encrypt=false",
-    "Auth": "Server=PROG-5;Database=AuthDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=sa;pwd=bdw;Encrypt=false"
+    "Articles": "Server=localhost\\MSSQLSERVER01;Database=ArticlesDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=habruser;pwd=7ellowEl7akey;Encrypt=false",
+    "Comments": "Server=localhost\\MSSQLSERVER01;Database=CommentsDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=habruser;pwd=7ellowEl7akey;Encrypt=false",
+    "Auth": "Server=localhost\\MSSQLSERVER01;Database=AuthDB;Trusted_Connection=False;MultipleActiveResultSets=true;user id=habruser;pwd=7ellowEl7akey;Encrypt=false"
   },
   //последняя добавленная статья на хабре (чтобы знать до куда парсить)
   "LastIdInHabr" : "719500"

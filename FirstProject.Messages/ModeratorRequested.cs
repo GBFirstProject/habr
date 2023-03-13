@@ -24,5 +24,10 @@
             Reference = reference;
             CreatedAt = DateTime.UtcNow;
         }
+
+        public ModeratorRequested()
+        {
+            
+        }
     }
 }
