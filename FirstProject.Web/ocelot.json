@@ -461,6 +461,20 @@
       "DelegatingHandlers": [
         "HttpDelegatingHandler"
       ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/articles/get-by-keyword?paging={paging}&keyword={keyword}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "5033"
+        }
+      ],
+      "UpstreamPathTemplate": "/articles/get-by-keyword?paging={paging}&keyword={keyword}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
     }
   ]
 }
