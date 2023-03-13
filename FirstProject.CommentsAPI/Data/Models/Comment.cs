@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FirstProject.CommentsAPI.Data.Models
 {
+    [Index(nameof(ArticleId),IsUnique = false)]
     [Table("comments")]
     public class Comment
     {

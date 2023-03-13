@@ -8,6 +8,7 @@ namespace FirstProject.CommentsAPI.Interfaces
         Task<IEnumerable<CommentDTO>> GetCommentsByArticleId(Guid articleId, int index, int count, CancellationToken cts);
         Task<IEnumerable<CommentDTO>> GetCommentReplies(Guid commentId, CancellationToken cts);
         Task<int> GetCommentsCountByArticleId(Guid articleId, CancellationToken cts);
+        Task<Dictionary<Guid, int>> GetCommentsCountByArticleId(Guid[] articleIds, CancellationToken cts);
 
         Task<CommentDTO> LikeComment(Guid commentId, string username, CancellationToken cts);
         Task<CommentDTO> DislikeComment(Guid commentId, string username, CancellationToken cts);

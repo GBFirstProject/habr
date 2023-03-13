@@ -6,5 +6,6 @@ namespace HabrParser.Interfaces
     {
         Task<Comment> CreateComment(Comment comment, CancellationToken cts);
         Task<bool> CommentsAlreadyExists(Guid articleId, CancellationToken cts);
+        Task<int> SaveChanges(CancellationToken cts);
     }
 }

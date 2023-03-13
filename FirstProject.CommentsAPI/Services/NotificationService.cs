@@ -14,7 +14,7 @@ namespace FirstProject.CommentsAPI.Services
             _notificationServiceUrl = configuration.GetConnectionString("NotificationService");
         }
 
-        public void SendMessage(IMessage message, CancellationToken cts)
+        public void SendCommentCreated(ArticleCommented message, CancellationToken cts)
         {
             Task.Factory.StartNew(async () =>
             {

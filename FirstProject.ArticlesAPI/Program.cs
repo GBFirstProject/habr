@@ -16,7 +16,7 @@ internal class Program
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        builder.Services.AddHttpClient();
         builder.Services.AddCors(setup =>
         {
             setup.AddDefaultPolicy(policy =>
@@ -42,12 +42,15 @@ internal class Program
         builder.Services.AddTransient<IRepository<Hub>, Repository<Hub>>();
         builder.Services.AddTransient<IRepository<Statistics>, Repository<Statistics>>();
         builder.Services.AddTransient<IRepository<Tag>, Repository<Tag>>();
-        builder.Services.AddTransient<IRepository<LeadData>, Repository<LeadData>>();
+        builder.Services.AddTransient<IRepository<LeadData>, Repository<LeadData>>();        
+        builder.Services.AddTransient<INotificationService, NotificationService>();
         builder.Services.AddTransient<IArticleService, ArticleService>();
         builder.Services.AddTransient<IHubService, HubService>();
         builder.Services.AddTransient<ITagService, TagService>();
         builder.Services.AddScoped<IArticleImageService, ArticleImageService>();
-        //builder.Services.AddTransient<ServiceClass<IWebHostEnvironment>>();
+        
+        builder.Services.AddHttpClient();
+
 
         builder.Services.AddControllers();
         builder.Services.AddRazorPages();

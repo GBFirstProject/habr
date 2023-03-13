@@ -553,3 +553,37 @@ main {
 .row_item {
 	margin-right: 0.5em;
 }
+
+.article_comment, .article_comment_textarea {
+	border: 1px solid black;
+	display: flex;
+	flex-direction: column;
+	padding-left: 1em;
+}
+
+.article_comment_reply_block {
+	border: 1px solid black;
+	display: flex;
+	flex-direction: column;
+}
+
+.article_comment_block, .article_comment_input_block {
+	display: flex;
+	flex-direction: column;
+	/*margin-bottom: 0.1em;*/
+	padding-left: 1em;
+}
+
+/*.article_comment_block img {
+	max-width: 500px;
+	height: auto !important;
+}*/
+
+.article_comment_reply {
+	border: 1px dashed black;
+	padding-left: 3em;
+}
+
+.article_comment_item {
+	/*border: 1px solid black;*/
+}

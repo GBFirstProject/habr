@@ -84,15 +84,36 @@ try {
     }
 })();
 
+async function article_comments_load_click(e) {
+    //удалить существующую ссылку на продолжение загрузки
+    const article_comments_load = document.querySelector('.article_comments_load');
+    if (article_comments_load != null)
+        article_comments_load.remove();
+
+    //загрузка комментариев
+    page_number += 3;
+    const article_comments = await get_comments(id, page_number, 3);
+    const article_comments_html = get_article_comments_html(response_json.article, response_json.article_comment_count, article_comments);
+    render_added_article_comments(article_comments_html, article_comments);
+}
+
+async function button_delete_comment_click(e) {
+
+}
+
 async function button_dislike_comment_click(e) {
     if (e.currentTarget == null || e.currentTarget === 'undefined')
         return;
+    if (userClaims == null) {
+        alert('Войдите в систему или зарегистрируйтесь, чтобы оценивать комментарии к постам');
+        return;
+    }
     //
-    const id = e.currentTarget.id.substr(8);
+    const id = e.currentTarget.id.substr(16);
     const response = await fetch(`/comments/dislike`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json-patch+json',
             'X-CSRF': '1'
             },
         body: JSON.stringify({commentId: id})
@@ -108,22 +129,22 @@ async function button_dislike_comment_click(e) {
     //обновить страницу
     if (!response.isSuccess)
         return false;
-    //
-    const dislike = document.getElementById(`dislike_${id}`);
-    if (dislike != null)
-        dislike.innerText = `Дизлайки: ${response.result.dislikes}`;
-    return true;
+    return set_like_dislike_article_comment(response.result, id);
 }
 
 async function button_like_comment_click(e) {
     if (e.currentTarget == null || e.currentTarget === 'undefined')
         return;
+    if (userClaims == null) {
+        alert('Войдите в систему или зарегистрируйтесь, чтобы оценивать комментарии к постам');
+        return;
+    }
     //
-    const id = e.currentTarget.id.substr(5);
+    const id = e.currentTarget.id.substr(13);
     const response = await fetch(`/comments/like`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json-patch+json',
             'X-CSRF': '1'
             },
         body: JSON.stringify({commentId: id})
@@ -139,11 +160,120 @@ async function button_like_comment_click(e) {
     //обновить страницу
     if (!response.isSuccess)
         return false;
+    return set_like_dislike_article_comment(response.result, id);
+}
+
+async function button_reply_comment_click(e) {
+    if (e.currentTarget == null || e.currentTarget === 'undefined')
+        return;
+    if (userClaims == null) {
+        alert('Войдите в систему или зарегистрируйтесь, чтобы отвечать на комментарии к постам');
+        return;
+    }
+    
+    //добавить форму ответа
+    let textHTML = `
+        <div class="article_comment_reply_block article_comment_item">
+            <textarea class="article_field" id="article_comment_reply_${id}"></textarea>
+            <button id="send_comment_reply">Отправить</button>
+        </div>`;
+    
+    //поиск родительского элемента
+    const parent = e.currentTarget.parentElement.parentElement;
+    if (parent == null)
+        return;
     //
-    const like = document.getElementById(`like_${id}`);
-    if (like != null)
-        like.innerText = `Лайки: ${response.result.likes}`;
-    return true;
+    const parent_id = parent.id.substr(16);
+    const article_comment_reply = document.getElementById(`article_comment_${parent_id}`);
+    if (article_comment_reply != null)
+        article_comment_reply.insertAdjacentHTML('beforeend', textHTML);
+
+    //события
+    const send_comment_reply = document.getElementById('send_comment_reply');
+    if (send_comment_reply != null)
+        send_comment_reply.addEventListener('click', button_send_comment_reply_click);
+
+    /*const id = e.currentTarget.id.substr(14);
+    const response = await fetch(`/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json-patch+json',
+            'X-CSRF': '1'
+            },
+        body: JSON.stringify({articleId: '', content: '', replyTo: id})
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    if (!response.hasOwnProperty('result'))
+        return false;*/
+    
+    //обновить страницу
+    /*if (!response.isSuccess)
+        return false;
+    return set_like_dislike_article_comment(response.result, id);*/
+}
+
+async function button_send_comment_click(e) {
+    if (e.currentTarget == null || e.currentTarget === 'undefined')
+        return;
+    
+    //сообщение
+    let value = '';
+    const article_comment_input = document.getElementById('article_comment_input');
+    if (article_comment_input != null)
+        value = article_comment_input.value.trim();
+    //
+    const response = await fetch(`/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json-patch+json',
+            'X-CSRF': '1'
+            },
+        body: JSON.stringify({articleId: id, content: value, replyTo: id})
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    if (!response.hasOwnProperty('result'))
+        return false;
+}
+
+async function button_send_comment_reply_click(e) {
+    if (e.currentTarget == null || e.currentTarget === 'undefined')
+        return;
+    
+    //сообщение
+    let value = '';
+    const textarea_content = document.querySelector(`[id^="article_comment_reply_"]`);
+    if (textarea_content != null)
+        value = textarea_content.value.trim();
+    //
+    const comment_id = e.currentTarget.parentElement.parentElement.id.substr(16);
+    const response = await fetch(`/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json-patch+json',
+            'X-CSRF': '1'
+            },
+        body: JSON.stringify({articleId: id, content: value, replyTo: comment_id})
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    if (!response.hasOwnProperty('result'))
+        return false;
+    
+    //обновить страницу
+    /*if (!response.isSuccess)
+        return false;
+    return set_like_dislike_article_comment(response.result, id);*/
 }
 
 async function checkPosition() {
@@ -162,10 +292,10 @@ async function checkPosition() {
         if (load_pause == 0) {
             const article_comments_load = document.querySelector('.article_comments_load');
             if (article_comments_load == null) {
-                const textHTML = `<div class="article_comments_load"><uЗагрузить комментарии</u></div>`;
-                const comments_header = document.getElementById('comments_header');
-                if (comments_header != null)
-                    comments_header.insertAdjacentHTML('beforeend', textHTML);
+                const textHTML = `<div class="article_comments_load"><u>Загрузить комментарии</u></div>`;
+                const comments = document.querySelector('.comments');
+                if (comments != null)
+                    comments.insertAdjacentHTML('beforeend', textHTML);
                 //
                 const article_comments_load = document.querySelector('.article_comments_load');
                 article_comments_load.addEventListener('click', article_comments_load_click);
@@ -174,19 +304,6 @@ async function checkPosition() {
         }        
         article_comments_load_click();
     }
-}
-
-async function article_comments_load_click(e) {
-    //удалить существующую ссылку на продолжение загрузки
-    const article_comments_load = document.querySelector('.article_comments_load');
-    if (article_comments_load != null)
-        article_comments_load.remove();
-
-    //загрузка комментариев
-    ++page_number;
-    const article_comments = await get_comments(id, 3 + page_number, 3);
-    const article_comments_html = get_article_comments_html(response_json.article, response_json.article_comment_count, article_comments);
-    render_added_article_comments(article_comments_html);
 }
 
 async function create_article(action, account_data, article) {
@@ -231,12 +348,26 @@ async function create_article(action, account_data, article) {
 }
 
 async function delete_article(id) {
-    const response = new Request(`/articles/delete-article?id=${id}`, {
+    const response = await fetch(`/articles/delete-article?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF': '1',
+            'Accept': '*/*'
+            },
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+
+    /*const response = new Request(`/articles/delete-article?id=${id}`, {
         method: 'DELETE',
         headers: new Headers({
             "X-CSRF": "1", 
             "Content-Type": "application/json",
-            "Accept": "*/*"
+            "Accept": "*//**"
         })
     });
     //
@@ -253,7 +384,7 @@ async function delete_article(id) {
         return false;
     if (!response.hasOwnProperty('result'))
         return false;
-    return response.isSuccess;
+    return response.isSuccess;*/
 }
 
 async function get_article(id) {
@@ -280,7 +411,15 @@ function get_article_html(article, comment_count) {
             ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]} </a></p>`
             : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/hubs.html?hub=${article['hubs'][i].trim().toLowerCase()}">${article['hubs'][i]}, </a></p>`;
     }
-    //
+    
+    //tags
+    let tags = '';
+    for (let i = 0; i < article['tags'].length; i++) {
+        tags += i == article['tags'].length - 1
+            ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]} </a></p>`
+            : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]}, </a></p>`;
+    }
+
     let textHTML = `
         <div class="section_new_post_text">
             <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
@@ -293,10 +432,10 @@ function get_article_html(article, comment_count) {
                 <p class="advanced_data" id="comments_${article['id']}">Комментарии: ${comment_count}</p>
                 <p class="advanced_data">Просмотров: ${article['readingCount']}</p>
             </div>
-            <div class="section_new_post_data">
-                ${hubs}
-            </div>            
+            <div class="section_new_post_data"><p class="advanced_data">Хабы: ${hubs}</p></div>
+            <div class="section_new_post_data"><p class="advanced_data">Тэги: ${tags}</p></div>
         </div>
+        <!--<p><img src="${article['imageURL']}"/></p>-->
         <p class="article_text">${article['fullTextHtml']}</p>
         <div class="comments">
             <h2 class="section_h2" id="comments_header">Комментарии</h2>
@@ -310,17 +449,50 @@ function get_article_comments_html(articles, comment_count, comments) {
     let textHTML = '';
     for (let i = comments.length - 1; i >= 0; i--) {
         textHTML += `
-            <div>
-                <p class="section_p_attr">пользователь | ${get_datetime_string(comments[i]['createdAt'])}</p>
-                <p class="article_text">${comments[i]['content']}</p>
-                <div class="section_new_post_data">
-                    <p class="advanced_data" id="like_${comments[i]['id']}">Лайки: ${comments[i]['likes']}</p>
-                    <p class="advanced_data" id="dislike_${comments[i]['id']}">Дизлайки: ${comments[i]['dislikes']}</p>
-                    <p class="advanced_data" id="replies_${comments[i]['id']}">Ответить</p>
+            <div class="article_comment_block">
+                <div class="article_comment">
+                    <p class="section_p_attr article_comment_item">${comments[i]['username']} | ${get_datetime_string(comments[i]['createdAt'])}</p>
+                    <div class="article_comment_item">${comments[i]['content']}</div>
+                    <div class="section_new_post_data article_comment_item">
+                        <p class="advanced_data" id="like_comment_${comments[i]['id']}">Лайки: ${comments[i]['likes']}</p>
+                        <p class="advanced_data" id="dislike_comment_${comments[i]['id']}">Дизлайки: ${comments[i]['dislikes']}</p>
+                        <p class="advanced_data" id="reply_comment_${comments[i]['id']}">Ответить</p>                        
+                    </div>
+                    ${get_article_comment_reply(comments[i]['replies'])}
                 </div>
-            </div>`;
+            </div>`;                            
     }
+    textHTML += `
+        <div class="article_comment_input_block">
+            <div class="article_comment">
+                <textarea id="article_comment_input"></textarea>
+                <button id="send_comment">Отправить</button>
+            </div>
+        </div>`;
     return textHTML;
+}
+
+function get_article_comment_reply(comment_replies) {
+    let textHTML = '';
+    if (comment_replies.length == 0)
+        return textHTML;
+    //
+    for(let comment_reply of comment_replies)
+        textHTML += get_article_comment_reply_html(comment_reply);
+    return textHTML;
+}
+
+function get_article_comment_reply_html(comment) {
+    return `
+        <div class="article_comment_reply" id="article_comment_${comment['id']}">
+            <p class="section_p_attr">${comment['username']} | ${get_datetime_string(comment['createdAt'])}</p>
+            <p class="article_comment_item">${comment['content']}</p>
+            <div class="section_new_post_data article_comment_item">
+                <p class="advanced_data" id="like_comment_${comment['id']}">Лайки: ${comment['likes']}</p>
+                <p class="advanced_data" id="dislike_comment_${comment['id']}">Дизлайки: ${comment['dislikes']}</p>
+                <p class="advanced_data" id="reply_comment_${comment['id']}">Ответить</p>
+            </div>
+        </div>`;
 }
 
 async function get_comments(id, page_number, page_size) {
@@ -334,9 +506,9 @@ async function get_comments(id, page_number, page_size) {
         .catch(e => console.log(e));
     //
     if (response == null || typeof response === 'undefined')
-        return -1;
+        return [];//0
     if (!response.hasOwnProperty('result'))
-        return 0;
+        return [];
     return response.result;
 }
 
@@ -421,7 +593,7 @@ function get_update_article_html(article, comment_count) {
                 <label>Текст:</label>                    
                 <textarea class="article_field article_text" id="article_text">${article['fullTextHtml'].trim()}</textarea>
                 <label>Изображение:</label>                    
-                <input type="text" class="article_field" id="article_image">                
+                <input type="text" class="article_field" id="article_image" value="${article['imageURL']}">
                 <label>Тэги:</label>                    
                 <input type="text" class="article_field" id="article_tags" value="${tags}">
                 <label>Хабы:</label>                    
@@ -523,16 +695,68 @@ async function load_data() {
         account_data: account_data,
         article: article,
         article_comments: article_comments,
-        article_comment_count: article_comment_count 
+        article_comment_count: article_comment_count
     };
 }
 
-function render_added_article_comments(article_comments_html) {
+function render_added_article_comments(article_comments_html, article_comments) {
     //комментарии
+    if (article_comments_html.trim() == '')
+        return false;
+
+    //убрать блок ввода комментария    
+    const article_comment_input_block = document.querySelector('.article_comment_input_block');
+    if (article_comment_input_block != null)
+        article_comment_input_block.remove();    
+
+    //добавить
     const comments = document.querySelector('.comments');
     if (comments == null)
         return false;
     comments.insertAdjacentHTML('beforeend', article_comments_html);
+
+    /*const img_array = document.getElementsByTagName('img');
+    for (let img of img_array) {
+        const data_src = img.getAttribute('data-src');
+        if (data_src == null)
+            continue;
+        //
+        let src = document.createAttribute('src');
+        src.value = data_src;
+        //
+        img.setAttributeNode(src);
+        img.removeAttribute('data-src');
+        img.removeAttribute('width');
+        img.removeAttribute('height');
+        img.classList.add('section_new_post_img_full');
+    }*/
+    
+    //события
+    //лайк комментария
+    const likes_comment_array = document.querySelectorAll(`[id^="like_comment_"]`);
+    for(let button_like_comment of likes_comment_array)
+        button_like_comment.addEventListener('click', button_like_comment_click);
+
+    //дизлайк комментария
+    const dislikes_comment_array = document.querySelectorAll(`[id^="dislike_comment_"]`);
+    for(let button_dislike_comment of dislikes_comment_array)
+        button_dislike_comment.addEventListener('click', button_dislike_comment_click);
+
+    //ответ на комментарий
+    const replies_comment_array = document.querySelectorAll(`[id^="reply_comment_"]`);
+    for(let button_reply_comment of replies_comment_array)
+        button_reply_comment.addEventListener('click', button_reply_comment_click);
+
+    //отправить комментарий
+    const button_send_comment = document.getElementById('send_comment');
+    if (button_send_comment != null)
+        button_send_comment.addEventListener('click', button_send_comment_click);
+
+    //удалить комментарий
+    const delete_comment_array = document.querySelectorAll(`[id^="delete_comment_"]`);
+    for(let button_delete_comment of delete_comment_array)
+        button_delete_comment.addEventListener('click', button_delete_comment_click);    
+    return true;
 }
 
 async function render_article(account_data, action, article, article_html, article_comments_html, comments) {
@@ -555,6 +779,7 @@ async function render_article(account_data, action, article, article_html, artic
                     const article_image = document.getElementById('article_image');
                     const article_tags = document.getElementById('article_tags');
                     const article_hubs = document.getElementById('article_hubs');
+                    const article_comments = document.getElementById('article_comments');
                     //
                     if (article_title == null || article_text == null ||
                         article_image == null || article_tags == null ||
@@ -571,7 +796,7 @@ async function render_article(account_data, action, article, article_html, artic
                         title: article_title.value,
                         textHtml: article_text.value,
                         imageUrl: article_image.value,
-                        commentsEnabled: true,
+                        commentsEnabled: article_comments.selectedIndex == 0 ? true : false,
                         tags: article_tags.value.split(','),
                         hubs: article_hubs.value.split(',')               
                     };
@@ -598,12 +823,7 @@ async function render_article(account_data, action, article, article_html, artic
             }
             break;
 
-        case 'read':
-            //отправить комментарий
-            const button_comment_send = document.getElementById('button_comment_send');
-            if (button_comment_send != null)
-                button_comment_send.addEventListener('click', button_comment_send_click);
-            
+        case 'read':            
             //лайк статьи
             const button_like_article = document.getElementById(`like_${id}`);
             if (button_like_article != null)
@@ -612,11 +832,21 @@ async function render_article(account_data, action, article, article_html, artic
             //дизлайк статьи
             const button_dislike_article = document.getElementById(`dislike_${id}`);
             if (button_dislike_article != null)
-                button_dislike_article.addEventListener('click', button_dislike_article_click);
-            //
+                button_dislike_article.addEventListener('click', button_dislike_article_click);            
+
+            //комментарии
+            const comments_header = document.getElementById('comments_header');
+            if (comments_header == null)
+                return false;
+            comments_header.insertAdjacentHTML('afterend', article_comments_html);
+
+            //правка изображений
             const img_array = document.getElementsByTagName('img');
             for (let img of img_array) {
                 const data_src = img.getAttribute('data-src');
+                if (data_src == null)
+                    continue;
+                //
                 let src = document.createAttribute('src');
                 src.value = data_src;
                 //
@@ -627,24 +857,31 @@ async function render_article(account_data, action, article, article_html, artic
                 img.classList.add('section_new_post_img_full');
             }
 
-            //комментарии
-            const comments_header = document.getElementById('comments_header');
-            if (comments_header == null)
-                return false;
-            comments_header.insertAdjacentHTML('afterend', article_comments_html);
-
             //события
-            comments.forEach(comment => {
-                //лайк комментария
-                const button_like_comment = document.getElementById(`like_${comment['id']}`);
-                if (button_like_comment != null)
-                    button_like_comment.addEventListener('click', button_like_comment_click);
+            //лайк комментария
+            const likes_comment_array = document.querySelectorAll(`[id^="like_comment_"]`);
+            for(let button_like_comment of likes_comment_array)
+                button_like_comment.addEventListener('click', button_like_comment_click);
 
-                //дизлайк комментария
-                const button_dislike_comment = document.getElementById(`dislike_${comment['id']}`);
-                if (button_dislike_comment != null)
-                    button_dislike_comment.addEventListener('click', button_dislike_comment_click);
-            });
+            //дизлайк комментария
+            const dislikes_comment_array = document.querySelectorAll(`[id^="dislike_comment_"]`);
+            for(let button_dislike_comment of dislikes_comment_array)
+                button_dislike_comment.addEventListener('click', button_dislike_comment_click);
+
+            //ответ на комментарий
+            const replies_comment_array = document.querySelectorAll(`[id^="reply_comment_"]`);
+            for(let button_reply_comment of replies_comment_array)
+                button_reply_comment.addEventListener('click', button_reply_comment_click);
+
+            //отправить комментарий
+            const send_comment_array = document.querySelectorAll(`[id^="send_comment_"]`);
+            for(let button_send_comment of send_comment_array)
+                button_send_comment.addEventListener('click', button_send_comment_click);
+
+            //удалить комментарий
+            const delete_comment_array = document.querySelectorAll(`[id^="delete_comment_"]`);
+            for(let button_delete_comment of delete_comment_array)
+                button_delete_comment.addEventListener('click', button_delete_comment_click);
             break;
 
         case 'update':
@@ -681,7 +918,7 @@ async function render_article(account_data, action, article, article_html, artic
                         title: article_title.value.trim(), 
                         textHtml: article_text.value.trim(),
                         imageUrl: article_image.value.trim(),
-                        commentsEnabled: article_comments.options[article_comments.selectedIndex].value.trim().toLowerCase() == 'Да' ? true : false,
+                        commentsEnabled: article_comments.selectedIndex == 0 ? true : false,
                         isPublished: false,
                         tags: article_tags.value.trim(),
                         hubs: article_hubs.value.trim()
@@ -763,6 +1000,18 @@ function render_page(response_json, html) {
     render_footer(footer_html);
 }
 
+function set_like_dislike_article_comment(value, id) {
+    const like = document.getElementById(`like_comment_${id}`);
+    const dislike = document.getElementById(`dislike_comment_${id}`);
+    //
+    if (like != null && dislike != null) {
+        like.innerText = `Лайки: ${value.likes}`;
+        dislike.innerText = `Дизлайки: ${value.dislikes}`;
+        return true;
+    }
+    return false;
+}
+
 async function update_article(action, account_data, article) {
     if (article == null || typeof article === 'undefined')
         return;
@@ -778,12 +1027,14 @@ async function update_article(action, account_data, article) {
             'X-CSRF': '1'
             },
     })
-        .then(response => response.text())
+        .then(response => response.json())
         .catch(e => console.log(e));
     //
     if (response == null || typeof response === 'undefined')
         return false;
-    return true;
+    if (!response.hasOwnProperty('isSuccess'))
+        return false;
+    return response.isSuccess;
     /*const response = new Request(`/articles/update-article?id=${article['articleId']}`, {
         method: 'PUT',
         body: JSON.stringify(article),
@@ -807,61 +1058,4 @@ async function update_article(action, account_data, article) {
     if (!response.hasOwnProperty('result'))
         return false;
     return response.isSuccess;*/
-}
-
-async function button_comment_send_click(e) {
-    /*const response = await fetch(`/comments`, {
-        method: 'POST',
-        body: JSON.stringify({
-            "articleId": "24666353-b59e-42b6-bc45-08db1adf7a3d",
-            "content": "string"         
-        })
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
-    /*try {
-        var resp = await fetch(response);
-
-        let data;
-        if (resp.ok) {
-            data = await resp.json();
-        }
-        log(resp.status, data);
-    } catch (e) {
-        log(e.message);
-    }
-    //
-    if (response == null || typeof response === 'undefined')
-        return false;
-    if (!response.hasOwnProperty('result'))
-        return false;*/
-    const response = new Request(`/comments`, {
-        method: 'POST',
-        body: JSON.stringify({
-            "articleId": "02218b82-32e2-41c0-0176-08db1b366333",
-            "content": "string"
-        }),
-        headers: new Headers({
-            "X-CSRF": "1",
-            "Content-Type": "application/json",
-            "Accept": "*/*"
-        })
-    })
-    //
-    try {
-        var resp = await fetch(response);
-
-        let data;
-        if (resp.ok) {
-            data = await resp.json();
-        }
-        log(resp.status, data);
-    } catch (e) {
-        log(e.message);
-    }
-    //
-    if (response == null || typeof response === 'undefined')
-        return false;
-    if (!response.hasOwnProperty('result'))
-        return false;
 }

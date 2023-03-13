@@ -78,7 +78,7 @@ async function button_dislike_article_click(e) {
 
     //гость
     if (userClaims == null) {
-        alert('Войдите в систему или зарегистрируйтесь для того, чтобы оценивать посты');
+        alert('Войдите в систему или зарегистрируйтесь, чтобы оценивать посты');
         return;
     }
     //
@@ -110,7 +110,7 @@ async function button_like_article_click(e) {
         return;    
     if (userClaims == null) {
         //гость
-        alert('Войдите в систему или зарегистрируйтесь для того, чтобы оценивать посты');
+        alert('Войдите в систему или зарегистрируйтесь, чтобы оценивать посты');
         return;
     }
     //
@@ -227,7 +227,7 @@ async function get_comments_count(id) {
         .catch(e => console.log(e));
     //
     if (response == null || typeof response === 'undefined')
-        return -1;
+        return 0;
     if (!response.hasOwnProperty('result'))
         return 0;
     if (response.result == null)
