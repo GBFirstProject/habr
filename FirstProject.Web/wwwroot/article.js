@@ -62,8 +62,10 @@ try {
 
 function get_main_html() {
     return `
-        <p id="button_back" onclick="window.history.back()"><u>Назад</u></p>
-        <div id="article_div"></div>`;
+    <div class="container">
+                <div id="article_div"></div>
+                <p id="button_back" onclick="window.history.back()"><button class="back_btn_art">Назад</button></p>
+                <div>`;
 }
 
 async function load() {
