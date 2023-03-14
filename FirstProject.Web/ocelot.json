@@ -15,7 +15,7 @@
       ]
     },
     {
-      "DownstreamPathTemplate": "/api/comments/getCount?articleId={articleId}",
+      "DownstreamPathTemplate": "/api/comments/getcount?articleId={articleId}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -23,7 +23,21 @@
           "Port": "10009"
         }
       ],
-      "UpstreamPathTemplate": "/comments/getCount?articleId={articleId}",
+      "UpstreamPathTemplate": "/comments/getcount?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments/getcountroot?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments/getcountroot?articleId={articleId}",
       "UpstreamHttpMethod": [
         "GET"
       ]
