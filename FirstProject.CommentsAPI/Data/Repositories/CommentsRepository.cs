@@ -75,7 +75,7 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                     .Where(s => s.ReplyTo == Guid.Empty)
                     .Skip(index)
                     .Take(count)
-                    .ToListAsync(cts);
+                    .FromCacheAsync(cts);
 
                 return _mapper.Map<IEnumerable<CommentDTO>>(entries);
             }
@@ -99,7 +99,7 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                     .AsSplitQuery()
                     .OrderByDescending(s => s.CreatedAt)
                     .Where(s => s.ReplyTo == commentId)
-                    .ToListAsync(cts);
+                    .FromCacheAsync(cts);
 
                 return _mapper.Map<IEnumerable<CommentDTO>>(entries);
             }
@@ -121,27 +121,6 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                 var result = await _context.Comments
                     .AsNoTracking()
                     .CountAsync(s => s.ArticleId == articleId, cts);
-
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public async Task<int> GetRootCommentsCountByArticleId(Guid articleId, CancellationToken cts)
-        {
-            try
-            {
-                if (articleId == Guid.Empty)
-                {
-                    throw new ArgumentException("Article Id was empty");
-                }
-
-                var result = await _context.Comments
-                    .AsNoTracking()
-                    .CountAsync(s => s.ArticleId == articleId && s.ReplyTo == Guid.Empty, cts);
 
                 return result;
             }
@@ -213,7 +192,6 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                     entry.Likes.Remove(username);
                 }
 
-                _context.Comments.Update(entry);
                 await _context.SaveChangesAsync(cts);
 
                 return _mapper.Map<CommentDTO>(entry);
@@ -258,7 +236,6 @@ namespace FirstProject.CommentsAPI.Data.Repositories
                     entry.Dislikes.Remove(username);
                 }
 
-                _context.Comments.Update(entry);
                 await _context.SaveChangesAsync(cts);
 
                 return _mapper.Map<CommentDTO>(entry);
@@ -291,7 +268,6 @@ namespace FirstProject.CommentsAPI.Data.Repositories
 
                 entry.Content = content;
 
-                _context.Comments.Update(entry);
                 await _context.SaveChangesAsync(cts);
 
                 return _mapper.Map<CommentDTO>(entry);

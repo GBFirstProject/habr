@@ -79,32 +79,6 @@ namespace FirstProject.CommentsAPI.Controllers
         }
 
         /// <summary>
-        /// Получение количества корневых комментариев по Guid статьи
-        /// </summary>
-        /// <param name="articleId">Guid статьи</param>
-        /// <param name="cts"></param>
-        /// <returns>Количество корневых комментариев</returns>
-        [HttpGet("getcountroot")]
-        public async Task<IActionResult> GetRootCommentsCountByArticleId(string articleId, CancellationToken cts)
-        {
-            try
-            {
-                var guid = Guid.Parse(articleId);
-                var result = await _service.GetRootCommentsCountByArticleId(guid, cts);
-
-                return Ok(new ResponseDTO()
-                {
-                    IsSuccess = true,
-                    Result = result
-                });
-            }
-            catch (Exception ex)
-            {
-                return Error(ex);
-            }
-        }
-
-        /// <summary>
         /// Получение количества комментариев по Guid статьи
         /// </summary>
         /// <param name="request">Guid статей</param>
@@ -304,6 +278,6 @@ namespace FirstProject.CommentsAPI.Controllers
             return true;
         }
 
-        private string GetUsername() => User.Claims.FirstOrDefault(s => s.Type == USERNAME)!.Value;
+        private string GetUsername() => User.Claims.FirstOrDefault(s => s.Type == USERNAME)!.Value.Split('@')[0];
     }
 }
