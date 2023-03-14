@@ -671,3 +671,13 @@ li {
 	margin: 0 auto;
 	padding: 25px;
 }
+
+.add_like {
+	cursor: pointer;
+
+}
+
+	.add_like:hover {
+		color: #FF8C00;
+	}
+

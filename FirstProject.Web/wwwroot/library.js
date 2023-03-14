@@ -537,8 +537,8 @@ function render_preview_article(article, comment_count) {
                         </a>
                     </h2>
                     <div class="section_new_post_data">
-                        <p class="advanced_data" id="like_${article['id']}">Лайки: ${article['likes'].length}</p>
-                        <p class="advanced_data" id="dislike_${article['id']}">Дизлайки: ${article['dislikes'].length}</p>
+                        <p class="advanced_data add_like" id="like_${article['id']}">Лайки: ${article['likes'].length}</p>
+                        <p class="advanced_data add_like" id="dislike_${article['id']}">Дизлайки: ${article['dislikes'].length}</p>
                     </div>                    
                     <div class="section_new_post_data">
                         <p class="advanced_data" id="comments_${article['id']}">Комментарии: ${comment_count}</p>
@@ -581,8 +581,8 @@ function render_preview_top_article(top_article, top_article_comment_count) {
                         </a>
                     </h2>
                     <div class="section_new_post_data">
-                        <p class="advanced_data" id="like_${top_article['id']}">Лайки: ${top_article['likes'].length}</p>
-                        <p class="advanced_data" id="dislike_${top_article['id']}">Дизлайки: ${top_article['dislikes'].length}</p>
+                        <p class="advanced_data add_like" id="like_${top_article['id']}">Лайки: ${top_article['likes'].length}</p>
+                        <p class="advanced_data add_like" id="dislike_${top_article['id']}">Дизлайки: ${top_article['dislikes'].length}</p>
                     </div>
                     <div class="section_new_post_data">
                         <p class="advanced_data" id="comments_${top_article['id']}">Комментарии: ${top_article_comment_count}</p>
