@@ -7,8 +7,8 @@
         public string Username { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
-        public int Likes { get; set; } = new();
-        public int Dislikes { get; set; } = new();
+        public int Likes { get; set; }
+        public int Dislikes { get; set; }
         public Guid ReplyTo { get; set; }
 
         public override bool Equals(object? obj)
