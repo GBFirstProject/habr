@@ -125,7 +125,7 @@ async function checkPosition() {
 
     if (position >= threshold) {
         // Если мы пересекли полосу-порог, вызываем нужное действие.
-        let load_pause = page_number % 5;
+        let load_pause = page_number % get_load_pause();
         if (load_pause == 0) {
             const articles_load = document.querySelector('.articles_load');
             if (articles_load == null) {

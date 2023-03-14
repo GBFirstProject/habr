@@ -303,6 +303,10 @@ async function get_footer() {
     return response;
 }
 
+function get_load_pause() {
+    return 2;
+}
+
 async function get_top_article() {
     const request = await fetch(`/articles/get-best-article`, {
         method: 'GET',

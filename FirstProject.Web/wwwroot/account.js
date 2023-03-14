@@ -32,6 +32,24 @@ add_progressbar();
     }
 })();
 
+async function approve_article(id) {
+    const response = await fetch(`/articles/approve-article?articleId=${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF': '1'
+        },
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    if (response.hasOwnProperty('isSuccess'))
+        return response.isSuccess;
+    return false;
+}
+
 function get_account_html(account, articles_for_moderation, author_articles, articles_moderation_actions, article_actions) {
     const email = account.email;
     const name = account.name;
@@ -108,7 +126,7 @@ function get_account_html(account, articles_for_moderation, author_articles, art
                     let articles_moderation_actions_html = '';
                     articles_moderation_actions.forEach(action => {
                         articles_moderation_actions_html += `
-                            <a class="article_moderation_action" href="${window.location.origin}/article.html?id=${article_for_moderation['articleId']}&action=${action.link}">
+                            <a class="article_moderation_action ${action.link}" article_id="${article_for_moderation['articleId']}">
                                 ${action.name}
                             </a>`;
                     });
@@ -129,12 +147,12 @@ function get_account_html(account, articles_for_moderation, author_articles, art
         <div class="container">
          <div class="section_account_flex">
                 <button class="add_cart_btn"><a href="${window.location.origin}/article.html?action=create">Добавить статью</a></button>
-                <a href="">Все статьи</a>
+                <!--<a href="">Все статьи</a>-->
             </div>
             </div>`;
 
         //блок "пользователи"
-        if (role == 'admin') {
+        /*if (role == 'admin') {
             textHTML += `
              <div class="container">
                 <div class="section_account_flex">
@@ -144,7 +162,7 @@ function get_account_html(account, articles_for_moderation, author_articles, art
                 </div>
                 </div>
                 `;
-        }
+        }*/
     }
     return textHTML;
 }
@@ -153,11 +171,11 @@ function get_article_moderation_actions() {
     return [
         {
             name: 'Принять', 
-            link: `accept`
+            link: `approve_article`
         }, 
         {
             name: 'Отклонить',
-            link: `reject`
+            link: `reject_article`
         }
     ];
 }
@@ -292,6 +310,24 @@ async function load_data() {
     };
 }
 
+async function reject_article(id) {
+    const response = await fetch(`/articles/reject-article?articleId=${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF': '1'
+        },
+    })
+        .then(response => response.json())
+        .catch(e => console.log(e));
+    //
+    if (response == null || typeof response === 'undefined')
+        return false;
+    if (response.hasOwnProperty('isSuccess'))
+        return response.isSuccess;
+    return false;
+}
+
 function render_account_layout(account_html) {
     //добавить на страницу
     let account_div = document.getElementById('account_div');
@@ -300,7 +336,17 @@ function render_account_layout(account_html) {
     //
     account_div.innerHTML = '';
     account_div.insertAdjacentHTML('afterbegin', account_html);
-    return true;
+
+    //события
+    if (response_json != null) {
+        for (const moderator_action of response_json.article_moderation_actions) {
+            const elements_array = document.querySelectorAll(`.${moderator_action.link}`);
+            for (let element of elements_array)
+                element.addEventListener('click', () => window[`${moderator_action.link}`](`${element.getAttribute('article_id')}`));
+        }
+        return true;
+    }
+    return false;
 }
 
 function render_page(response_json, html) {
