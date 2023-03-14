@@ -61,8 +61,8 @@ function get_account_html(account, articles_for_moderation, author_articles, art
                 </ul>                        
             </div>
             <div class="section_account_flex">
-                <h2 class="site_h1">Статьи</h2>
-                    <p class="header_row">Мои статьи</p>
+                <h2 class="site_h1">Мои статьи</h2>
+                    
                     </div>
                      </div>`;
                     
@@ -94,8 +94,9 @@ function get_account_html(account, articles_for_moderation, author_articles, art
         
         if (role == 'moderator' || role == 'admin') {
             textHTML += `
-                <p class="header_row">Статьи на проверку</p>
-                <ul>`;
+          
+                <h2 class="header_row">Статьи на проверку</h2>
+                `;
             
             //статьи на проверку
             if (articles_for_moderation == null || articles_for_moderation.length == 0)
@@ -205,7 +206,7 @@ async function get_titles_by_author_id(author_id) {
 }
 
 function get_main_html() {
-    return `<div id="account_div"></div>`;
+    return `<div class="container"><div id="account_div"></div></div>`;
 }
 
 async function load() {
