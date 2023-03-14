@@ -182,7 +182,7 @@ namespace FirstProject.ArticlesAPI.Services
                 : updateArticleDataDto.ImageUrl;*/
             article.LeadData.ImageUrl = updateArticleDataDto.ImageUrl;
             article.CommentsEnabled = updateArticleDataDto.CommentsEnabled;
-            article.IsPublished = updateArticleDataDto.IsPublished;
+            article.IsPublished = false;
 
             // Update the article's tags and hubs
             article.Tags.Clear();
@@ -496,6 +496,7 @@ namespace FirstProject.ArticlesAPI.Services
                 if (!entity.Likes.Contains(userId))
                 {
                     entity.Likes.Add(userId);
+                    _notificationService.SendArticleLiked(new ArticleLiked(articleId, userId.ToString(), entity.AuthorId), cts);
                 }
                 else
                 {
@@ -505,7 +506,7 @@ namespace FirstProject.ArticlesAPI.Services
                 _articleRepository.UpdateAsync(entity, cts).Wait();
                 await _articleRepository.SaveChangesAsync(cts);
 
-                _notificationService.SendArticleLiked(new ArticleLiked(articleId, userId.ToString(), entity.AuthorId), cts);
+                
 
                 return _mapper.Map<LikeResultDTO>(entity);
             }
@@ -543,6 +544,7 @@ namespace FirstProject.ArticlesAPI.Services
                 if (!entity.Dislikes.Contains(userId))
                 {
                     entity.Dislikes.Add(userId);
+                    _notificationService.SendArticleDisliked(new ArticleDisliked(articleId, entity.AuthorNickName, entity.AuthorId), cts);
                 }
                 else
                 {
@@ -550,9 +552,7 @@ namespace FirstProject.ArticlesAPI.Services
                 }
 
                 _articleRepository.UpdateAsync(entity, cts).Wait();
-                await _articleRepository.SaveChangesAsync(cts);
-
-                _notificationService.SendArticleDisliked(new ArticleDisliked(articleId, entity.AuthorNickName, entity.AuthorId), cts);
+                await _articleRepository.SaveChangesAsync(cts);                
 
                 return _mapper.Map<LikeResultDTO>(entity);
             }
@@ -667,8 +667,8 @@ namespace FirstProject.ArticlesAPI.Services
         public async Task<SearchPreviewResultDTO> GetPreviewArticlesByKeywordLastMonthAsync(string keyword, PagingParameters paging, CancellationToken cancellationToken)
         {
             var query = _articleRepository.Query()
-            .Where(a => a.TextHtml.Contains(keyword))
-            .Where(a => a.TimePublished > DateTimeOffset.UtcNow.AddDays(-30))
+            .Where(a => a.TextHtml.Contains(keyword) ||a.Title.Contains(keyword))
+            //.Where(a => a.TimePublished > DateTimeOffset.UtcNow.AddDays(-30))
             .OrderByDescending(a => a.TimePublished)
             .Select(a => new PreviewArticleDTO
             {

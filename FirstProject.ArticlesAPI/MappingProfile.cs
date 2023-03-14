@@ -13,7 +13,7 @@ namespace FirstProject.ArticlesAPI
         {
             CreateMap<Article, FullArticleDTO>()
                 .ForMember(a => a.TimePublished, opt => opt.MapFrom(source => DateTime.Parse(source.TimePublished.ToString())))
-                .ForMember(a => a.AuthorNickName, opt => opt.MapFrom(a => a.Author.NickName))
+                .ForMember(a => a.AuthorNickName, opt => opt.MapFrom(a => a.AuthorNickName))
                 .ForMember(a => a.FullTextHtml, opt => opt.MapFrom(a => a.TextHtml))
                 .ForMember(a => a.PreviewTextHtml, opt => opt.MapFrom(a => HtmlImgFilter.FilterHtmlToNoImg(a.LeadData.TextHtml)))
                 .ForMember(a => a.ImageURL, opt => opt.MapFrom(a => a.LeadData.ImageUrl == null ? a.MetaData.ShareImageUrl : a.LeadData.ImageUrl))
@@ -22,7 +22,7 @@ namespace FirstProject.ArticlesAPI
                 .ReverseMap();
             CreateMap<Article, PreviewArticleDTO>()
                 .ForMember(a => a.TimePublished, opt => opt.MapFrom(source => DateTime.Parse(source.TimePublished.ToString())))
-                .ForMember(a => a.AuthorNickName, opt => opt.MapFrom(a => a.Author.NickName))
+                .ForMember(a => a.AuthorNickName, opt => opt.MapFrom(a => a.AuthorNickName))
                 .ForMember(a => a.Text, opt => opt.MapFrom(a => HtmlImgFilter.FilterHtmlToNoImg(a.LeadData.TextHtml)))                
                 .ForMember(a => a.ImageURL, opt => opt.MapFrom(a => a.LeadData.ImageUrl == null ? a.MetaData.ShareImageUrl : a.LeadData.ImageUrl))
                 .ForMember(a => a.ReadingCount, opt => opt.MapFrom(a => a.Statistics.ReadingCount))
