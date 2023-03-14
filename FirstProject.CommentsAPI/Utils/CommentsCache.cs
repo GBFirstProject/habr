@@ -15,25 +15,25 @@ namespace FirstProject.CommentsAPI.Utils
 
         public List<CommentJsonDTO>? Get(string key)
         {
-            _comments.TryGetValue(key.ToLower(), out var result);
+            _comments.TryGetValue(key, out var result);
             return result;
         }
 
         public void Add(string key, List<CommentJsonDTO> json)
         {
-            if (_comments.ContainsKey(key.ToLower()))
+            if (_comments.ContainsKey(key))
             {
-                _comments.TryRemove(key.ToLower(), out _);
+                _comments.TryRemove(key, out _);
             }
-            _comments.TryAdd(key.ToLower(), json);
+            _comments.TryAdd(key, json);
         }
 
         public void Drop(Guid articleId)
         {
-            var entries = _comments.Where(s => s.Key.ToLower().Contains(articleId.ToString()));
+            var entries = _comments.Where(s => s.Key.Contains(articleId.ToString()));
             foreach (var entry in entries)
             {
-                _comments.TryRemove(entry.Key.ToLower(), out _);
+                _comments.TryRemove(entry.Key, out _);
             }
         }
     }

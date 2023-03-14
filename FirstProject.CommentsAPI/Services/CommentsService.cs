@@ -71,20 +71,6 @@ namespace FirstProject.CommentsAPI.Services
             }
         }
 
-        public async Task<int> GetRootCommentsCountByArticleId(Guid articleId, CancellationToken cts)
-        {
-            try
-            {
-                var result = await _comments.GetRootCommentsCountByArticleId(articleId, cts);
-
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
         public async Task<Dictionary<Guid,int>> GetCommentsCountByArticleId(Guid[] articleIds, CancellationToken cts)
         {
             try
