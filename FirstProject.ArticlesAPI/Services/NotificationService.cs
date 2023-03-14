@@ -31,7 +31,7 @@ namespace FirstProject.ArticlesAPI.Services
 
                 await client.SendAsync(request);
             });
-        }
+            }
             catch (Exception ex)
             {
                 _logger.LogError("NotificationService:SendArticleLiked", ex);

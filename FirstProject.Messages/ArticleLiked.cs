@@ -31,5 +31,10 @@ namespace FirstProject.Messages
             CreatedAt = DateTime.UtcNow;
             ArticleAuthorId=articleAuthorId;
         }
+
+        public ArticleLiked()
+        {
+
+        }
     }
 }
