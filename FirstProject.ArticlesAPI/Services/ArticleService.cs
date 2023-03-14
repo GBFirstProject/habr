@@ -668,7 +668,7 @@ namespace FirstProject.ArticlesAPI.Services
         {
             var query = _articleRepository.Query()
             .Where(a => a.TextHtml.Contains(keyword) ||a.Title.Contains(keyword))
-            .Where(a => a.TimePublished > DateTimeOffset.UtcNow.AddDays(-30))
+            //.Where(a => a.TimePublished > DateTimeOffset.UtcNow.AddDays(-30))
             .OrderByDescending(a => a.TimePublished)
             .Select(a => new PreviewArticleDTO
             {
