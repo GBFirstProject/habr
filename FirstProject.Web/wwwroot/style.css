@@ -665,3 +665,9 @@ li {
 	font-weight: 600;
 	font-size: 1.2em;
 }
+
+.help_page_item {
+	background-color: #FFFFFF;
+	margin: 0 auto;
+	padding: 25px;
+}
