@@ -45,8 +45,10 @@ async function approve_article(id) {
     //
     if (response == null || typeof response === 'undefined')
         return false;
-    if (response.hasOwnProperty('isSuccess'))
+    if (response.hasOwnProperty('isSuccess')) {
+        window.location = `${window.location.origin}/account.html`;
         return response.isSuccess;
+    }        
     return false;
 }
 
@@ -129,7 +131,7 @@ function get_account_html(account, articles_for_moderation, author_articles, art
                     let articles_moderation_actions_html = '';
                     articles_moderation_actions.forEach(action => {
                         articles_moderation_actions_html += `
-                            <a class="article_moderation_action ${action.link}" article_id="${article_for_moderation['articleId']}">${action.name}</a>`;
+                            <a class="article_moderation_action ${action.link}" article_id="${article_for_moderation['articleId']}" style="cursor: pointer;">${action.name}</a>`;
                     });
                     //
                     textHTML += `

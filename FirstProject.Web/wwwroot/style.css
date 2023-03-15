@@ -166,9 +166,16 @@ a {
 	transition: 0.4s;
 }
 
+.comm_btn {
+	padding: 10px 20px;
+	background-color: #FFA500;
+	border: none;
+	transition: 0.4s;
+}
+
 .read_more_btn:hover {
-		background-color: #FF8C00;
-	}
+	background-color: #FF8C00;
+}
 
 .read_more_btn_text {
 		font-family: 'Overpass';

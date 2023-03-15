@@ -211,8 +211,8 @@ async function button_reply_comment_click(e) {
     //добавить форму ответа
     let textHTML = `
         <div class="article_comment_reply_block article_comment_item">
-            <textarea class="article_field"  id="article_comment_reply_${id}" placeholder="Текст комментария"></textarea>
-            <button id="send_comment_reply">Отправить</button>
+            <textarea id="article_comment_reply_${id}" placeholder="Текст комментария" rows="4" style="width: 50%;"></textarea>
+            <button class="comm_btn" id="send_comment_reply" style="width: fit-content">Отправить</button>
         </div>`;
     
     //поиск родительского элемента
@@ -447,8 +447,8 @@ function get_article_html(article, comment_count) {
             <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
             <h2 class="section_h2"><a class="site_links" href="#">${article['title']}</a></h2>
             <div class="section_new_post_data">
-                <p class="advanced_data" id="like_${article['id']}">Лайки: ${article['likes'].length}</p>
-                <p class="advanced_data" id="dislike_${article['id']}">Дизлайки: ${article['dislikes'].length}</p>
+                <p class="advanced_data" id="like_${article['id']}" style="cursor: pointer;">Лайки: ${article['likes'].length}</p>
+                <p class="advanced_data" id="dislike_${article['id']}" style="cursor: pointer;">Дизлайки: ${article['dislikes'].length}</p>
             </div>
             <div class="section_new_post_data">
                 <p class="advanced_data" id="comments_${article['id']}">Комментарии: ${comment_count}</p>
@@ -472,16 +472,17 @@ function get_article_comment_actions_html(comment) {
             const role = response_json.account_data.role;
             const name = response_json.account_data.name;
             //
-            advanced_actions = `<p class="advanced_data" id="reply_comment_${comment['id']}">Ответить</p>`;
+            advanced_actions = `<p class="advanced_data" id="reply_comment_${comment['id']}" style="cursor: pointer;">Ответить</p>`;
             advanced_actions += role == 'moderator' || role == 'admin' || name == comment['username']
-                ? `<p class="advanced_data" id="change_comment_${comment['id']}">Редактировать</p>
-                    <p class="advanced_data" id="delete_comment_${comment['id']}">Удалить</p>`
-                : '';            
+                ? ``
+                : '';
+                /*<p class="advanced_data" id="change_comment_${comment['id']}">Редактировать</p>
+                    <p class="advanced_data" id="delete_comment_${comment['id']}">Удалить</p>*/
         }            
     }
     return `
-        <p class="advanced_data" id="like_comment_${comment['id']}">Лайки: ${comment['likes']}</p>
-        <p class="advanced_data" id="dislike_comment_${comment['id']}">Дизлайки: ${comment['dislikes']}</p>
+        <p class="advanced_data" id="like_comment_${comment['id']}" style="cursor: pointer;">Лайки: ${comment['likes']}</p>
+        <p class="advanced_data" id="dislike_comment_${comment['id']}" style="cursor: pointer;">Дизлайки: ${comment['dislikes']}</p>
         ${advanced_actions}
     `;
 }
@@ -514,8 +515,8 @@ function get_article_comment_input() {
     return `
         <div class="article_comment_input_block">
             <div class="article_comment">
-                <textarea id="article_comment_input" placeholder="Текст комментария"></textarea>
-                <button id="send_comment">Отправить</button>
+                <textarea id="article_comment_input" placeholder="Текст комментария" rows="7" style="width: 50%;"></textarea>
+                <button class="comm_btn" id="send_comment" style="width: fit-content;">Отправить</button>
             </div>
         </div>`;
 }
