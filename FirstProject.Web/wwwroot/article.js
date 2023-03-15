@@ -84,6 +84,39 @@ try {
     }
 })();
 
+function article_comment_events() {
+    //события
+    //отправить комментарий
+    const button_send_comment = document.getElementById('send_comment');
+    if (button_send_comment != null)
+        button_send_comment.addEventListener('click', button_send_comment_click);
+
+    //лайк комментария
+    const likes_comment_array = document.querySelectorAll(`[id^="like_comment_"]`);
+    for (let button_like_comment of likes_comment_array)
+        button_like_comment.addEventListener('click', button_like_comment_click);
+
+    //дизлайк комментария
+    const dislikes_comment_array = document.querySelectorAll(`[id^="dislike_comment_"]`);
+    for (let button_dislike_comment of dislikes_comment_array)
+        button_dislike_comment.addEventListener('click', button_dislike_comment_click);
+
+    //ответ на комментарий
+    const replies_comment_array = document.querySelectorAll(`[id^="reply_comment_"]`);
+    for (let button_reply_comment of replies_comment_array)
+        button_reply_comment.addEventListener('click', button_reply_comment_click);
+
+    //редактировать комментарий
+    const change_comment_array = document.querySelectorAll(`[id^="change_comment_"]`);
+    for (let button_change_comment of change_comment_array)
+        button_change_comment.addEventListener('click', button_change_comment_click);
+
+    //удалить комментарий
+    const delete_comment_array = document.querySelectorAll(`[id^="delete_comment_"]`);
+    for (let button_delete_comment of delete_comment_array)
+        button_delete_comment.addEventListener('click', button_delete_comment_click);
+}
+
 async function article_comments_load_click(e) {
     //удалить существующую ссылку на продолжение загрузки
     const article_comments_load = document.querySelector('.article_comments_load');
@@ -93,12 +126,14 @@ async function article_comments_load_click(e) {
     //загрузка комментариев
     page_number += 3;
     const article_comments = await get_comments(id, page_number, 3);
-    const article_comments_html = get_article_comments_html(response_json.article, response_json.article_comment_count, article_comments);
+    const article_comments_html = get_article_comments_html(article_comments);
     render_added_article_comments(article_comments_html, article_comments);
 }
 
-async function button_delete_comment_click(e) {
+async function button_change_comment_click(e) {   
+}
 
+async function button_delete_comment_click(e) {
 }
 
 async function button_dislike_comment_click(e) {
@@ -174,16 +209,22 @@ async function button_reply_comment_click(e) {
     //добавить форму ответа
     let textHTML = `
         <div class="article_comment_reply_block article_comment_item">
-            <textarea class="article_field" id="article_comment_reply_${id}"></textarea>
+            <textarea class="article_field" id="article_comment_reply_${id}" placeholder="Текст комментария"></textarea>
             <button id="send_comment_reply">Отправить</button>
         </div>`;
     
     //поиск родительского элемента
     const parent = e.currentTarget.parentElement.parentElement;
     if (parent == null)
-        return;
-    //
+        return;  
     const parent_id = parent.id.substr(16);
+
+    //удалить другую форму ответа на комментарий
+    const article_comment_reply_block_array = document.querySelectorAll('.article_comment_reply_block');
+    for (let article_comment_reply_block of article_comment_reply_block_array)
+        article_comment_reply_block.remove();
+
+    //добавить блок ответа на комментарий
     const article_comment_reply = document.getElementById(`article_comment_${parent_id}`);
     if (article_comment_reply != null)
         article_comment_reply.insertAdjacentHTML('beforeend', textHTML);
@@ -191,29 +232,7 @@ async function button_reply_comment_click(e) {
     //события
     const send_comment_reply = document.getElementById('send_comment_reply');
     if (send_comment_reply != null)
-        send_comment_reply.addEventListener('click', button_send_comment_reply_click);
-
-    /*const id = e.currentTarget.id.substr(14);
-    const response = await fetch(`/comments`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json-patch+json',
-            'X-CSRF': '1'
-            },
-        body: JSON.stringify({articleId: '', content: '', replyTo: id})
-    })
-        .then(response => response.json())
-        .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return false;
-    if (!response.hasOwnProperty('result'))
-        return false;*/
-    
-    //обновить страницу
-    /*if (!response.isSuccess)
-        return false;
-    return set_like_dislike_article_comment(response.result, id);*/
+        send_comment_reply.addEventListener('click', button_send_comment_reply_click);   
 }
 
 async function button_send_comment_click(e) {
@@ -222,7 +241,7 @@ async function button_send_comment_click(e) {
     
     //сообщение
     let value = '';
-    const article_comment_input = document.getElementById('article_comment_input');
+    let article_comment_input = document.getElementById('article_comment_input');
     if (article_comment_input != null)
         value = article_comment_input.value.trim();
     //
@@ -232,7 +251,7 @@ async function button_send_comment_click(e) {
             'Content-Type': 'application/json-patch+json',
             'X-CSRF': '1'
             },
-        body: JSON.stringify({articleId: id, content: value, replyTo: id})
+        body: JSON.stringify({ articleId: id, content: value, replyTo: '00000000-0000-0000-0000-000000000000' })
     })
         .then(response => response.json())
         .catch(e => console.log(e));
@@ -241,6 +260,18 @@ async function button_send_comment_click(e) {
         return false;
     if (!response.hasOwnProperty('result'))
         return false;
+
+    //добавить на страницу
+    let comments = [];
+    comments.push(response.result);
+    const article_comment_html = get_article_comments_html(comments);
+    const article_comment_input_block = document.querySelector('.article_comment_input_block');
+    if (article_comment_input_block != null)
+        article_comment_input_block.insertAdjacentHTML('afterend', article_comment_html);
+    article_comment_events();//события
+
+    //очистить textarea
+    article_comment_input.value = '';
 }
 
 async function button_send_comment_reply_click(e) {
@@ -270,10 +301,17 @@ async function button_send_comment_reply_click(e) {
     if (!response.hasOwnProperty('result'))
         return false;
     
-    //обновить страницу
-    /*if (!response.isSuccess)
-        return false;
-    return set_like_dislike_article_comment(response.result, id);*/
+    const article_comment_reply_html = get_article_comment_reply_html(response.result);
+    //удалить блок textarea
+    let article_comment_reply_block = document.querySelector('.article_comment_reply_block');
+    if (article_comment_reply_block != null)
+        article_comment_reply_block.remove();
+
+    //добавить на страницу
+    const parent_comment = document.getElementById(`article_comment_${response.result['replyTo']}`);
+    if (parent_comment != null)
+        parent_comment.insertAdjacentHTML('beforeend', article_comment_reply_html);
+    article_comment_events();//события
 }
 
 async function checkPosition() {
@@ -307,38 +345,17 @@ async function checkPosition() {
 }
 
 async function create_article(action, account_data, article) {
-    let hubs = '';
-    for (let i = 0; i < article['hubs'].length; i++) {
-        hubs += i == article['hubs'].length - 1
-            ? `${article['hubs'][i]}`
-            : `${article['hubs'][i]},`;
-    }
-    //
-    let tags = '';
-    for (let i = 0; i < article['tags'].length; i++) {
-        tags += i == article['tags'].length - 1
-            ? `${article['tags'][i]}`
-            : `${article['tags'][i]},`;
-    }
-
-    const response = new Request(`/articles/add-article`, {
+    const response = await fetch(`/articles/add-article`, {
         method: 'POST',
         body: JSON.stringify(article),
-        headers: new Headers({
-            "X-CSRF": "1", 
-            "Content-Type": "application/json",
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF': '1',
             "Accept": "*/*"
-        })
-    });
-    //
-    try {
-        var resp = await fetch(response);
-        let data;
-        if (resp.ok)
-            data = await resp.json();      
-    } catch (e) {
-        console.log('');
-    }
+        },
+    })
+            .then(response => response.json())
+            .catch(e => console.log(e));    
     //
     if (response == null || typeof response === 'undefined')
         return false;
@@ -352,39 +369,17 @@ async function delete_article(id) {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF': '1',
-            'Accept': '*/*'
+            'X-CSRF': '1'
             },
     })
-        .then(response => response.json())
+        .then(response => response.text())
         .catch(e => console.log(e));
-    //
-    if (response == null || typeof response === 'undefined')
-        return false;
-
-    /*const response = new Request(`/articles/delete-article?id=${id}`, {
-        method: 'DELETE',
-        headers: new Headers({
-            "X-CSRF": "1", 
-            "Content-Type": "application/json",
-            "Accept": "*//**"
-        })
-    });
-    //
-    try {
-        var resp = await fetch(response);
-        let data;
-        if (resp.ok)
-            data = await resp.json();      
-    } catch (e) {
-        console.log('');
-    }
     //
     if (response == null || typeof response === 'undefined')
         return false;
     if (!response.hasOwnProperty('result'))
         return false;
-    return response.isSuccess;*/
+    return response.isSuccess;
 }
 
 async function get_article(id) {
@@ -435,50 +430,81 @@ function get_article_html(article, comment_count) {
             <div class="section_new_post_data"><p class="advanced_data">Хабы: ${hubs}</p></div>
             <div class="section_new_post_data"><p class="advanced_data">Тэги: ${tags}</p></div>
         </div>
-        <!--<p><img src="${article['imageURL']}"/></p>-->
+        <!--${article['imageURL'].trim() != '' ? `<p><img src="${article['imageURL']}"/></p>` : ''}-->
         <p class="article_text">${article['fullTextHtml']}</p>
         <div class="comments">
-            <h2 class="section_h2" id="comments_header">Комментарии</h2>
+            <h2 class="section_h2 ${!article['commentsEnabled'] || comment_count == 0 ? 'hidden' : ''}" id="comments_header">Комментарии</h2>
             </div>
         </div>`;
     return textHTML;
 }
 
-function get_article_comments_html(articles, comment_count, comments) {
+function get_article_comment_actions_html(comment) {
+    let advanced_actions = '';
+    if (userClaims != null) {
+        if (response_json != null) {
+            const role = response_json.account_data.role;
+            const name = response_json.account_data.name;
+            //
+            advanced_actions = `<p class="advanced_data" id="reply_comment_${comment['id']}">Ответить</p>`;
+            advanced_actions += role == 'moderator' || role == 'admin' || name == comment['username']
+                ? `<p class="advanced_data" id="change_comment_${comment['id']}">Редактировать</p>
+                    <p class="advanced_data" id="delete_comment_${comment['id']}">Удалить</p>`
+                : '';
+        }
+    }
+    return `
+        <p class="advanced_data" id="like_comment_${comment['id']}">Лайки: ${comment['likes']}</p>
+        <p class="advanced_data" id="dislike_comment_${comment['id']}">Дизлайки: ${comment['dislikes']}</p>
+        ${advanced_actions}
+    `;
+}
+
+function get_article_comments_html(comments) {
     //добавить комментарии
-    let textHTML = '';
-    for (let i = comments.length - 1; i >= 0; i--) {
+    let textHTML = '',
+        replies = [];
+    for (let i = 0; i < comments.length; i++) {
+        replies = comments[i].hasOwnProperty('replies')
+            ? comments[i]['replies']
+            : [];
+        //
         textHTML += `
             <div class="article_comment_block">
-                <div class="article_comment">
+                <div class="article_comment" id="article_comment_${comments[i]['id']}">
                     <p class="section_p_attr article_comment_item">${comments[i]['username']} | ${get_datetime_string(comments[i]['createdAt'])}</p>
                     <div class="article_comment_item">${comments[i]['content']}</div>
                     <div class="section_new_post_data article_comment_item">
-                        <p class="advanced_data" id="like_comment_${comments[i]['id']}">Лайки: ${comments[i]['likes']}</p>
-                        <p class="advanced_data" id="dislike_comment_${comments[i]['id']}">Дизлайки: ${comments[i]['dislikes']}</p>
-                        <p class="advanced_data" id="reply_comment_${comments[i]['id']}">Ответить</p>                        
+                        ${get_article_comment_actions_html(comments[i])}
                     </div>
-                    ${get_article_comment_reply(comments[i]['replies'])}
+                    ${get_article_comment_reply(replies)}
                 </div>
-            </div>`;                            
+            </div>`;
     }
-    textHTML += `
-        <div class="article_comment_input_block">
-            <div class="article_comment">
-                <textarea id="article_comment_input"></textarea>
-                <button id="send_comment">Отправить</button>
-            </div>
-        </div>`;
     return textHTML;
 }
 
+function get_article_comment_input() {
+    return `
+        <div class="article_comment_input_block">
+            <div class="article_comment">
+                <textarea id="article_comment_input" placeholder="Текст комментария"></textarea>
+                <button id="send_comment">Отправить</button>
+            </div>
+        </div>`;
+}
+
 function get_article_comment_reply(comment_replies) {
-    let textHTML = '';
     if (comment_replies.length == 0)
-        return textHTML;
+        return '';
     //
-    for(let comment_reply of comment_replies)
+    let textHTML = '';
+    for (let comment_reply of comment_replies) {
+        textHTML += `<div class="article_comment_reply" id="article_comment_${comment_reply['id']}">`;
         textHTML += get_article_comment_reply_html(comment_reply);
+        textHTML += get_article_comment_reply(comment_reply.replies);
+        textHTML += `</div>`;
+    }
     return textHTML;
 }
 
@@ -487,17 +513,14 @@ function get_article_comment_reply_html(comment) {
         <div class="article_comment_reply" id="article_comment_${comment['id']}">
             <p class="section_p_attr">${comment['username']} | ${get_datetime_string(comment['createdAt'])}</p>
             <p class="article_comment_item">${comment['content']}</p>
-            <div class="section_new_post_data article_comment_item">
-                <p class="advanced_data" id="like_comment_${comment['id']}">Лайки: ${comment['likes']}</p>
-                <p class="advanced_data" id="dislike_comment_${comment['id']}">Дизлайки: ${comment['dislikes']}</p>
-                <p class="advanced_data" id="reply_comment_${comment['id']}">Ответить</p>
+            <div class="section_new_post_data article_comment_item">                
+                ${get_article_comment_actions_html(comment)}
             </div>
         </div>`;
 }
 
 async function get_comments(id, page_number, page_size) {
     //comments
-    ///comments?articleId=${id}&index=${(page_number - 1) * page_size}&count=${page_size}
     const response = await fetch(`/comments?articleId=${id}&index=${page_number - 1}&count=${page_size}`, {
         method: 'GET',
         headers: new Headers({ "X-CSRF": "1" })
@@ -534,7 +557,7 @@ function get_create_article_html() {
                 <label>Комментарии разрешены:</label>                    
                 <select class="article_field" id="article_comments">
                     <option selected>Да</option>
-                    <option >Нет</option>                
+                    <option>Нет</option>                
                 </select>
                 <button class="add_art_btn" id="button_save">Сохранить</button>
                 <div id="message_div"></div>
@@ -562,10 +585,10 @@ function get_delete_article_html(article, article_id) {
 
 function get_main_html() {
     return `
-    <div class="container">
-                <div id="article_div"></div>
-                <p id="button_back" onclick="window.history.back()"><button class="back_btn_art">Назад</button></p>
-                <div>`;
+        <div class="container">
+            <div id="article_div"></div>
+             <p id="button_back" onclick="window.history.back()"><button class="back_btn_art">Назад</button></p>
+        <div>`;
 }
 
 function get_update_article_html(article, comment_count) {
@@ -614,6 +637,15 @@ function get_update_article_html(article, comment_count) {
 }
 
 async function load() {
+    //delete
+    if (action == 'delete') {
+        if (confirm(`Удалить статью "${id}"?`))
+            await delete_article(id);
+        window.location = `${window.location.origin}/account.html`;
+        /*if (action == 'delete')
+        article_html = ''//get_delete_article_html(response_json.article, id);*/
+    }
+
     //загрузка данных
     response_json = await load_data();
     if (response_json == null)
@@ -633,16 +665,18 @@ async function load() {
     //read
     if (action == 'read') {
         article_html = get_article_html(response_json.article, response_json.article_comment_count);
-        article_comments_html = get_article_comments_html(response_json.article, response_json.article_comment_count, response_json.article_comments);
+
+        let role = 'guest';
+        if (response_json != null)
+            role = response_json.account_data.role;
+        //
+        article_comments_html = role != 'guest' ? get_article_comment_input() : '';
+        article_comments_html += get_article_comments_html(response_json.article_comments);
     }
 
     //update
     if (action == 'update') 
         article_html = get_update_article_html(response_json.article);
-
-    //delete
-    if (action == 'delete')
-        article_html = get_delete_article_html(response_json.article, id);
 
     //добавить на страницу
     delete_progressbar();
@@ -706,58 +740,13 @@ function render_added_article_comments(article_comments_html, article_comments) 
     if (article_comments_html.trim() == '')
         return false;
 
-    //убрать блок ввода комментария    
-    const article_comment_input_block = document.querySelector('.article_comment_input_block');
-    if (article_comment_input_block != null)
-        article_comment_input_block.remove();    
-
     //добавить
     const comments = document.querySelector('.comments');
     if (comments == null)
         return false;
     comments.insertAdjacentHTML('beforeend', article_comments_html);
-
-    /*const img_array = document.getElementsByTagName('img');
-    for (let img of img_array) {
-        const data_src = img.getAttribute('data-src');
-        if (data_src == null)
-            continue;
-        //
-        let src = document.createAttribute('src');
-        src.value = data_src;
-        //
-        img.setAttributeNode(src);
-        img.removeAttribute('data-src');
-        img.removeAttribute('width');
-        img.removeAttribute('height');
-        img.classList.add('section_new_post_img_full');
-    }*/
-    
-    //события
-    //лайк комментария
-    const likes_comment_array = document.querySelectorAll(`[id^="like_comment_"]`);
-    for(let button_like_comment of likes_comment_array)
-        button_like_comment.addEventListener('click', button_like_comment_click);
-
-    //дизлайк комментария
-    const dislikes_comment_array = document.querySelectorAll(`[id^="dislike_comment_"]`);
-    for(let button_dislike_comment of dislikes_comment_array)
-        button_dislike_comment.addEventListener('click', button_dislike_comment_click);
-
-    //ответ на комментарий
-    const replies_comment_array = document.querySelectorAll(`[id^="reply_comment_"]`);
-    for(let button_reply_comment of replies_comment_array)
-        button_reply_comment.addEventListener('click', button_reply_comment_click);
-
-    //отправить комментарий
-    const button_send_comment = document.getElementById('send_comment');
-    if (button_send_comment != null)
-        button_send_comment.addEventListener('click', button_send_comment_click);
-
-    //удалить комментарий
-    const delete_comment_array = document.querySelectorAll(`[id^="delete_comment_"]`);
-    for(let button_delete_comment of delete_comment_array)
-        button_delete_comment.addEventListener('click', button_delete_comment_click);    
+    //    
+    article_comment_events();//события  
     return true;
 }
 
@@ -774,7 +763,7 @@ async function render_article(account_data, action, article, article_html, artic
         case 'create':
             const button_save_create = document.getElementById('button_save');
             if (button_save_create != null) {
-                button_save_create.addEventListener('click', () => {
+                button_save_create.addEventListener('click', async () => {
                     //проверка введенных данных
                     const article_title = document.getElementById('article_title');
                     const article_text = document.getElementById('article_text');
@@ -803,7 +792,7 @@ async function render_article(account_data, action, article, article_html, artic
                         hubs: article_hubs.value.split(',')               
                     };
                     //
-                    const response = create_article(action, account_data, custom_article);
+                    const response = await create_article(action, account_data, custom_article);
                     const textHTML = response
                         ? `<p id="message">Сохранено</p>`
                         : `<p id="message">Ошибка</p>`;
@@ -858,32 +847,8 @@ async function render_article(account_data, action, article, article_html, artic
                 img.removeAttribute('height');
                 img.classList.add('section_new_post_img_full');
             }
-
-            //события
-            //лайк комментария
-            const likes_comment_array = document.querySelectorAll(`[id^="like_comment_"]`);
-            for(let button_like_comment of likes_comment_array)
-                button_like_comment.addEventListener('click', button_like_comment_click);
-
-            //дизлайк комментария
-            const dislikes_comment_array = document.querySelectorAll(`[id^="dislike_comment_"]`);
-            for(let button_dislike_comment of dislikes_comment_array)
-                button_dislike_comment.addEventListener('click', button_dislike_comment_click);
-
-            //ответ на комментарий
-            const replies_comment_array = document.querySelectorAll(`[id^="reply_comment_"]`);
-            for(let button_reply_comment of replies_comment_array)
-                button_reply_comment.addEventListener('click', button_reply_comment_click);
-
-            //отправить комментарий
-            const send_comment_array = document.querySelectorAll(`[id^="send_comment_"]`);
-            for(let button_send_comment of send_comment_array)
-                button_send_comment.addEventListener('click', button_send_comment_click);
-
-            //удалить комментарий
-            const delete_comment_array = document.querySelectorAll(`[id^="delete_comment_"]`);
-            for(let button_delete_comment of delete_comment_array)
-                button_delete_comment.addEventListener('click', button_delete_comment_click);
+            //
+            article_comment_events();//события            
             break;
 
         case 'update':
@@ -948,37 +913,7 @@ async function render_article(account_data, action, article, article_html, artic
             }
             break;
         
-        case 'delete':
-            const button_yes = document.getElementById('button_yes');
-            if (button_yes != null) {
-                button_yes.addEventListener('click', async () => {
-                    const response = await delete_article(article['id']);
-                    const textHTML = response
-                        ? `<p id="message">Сохранено</p>`
-                        : `<p id="message">Ошибка</p>`;
-                    //
-                    const message_div = document.getElementById('message_div');
-                    if (message_div != null)
-                        message_div.insertAdjacentHTML('afterbegin', textHTML);
-                    //
-                    setTimeout(() => {
-                        let message = document.getElementById('message');
-                        if (message != null) {
-                            message.remove();
-                            //
-                            if (response)
-                                window.location = `${window.location.origin}/account.html`;
-                        }                  
-                    }, 2000);
-                });
-            }
-
-            /*const button_no = document.getElementById('button_no');
-            if (button_no != null) {
-                button_no.addEventListener('click', async () => {
-                    //
-                });
-            }*/
+        case 'delete':            
             break;
     }
 }
@@ -1037,27 +972,4 @@ async function update_article(action, account_data, article) {
     if (!response.hasOwnProperty('isSuccess'))
         return false;
     return response.isSuccess;
-    /*const response = new Request(`/articles/update-article?id=${article['articleId']}`, {
-        method: 'PUT',
-        body: JSON.stringify(article),
-        headers: new Headers({
-            "X-CSRF": "1", 
-            "Content-Type": "application/json"
-        })
-    });
-    //
-    try {
-        var resp = await fetch(response);
-        let data;
-        if (resp.ok)
-            data = await resp.json();      
-    } catch (e) {
-        console.log('');
-    }
-    //
-    if (response == null || typeof response === 'undefined')
-        return false;
-    if (!response.hasOwnProperty('result'))
-        return false;
-    return response.isSuccess;*/
 }

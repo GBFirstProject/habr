@@ -690,3 +690,105 @@ li {
 		color: #FF8C00;
 }
 
+.article_moderation_action {
+	background-color: rgb(250, 160, 160);
+	margin-right: 0.5em;
+}
+
+.article_action {
+	background-color: rgb(170, 169, 240);
+	margin-right: 0.5em;
+}
+
+.row_item {
+	margin-right: 0.5em;
+}
+
+.article_comment, .article_comment_textarea {
+	border: 1px solid black;
+	display: flex;
+	flex-direction: column;
+	padding-left: 1em;
+}
+
+.article_comment_reply_block {
+	border: 1px solid black;
+	display: flex;
+	flex-direction: column;
+}
+
+.article_comment_block, .article_comment_input_block {
+	display: flex;
+	flex-direction: column;
+	/*margin-bottom: 0.1em;*/
+	padding-left: 1em;
+}
+
+/*.article_comment_block img {
+	max-width: 500px;
+	height: auto !important;
+}*/
+
+.article_comment_reply {
+	border: 1px dashed black;
+	padding-left: 3em;
+}
+
+.article_comment_item {
+	/*border: 1px solid black;*/
+}
+
+.hidden {
+	display: none !important;
+}
+
+.dot-flashing {
+	position: relative;
+	left: 2%;
+	width: 5px;
+	height: 5px;
+	border-radius: 5px;
+	background-color: #1f1b33;
+	color: #1f1b33;
+	animation: dotFlashing 1s infinite linear alternate;
+	animation-delay: .5s;
+}
+
+.dot-flashing::before, .dot-flashing::after {
+	content: '';
+	display: inline-block;
+	position: absolute;
+	top: 0;
+}
+
+.dot-flashing::before {
+	left: -15px;
+	width: 5px;
+	height: 5px;
+	border-radius: 5px;
+	background-color: #1f1b33;
+	color: #1f1b33;
+	animation: dotFlashing 1s infinite alternate;
+	animation-delay: 0s;
+}
+
+.dot-flashing::after {
+	left: 15px;
+	width: 5px;
+	height: 5px;
+	border-radius: 5px;
+	background-color: #1f1b33;
+	color: #1f1b33;
+	animation: dotFlashing 1s infinite alternate;
+	animation-delay: 1s;
+}
+
+@keyframes dotFlashing {
+	0% {
+		background-color: #1f1b33;
+	}
+
+	50%, 100% {
+		background-color: #ebe6ff;
+	}
+}
