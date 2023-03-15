@@ -563,33 +563,34 @@ async function get_comments(id, page_number, page_size) {
 
 function get_create_article_html() {
     return `
-        <div class="page_panel">
-			<h3 class="add_art_btn_back" id="button_back"><a href="${window.location.origin}/account.html">Назад в личный кабинет</a></h3>
+		<div class="page_panel">
+            <p id="button_back"><a href="${window.location.origin}/account.html">Личный кабинет</a></p>
         </div>
         <div class="article_form">
             <form class="container_flex_column">
                 <label>Автор:</label>                    
                 <input type="text" class="article_field" id="article_author" value="${userClaims.find((claim) => claim.type === 'name').value}" readonly>
-                <label>Название статьи</label>                    
-                <input placeholder="Укажите название статьи" type="text" class="article_field" id="article_title">
-                <label>Текст статьи</label>                    
-                <textarea style="height:250px;" placeholder="Разместите здесь текст статьи" class="article_field article_text" id="article_text"></textarea>
-                <label>Изображение</label>                    
-                <input placeholder="Разместите здесь ссылку на изображение" type="text" class="article_field" id="article_image">                
-                <label>Тэги</label>                    
-                <input placeholder="Укажите тэги статьи" type="text" class="article_field" id="article_tags">
-                <label>Хабы</label>                    
-                <input placeholder="Укажите хабы для статьи" type="text" class="article_field" id="article_hubs">
+                <label>Название:</label>                    
+                <input type="text" class="article_field" id="article_title">
+                <label>Текст:</label>                    
+                <textarea class="article_field article_text" id="article_text"></textarea>
+                <label>Изображение:</label>                    
+                <input type="text" class="article_field" id="article_image">                
+                <label>Тэги:</label>                    
+                <input type="text" class="article_field" id="article_tags">
+                <label>Хабы:</label>                    
+                <input type="text" class="article_field" id="article_hubs">
 
                 <label>Комментарии разрешены:</label>                    
                 <select class="article_field" id="article_comments">
                     <option selected>Да</option>
                     <option >Нет</option>                
                 </select>
-				<button class="add_art_btn" id="button_save">Сохранить</button>
+                <p id="button_save"><u>Сохранить</u></p>
                 <div id="message_div"></div>
             </form>
         </div>`;
+
 }
 
 function get_delete_article_html(article, article_id) {
