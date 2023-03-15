@@ -24,42 +24,42 @@ add_progressbar();
 
 //получить параметры
 try {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    //
-    action = urlParams.get('action');//.trim().toLowerCase();
-    if (action == null)
-        action = 'read';
-    //
-    switch(action) {
-        case 'read':
-            id = urlParams.get('id').trim().toLowerCase();
-            page_number = urlParams.get('PageNumber');
-            page_size = urlParams.get('PageSize');
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+//
+action = urlParams.get('action');
+if (action == null)
+    action = 'read';
+//
+switch(action) {
+    case 'read':
+        id = urlParams.get('id').trim().toLowerCase();
+        page_number = urlParams.get('PageNumber');
+        page_size = urlParams.get('PageSize');
+        //
+        if (page_number == null || page_size == null) {
+            page_number = page_number_deafult;
+            page_size = page_size_default;
+        } else {
+            page_number = parseInt(page_number);
+            page_size = parseInt(page_size);
             //
-            if (page_number == null || page_size == null) {
-                page_number = page_number_deafult;
-                page_size = page_size_default;
-            } else {
-                page_number = parseInt(page_number);
-                page_size = parseInt(page_size);
-                //
-                if (page_number < 1 || page_size < 1)
-                    throw new Error('указаны некорректные параметры');
-            }
-            break;
+            if (page_number < 1 || page_size < 1)
+                throw new Error('указаны некорректные параметры');
+        }
+        break;
 
-        case 'create':
-            break;
+    case 'create':
+        break;
 
-        case 'update':
-            id = urlParams.get('id').trim().toLowerCase();
-            break;
+    case 'update':
+        id = urlParams.get('id').trim().toLowerCase();
+        break;
 
-        case 'delete':
-            id = urlParams.get('id').trim().toLowerCase();
-            break;
-    } 
+    case 'delete':
+        id = urlParams.get('id').trim().toLowerCase();
+        break;
+} 
 } catch (e) {
     action = 'read';
     page_number = page_number_deafult;
@@ -93,27 +93,27 @@ function article_comment_events() {
 
     //лайк комментария
     const likes_comment_array = document.querySelectorAll(`[id^="like_comment_"]`);
-    for (let button_like_comment of likes_comment_array)
+    for(let button_like_comment of likes_comment_array)
         button_like_comment.addEventListener('click', button_like_comment_click);
 
     //дизлайк комментария
     const dislikes_comment_array = document.querySelectorAll(`[id^="dislike_comment_"]`);
-    for (let button_dislike_comment of dislikes_comment_array)
+    for(let button_dislike_comment of dislikes_comment_array)
         button_dislike_comment.addEventListener('click', button_dislike_comment_click);
 
     //ответ на комментарий
     const replies_comment_array = document.querySelectorAll(`[id^="reply_comment_"]`);
-    for (let button_reply_comment of replies_comment_array)
+    for(let button_reply_comment of replies_comment_array)
         button_reply_comment.addEventListener('click', button_reply_comment_click);
 
     //редактировать комментарий
     const change_comment_array = document.querySelectorAll(`[id^="change_comment_"]`);
-    for (let button_change_comment of change_comment_array)
-        button_change_comment.addEventListener('click', button_change_comment_click);
+    for(let button_change_comment of change_comment_array)
+        button_change_comment.addEventListener('click', button_change_comment_click);  
 
     //удалить комментарий
     const delete_comment_array = document.querySelectorAll(`[id^="delete_comment_"]`);
-    for (let button_delete_comment of delete_comment_array)
+    for(let button_delete_comment of delete_comment_array)
         button_delete_comment.addEventListener('click', button_delete_comment_click);
 }
 
@@ -130,10 +130,12 @@ async function article_comments_load_click(e) {
     render_added_article_comments(article_comments_html, article_comments);
 }
 
-async function button_change_comment_click(e) {   
+async function button_change_comment_click(e) {
+    console.log('button_change_comment_click')
 }
 
 async function button_delete_comment_click(e) {
+    console.log('button_delete_comment_click')
 }
 
 async function button_dislike_comment_click(e) {
@@ -216,14 +218,14 @@ async function button_reply_comment_click(e) {
     //поиск родительского элемента
     const parent = e.currentTarget.parentElement.parentElement;
     if (parent == null)
-        return;  
+        return;
     const parent_id = parent.id.substr(16);
 
     //удалить другую форму ответа на комментарий
     const article_comment_reply_block_array = document.querySelectorAll('.article_comment_reply_block');
-    for (let article_comment_reply_block of article_comment_reply_block_array)
+    for(let article_comment_reply_block of article_comment_reply_block_array)
         article_comment_reply_block.remove();
-
+    
     //добавить блок ответа на комментарий
     const article_comment_reply = document.getElementById(`article_comment_${parent_id}`);
     if (article_comment_reply != null)
@@ -232,7 +234,7 @@ async function button_reply_comment_click(e) {
     //события
     const send_comment_reply = document.getElementById('send_comment_reply');
     if (send_comment_reply != null)
-        send_comment_reply.addEventListener('click', button_send_comment_reply_click);   
+        send_comment_reply.addEventListener('click', button_send_comment_reply_click);
 }
 
 async function button_send_comment_click(e) {
@@ -251,7 +253,7 @@ async function button_send_comment_click(e) {
             'Content-Type': 'application/json-patch+json',
             'X-CSRF': '1'
             },
-        body: JSON.stringify({ articleId: id, content: value, replyTo: '00000000-0000-0000-0000-000000000000' })
+        body: JSON.stringify({articleId: id, content: value, replyTo: '00000000-0000-0000-0000-000000000000'})
     })
         .then(response => response.json())
         .catch(e => console.log(e));
@@ -269,7 +271,7 @@ async function button_send_comment_click(e) {
     if (article_comment_input_block != null)
         article_comment_input_block.insertAdjacentHTML('afterend', article_comment_html);
     article_comment_events();//события
-
+    
     //очистить textarea
     article_comment_input.value = '';
 }
@@ -306,7 +308,7 @@ async function button_send_comment_reply_click(e) {
     let article_comment_reply_block = document.querySelector('.article_comment_reply_block');
     if (article_comment_reply_block != null)
         article_comment_reply_block.remove();
-
+    
     //добавить на страницу
     const parent_comment = document.getElementById(`article_comment_${response.result['replyTo']}`);
     if (parent_comment != null)
@@ -345,17 +347,38 @@ async function checkPosition() {
 }
 
 async function create_article(action, account_data, article) {
-    const response = await fetch(`/articles/add-article`, {
+    let hubs = '';
+    for (let i = 0; i < article['hubs'].length; i++) {
+        hubs += i == article['hubs'].length - 1
+            ? `${article['hubs'][i]}`
+            : `${article['hubs'][i]},`;
+    }
+    //
+    let tags = '';
+    for (let i = 0; i < article['tags'].length; i++) {
+        tags += i == article['tags'].length - 1
+            ? `${article['tags'][i]}`
+            : `${article['tags'][i]},`;
+    }
+
+    const response = new Request(`/articles/add-article`, {
         method: 'POST',
         body: JSON.stringify(article),
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF': '1',
+        headers: new Headers({
+            "X-CSRF": "1", 
+            "Content-Type": "application/json",
             "Accept": "*/*"
-        },
-    })
-            .then(response => response.json())
-            .catch(e => console.log(e));    
+        })
+    });
+    //
+    try {
+        var resp = await fetch(response);
+        let data;
+        if (resp.ok)
+            data = await resp.json();      
+    } catch (e) {
+        console.log('');
+    }
     //
     if (response == null || typeof response === 'undefined')
         return false;
@@ -375,6 +398,10 @@ async function delete_article(id) {
         .then(response => response.text())
         .catch(e => console.log(e));
     //
+    if (response == null || typeof response === 'undefined')
+        return false;
+
+
     if (response == null || typeof response === 'undefined')
         return false;
     if (!response.hasOwnProperty('result'))
@@ -414,7 +441,7 @@ function get_article_html(article, comment_count) {
             ? `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]} </a></p>`
             : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]}, </a></p>`;
     }
-
+    //
     let textHTML = `
         <div class="section_new_post_text">
             <p class="section_p_attr">${article['authorNickName']} | ${get_datetime_string(article['timePublished'])}</p>
@@ -430,11 +457,10 @@ function get_article_html(article, comment_count) {
             <div class="section_new_post_data"><p class="advanced_data">Хабы: ${hubs}</p></div>
             <div class="section_new_post_data"><p class="advanced_data">Тэги: ${tags}</p></div>
         </div>
-        <!--${article['imageURL'].trim() != '' ? `<p><img src="${article['imageURL']}"/></p>` : ''}-->
+        ${article['imageURL'].trim() != '' ? `<p><img src="${article['imageURL']}"/></p>` : ''}
         <p class="article_text">${article['fullTextHtml']}</p>
         <div class="comments">
             <h2 class="section_h2 ${!article['commentsEnabled'] || comment_count == 0 ? 'hidden' : ''}" id="comments_header">Комментарии</h2>
-            </div>
         </div>`;
     return textHTML;
 }
@@ -450,8 +476,8 @@ function get_article_comment_actions_html(comment) {
             advanced_actions += role == 'moderator' || role == 'admin' || name == comment['username']
                 ? `<p class="advanced_data" id="change_comment_${comment['id']}">Редактировать</p>
                     <p class="advanced_data" id="delete_comment_${comment['id']}">Удалить</p>`
-                : '';
-        }
+                : '';            
+        }            
     }
     return `
         <p class="advanced_data" id="like_comment_${comment['id']}">Лайки: ${comment['likes']}</p>
@@ -479,7 +505,7 @@ function get_article_comments_html(comments) {
                     </div>
                     ${get_article_comment_reply(replies)}
                 </div>
-            </div>`;
+            </div>`;                            
     }
     return textHTML;
 }
@@ -494,13 +520,13 @@ function get_article_comment_input() {
         </div>`;
 }
 
-function get_article_comment_reply(comment_replies) {
+function get_article_comment_reply(comment_replies) {    
     if (comment_replies.length == 0)
         return '';
     //
     let textHTML = '';
-    for (let comment_reply of comment_replies) {
-        textHTML += `<div class="article_comment_reply" id="article_comment_${comment_reply['id']}">`;
+    for(let comment_reply of comment_replies) {
+        textHTML += `<div class="article_comment_reply" id="article_comment_${comment_reply['id']}">`; 
         textHTML += get_article_comment_reply_html(comment_reply);
         textHTML += get_article_comment_reply(comment_reply.replies);
         textHTML += `</div>`;
@@ -557,7 +583,7 @@ function get_create_article_html() {
                 <label>Комментарии разрешены:</label>                    
                 <select class="article_field" id="article_comments">
                     <option selected>Да</option>
-                    <option>Нет</option>                
+                    <option >Нет</option>                
                 </select>
                 <button class="add_art_btn" id="button_save">Сохранить</button>
                 <div id="message_div"></div>
@@ -744,7 +770,7 @@ function render_added_article_comments(article_comments_html, article_comments) 
     const comments = document.querySelector('.comments');
     if (comments == null)
         return false;
-    comments.insertAdjacentHTML('beforeend', article_comments_html);
+    comments.insertAdjacentHTML('beforeend', article_comments_html);    
     //    
     article_comment_events();//события  
     return true;
@@ -763,7 +789,7 @@ async function render_article(account_data, action, article, article_html, artic
         case 'create':
             const button_save_create = document.getElementById('button_save');
             if (button_save_create != null) {
-                button_save_create.addEventListener('click', async () => {
+                button_save_create.addEventListener('click', () => {
                     //проверка введенных данных
                     const article_title = document.getElementById('article_title');
                     const article_text = document.getElementById('article_text');
@@ -792,7 +818,7 @@ async function render_article(account_data, action, article, article_html, artic
                         hubs: article_hubs.value.split(',')               
                     };
                     //
-                    const response = await create_article(action, account_data, custom_article);
+                    const response = create_article(action, account_data, custom_article);
                     const textHTML = response
                         ? `<p id="message">Сохранено</p>`
                         : `<p id="message">Ошибка</p>`;
@@ -847,8 +873,8 @@ async function render_article(account_data, action, article, article_html, artic
                 img.removeAttribute('height');
                 img.classList.add('section_new_post_img_full');
             }
-            //
-            article_comment_events();//события            
+            //            
+            article_comment_events();//события
             break;
 
         case 'update':
@@ -913,7 +939,7 @@ async function render_article(account_data, action, article, article_html, artic
             }
             break;
         
-        case 'delete':            
+        case 'delete':
             break;
     }
 }
