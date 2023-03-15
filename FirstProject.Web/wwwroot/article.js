@@ -344,24 +344,24 @@ async function checkPosition() {
     }
 }
 
-async function create_article(action, account_data, article) {
-    const response = await fetch(`/articles/add-article`, {
+async function create_article(article) {
+    /*const response = await fetch(`/articles/add-article`, {
         method: 'POST',
         body: JSON.stringify(article),
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF': '1',
-            "Accept": "*/*"
+            'X-CSRF': '1'
         },
     })
-            .then(response => response.json())
-            .catch(e => console.log(e));    
+            /*.then(response => response.json())
+            .catch(e => console.log(e));    */
     //
-    if (response == null || typeof response === 'undefined')
+    /*if (response == null || typeof response === 'undefined')
         return false;
     if (!response.hasOwnProperty('result'))
-        return false;
-    return response.isSuccess;
+        return false;*/
+    //return response.isSuccess;
+    return true;
 }
 
 async function delete_article(id) {
@@ -789,10 +789,10 @@ async function render_article(account_data, action, article, article_html, artic
                         imageUrl: article_image.value,
                         commentsEnabled: article_comments.selectedIndex == 0 ? true : false,
                         tags: article_tags.value.split(','),
-                        hubs: article_hubs.value.split(',')               
+                        hubs: article_hubs.value.split(',')
                     };
                     //
-                    const response = await create_article(action, account_data, custom_article);
+                    const response = await create_article(custom_article);
                     const textHTML = response
                         ? `<p id="message">Сохранено</p>`
                         : `<p id="message">Ошибка</p>`;
@@ -809,7 +809,8 @@ async function render_article(account_data, action, article, article_html, artic
                             if (response)
                                 window.location = `${window.location.origin}/account.html`;
                         }                  
-                    }, 2000);            
+                    }, 2000);
+                    window.location = `${window.location.origin}/account.html`;
                 });
             }
             break;
