@@ -38,7 +38,7 @@ async function approve_article(id) {
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF': '1'
-        },
+            },
     })
         .then(response => response.json())
         .catch(e => console.log(e));
@@ -69,20 +69,22 @@ function get_account_html(account, articles_for_moderation, author_articles, art
     //блок "статьи"
     if (role == 'user' || role == 'moderator' || role == 'admin') {
         textHTML += `
-         <div class="container">
+            <div class="container">
             <div class="section_account_flex">
                 <h2 class="site_h1">Профиль</h2>
                 <ul class="lk_ul_flex">
                     <li class="lk_li"><p class="lk_li_p">Логин</p> ${name}</li>
                     <li class="lk_li"><p class="lk_li_p">Почта</p> ${email}</li>
                     <li class="lk_li"><p class="lk_li_p">Роль</p> ${role}</li>
+
                 </ul>                        
             </div>
             <div class="section_account_flex">
-                <h2 class="site_h1">Мои статьи</h2>
+                                <h2 class="site_h1">Мои статьи</h2>
                     
                     </div>
                      </div>`;
+
                     
         //мои статьи
         if (author_articles == null || author_articles.length == 0)
@@ -100,21 +102,22 @@ function get_account_html(account, articles_for_moderation, author_articles, art
                 });
                 //
                 textHTML += `
-                   <div class="container">
+                    <div class="container">
                         <div class="account_li_block">
                             <a class="account_li_item" href="${window.location.origin}/article.html?id=${author_article['articleId']}">${author_article['title']}</a>
                             ${article_actions_html}
                         </div>
                     </div>`;
+
             });
         }        
         textHTML += '</ul>';
         
         if (role == 'moderator' || role == 'admin') {
             textHTML += `
-          
                 <h2 class="header_row">Статьи на проверку</h2>
                 `;
+
             
             //статьи на проверку
             if (articles_for_moderation == null || articles_for_moderation.length == 0)
@@ -126,9 +129,7 @@ function get_account_html(account, articles_for_moderation, author_articles, art
                     let articles_moderation_actions_html = '';
                     articles_moderation_actions.forEach(action => {
                         articles_moderation_actions_html += `
-                            <a class="article_moderation_action ${action.link}" article_id="${article_for_moderation['articleId']}">
-                                ${action.name}
-                            </a>`;
+                            <a class="article_moderation_action ${action.link}" article_id="${article_for_moderation['articleId']}">${action.name}</a>`;
                     });
                     //
                     textHTML += `
@@ -144,25 +145,13 @@ function get_account_html(account, articles_for_moderation, author_articles, art
         }
         //
         textHTML += `
-        <div class="container">
+		<div class="container">
          <div class="section_account_flex">
                 <button class="add_cart_btn"><a href="${window.location.origin}/article.html?action=create">Добавить статью</a></button>
                 <!--<a href="">Все статьи</a>-->
             </div>
             </div>`;
 
-        //блок "пользователи"
-        /*if (role == 'admin') {
-            textHTML += `
-             <div class="container">
-                <div class="section_account_flex">
-                    <h4 class="site_h1">Пользователи</h4>                            
-                    <a href="">Все пользователи</a>
-                    <a href="">Изменить права</a>
-                </div>
-                </div>
-                `;
-        }*/
     }
     return textHTML;
 }
@@ -171,11 +160,11 @@ function get_article_moderation_actions() {
     return [
         {
             name: 'Принять', 
-            link: `approve_article`
+            link: 'approve_article'
         }, 
         {
             name: 'Отклонить',
-            link: `reject_article`
+            link: 'reject_article'
         }
     ];
 }
@@ -316,7 +305,7 @@ async function reject_article(id) {
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF': '1'
-        },
+            },
     })
         .then(response => response.json())
         .catch(e => console.log(e));
@@ -339,10 +328,10 @@ function render_account_layout(account_html) {
 
     //события
     if (response_json != null) {
-        for (const moderator_action of response_json.article_moderation_actions) {
+        for(const moderator_action of response_json.article_moderation_actions) {
             const elements_array = document.querySelectorAll(`.${moderator_action.link}`);
-            for (let element of elements_array)
-                element.addEventListener('click', () => window[`${moderator_action.link}`](`${element.getAttribute('article_id')}`));
+            for(let element of elements_array)
+                element.addEventListener('click', () => window[`${moderator_action.link}`](`${element.getAttribute('article_id')}`));           
         }
         return true;
     }

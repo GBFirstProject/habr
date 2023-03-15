@@ -528,7 +528,6 @@ function render_preview_article(article, comment_count) {
             : `<p class="advanced_data"><a class="adv_data_a" href="${window.location.origin}/tags.html?tag=${article['tags'][i].trim().toLowerCase()}">${article['tags'][i]}, </a></p>`;
     }
     return `
-    
         <div class="all_posts_first all_posts_item">
             <div class="all_posts_item_flex">
                 <div class="all_posts_item_pic">
@@ -555,8 +554,7 @@ function render_preview_article(article, comment_count) {
                     <button class="all_read_more_btn" id="button_article_${article['hubrId']}"><a class="all_read_more_btn_text" href="${window.location.origin}/article.html?id=${article['id']}">Читать дальше</a></button>
                 </div>
             </div>
-        </div>
-        `;
+        </div>`;
 }
 
 function render_preview_top_article(top_article, top_article_comment_count) {

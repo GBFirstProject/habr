@@ -15,7 +15,7 @@
       ]
     },
     {
-      "DownstreamPathTemplate": "/api/comments/getCount?articleId={articleId}",
+      "DownstreamPathTemplate": "/api/comments/getcount?articleId={articleId}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -23,7 +23,21 @@
           "Port": "10009"
         }
       ],
-      "UpstreamPathTemplate": "/comments/getCount?articleId={articleId}",
+      "UpstreamPathTemplate": "/comments/getcount?articleId={articleId}",
+      "UpstreamHttpMethod": [
+        "GET"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/comments/getcountroot?articleId={articleId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "10009"
+        }
+      ],
+      "UpstreamPathTemplate": "/comments/getcountroot?articleId={articleId}",
       "UpstreamHttpMethod": [
         "GET"
       ]
@@ -460,20 +474,6 @@
       },
       "DelegatingHandlers": [
         "HttpDelegatingHandler"
-      ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/articles/get-by-keyword?paging={paging}&keyword={keyword}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": "5033"
-        }
-      ],
-      "UpstreamPathTemplate": "/articles/get-by-keyword?paging={paging}&keyword={keyword}",
-      "UpstreamHttpMethod": [
-        "GET"
       ]
     }
   ]

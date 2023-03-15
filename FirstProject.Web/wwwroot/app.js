@@ -279,14 +279,13 @@ function render_page(response_json, html) {
     const main_html = html.main_html;
     const top_article_html = html.top_article_html;
     const articles_html = html.articles_html;
-    //const articles_pagination_html = html.articles_pagination_html;
     const account_data = response_json.account_data;
     const footer_html = response_json.footer_html;
-
+    //
     render_header({ header_html: header_html, header_hubs_html: header_hubs_html });
     render_account(account_data);
     render_main(main_html);
     render_top_article(top_article_html, response_json.top_article.id);
-    render_articles(articles_html, response_json.articles/*, articles_pagination_html*/);
+    render_articles(articles_html, response_json.articles);
     render_footer(footer_html);
 }

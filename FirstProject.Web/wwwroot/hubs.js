@@ -73,7 +73,7 @@ async function checkPosition() {
         if (hub == null)//заглушка для страницы топа
             return;
         // Если мы пересекли полосу-порог, вызываем нужное действие.
-        let load_pause = page_number % 5;
+        let load_pause = page_number % get_load_pause();
         if (load_pause == 0) {
             const hubs_load = document.querySelector('.hubs_load');
             if (hubs_load == null) {
