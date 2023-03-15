@@ -590,9 +590,10 @@ namespace FirstProject.ArticlesAPI.Services
                 .OrderByDescending(x => x.AverageReadingCount)
                 .FirstOrDefault();
 
-            //Article resultArticle = await ArticleById(bestArticle.Article.Id, cancellationToken).ConfigureAwait(false);
+            Article resultArticle = await ArticleById(bestArticle.Article.Id, cancellationToken).ConfigureAwait(false);
 
-            return _mapper.Map<PreviewArticleDTO>(bestArticle.Article);
+            //return _mapper.Map<PreviewArticleDTO>(bestArticle.Article);
+            return _mapper.Map<PreviewArticleDTO>(resultArticle);
             /*var now = DateTimeOffset.UtcNow;
             
             var statistics = await _statisticsRepository.Query()            
