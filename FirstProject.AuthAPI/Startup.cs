@@ -98,10 +98,10 @@ namespace FirstProject.AuthAPI
                 app.UseHsts();
             }
 
-            if (context.Database.GetPendingMigrations().Any())
-            {
-                context.Database.Migrate();
-            }
+            //if (context.Database.GetPendingMigrations().Any())
+            //{
+            //    context.Database.Migrate();
+            //}
 
             dbInit.Initialize();
 

@@ -573,7 +573,7 @@ function get_create_article_html() {
                 <label>Название:</label>                    
                 <input type="text" class="article_field" id="article_title">
                 <label>Текст:</label>                    
-                <textarea class="article_field article_text" id="article_text"></textarea>
+                <textarea style="height:250px;" class="article_field article_text" id="article_text"></textarea>
                 <label>Изображение:</label>                    
                 <input type="text" class="article_field" id="article_image">                
                 <label>Тэги:</label>                    
@@ -586,7 +586,7 @@ function get_create_article_html() {
                     <option selected>Да</option>
                     <option >Нет</option>                
                 </select>
-                <p id="button_save"><u>Сохранить</u></p>
+                    <p class="add_art_btn" id="button_save">Сохранить</p>
                 <div id="message_div"></div>
             </form>
         </div>`;
