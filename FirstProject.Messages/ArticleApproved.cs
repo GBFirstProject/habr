@@ -15,5 +15,10 @@ namespace FirstProject.Messages
             ArticleId=articleId;
 
         }
+
+        public ArticleApproved()
+        {
+            
+        }
     }
 }

@@ -12,6 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
+
 builder.Services.AddScoped<Notifier>();
 
 builder.Host.UseMassTransit();
@@ -41,8 +44,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseAuthorization();
 
 app.MapControllers();
 

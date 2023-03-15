@@ -15,11 +15,9 @@ namespace FirstProject.NotificationAPI.Producers
         }
 
 
-
-
-
         public async Task<bool> PublishModeratorRequested(ModeratorRequested notification)
         {
+            
             try
             {
                await bus.Publish(notification);
@@ -36,6 +34,7 @@ namespace FirstProject.NotificationAPI.Producers
 
         public async Task<bool> PublishArticleLiked(ArticleLiked notification)
         {
+            
             try
             {
                await bus.Publish(notification);
